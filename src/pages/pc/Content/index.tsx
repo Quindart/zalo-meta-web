@@ -17,7 +17,7 @@ function ContentPCLandingTemplate() {
         color="primary"
         onClick={() => navigate(APP_ROUTES.USER.LOGIN_QR)}
       >
-        Dùng bản web
+        Dùng bản web ( test thử đăng nhập thì bấm vào đây)
       </Button>
     </Box>
   );
