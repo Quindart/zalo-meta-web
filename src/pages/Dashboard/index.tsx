@@ -1,9 +1,7 @@
-import React from 'react'
+import { Box } from "@mui/material";
 
-function DashBoard() {
-  return (
-    <div>DashBoard</div>
-  )
+function DashBoardTemplate() {
+  return <Box>DashBoardTemplate</Box>;
 }
 
-export default DashBoard
+export default DashBoardTemplate;
