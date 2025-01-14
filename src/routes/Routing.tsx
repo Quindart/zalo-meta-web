@@ -7,6 +7,7 @@ import ForgotPasswordTemplate from "@/pages/auth/Forgot";
 import NotFoundTemplate from "@/pages/404";
 import { lazy } from "react";
 import LoginQRTemplate from "@/pages/auth/QR";
+import PCLandingTemplate from "@/pages/pc";
 
 const DashBoardTemplate = lazy(() => import("@/pages/Dashboard"));
 
@@ -27,12 +28,13 @@ function Routing() {
           path={APP_ROUTES.USER.LOGIN_QR}
           element={<LoginQRTemplate />}
         />
-        <Route index path={APP_ROUTES.USER.LOGIN} element={<LoginTemplate />} />
+        <Route path={APP_ROUTES.USER.LOGIN} element={<LoginTemplate />} />
         <Route
           path={APP_ROUTES.USER.FORGOT}
           element={<ForgotPasswordTemplate />}
         />
       </Route>
+      <Route path={APP_ROUTES.PC} element={<PCLandingTemplate />} />
       <Route path="*" element={<NotFoundTemplate />} />
     </Routes>
   );

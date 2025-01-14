@@ -1,6 +1,7 @@
 export const APP_ROUTES = {
     DASHBOARD: '/',
     FILE_UPLOADED: '/files',
+    PC: '/pc',
     USER: {
         MANAGEMENT: '/users',
         DETAIL: '/users/:userId',
