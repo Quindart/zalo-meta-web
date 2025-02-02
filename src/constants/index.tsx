@@ -1,6 +1,7 @@
 import { Navigation } from "@toolpad/core/AppProvider";
 import ChatIcon from "@mui/icons-material/Chat";
 import BallotIcon from "@mui/icons-material/Ballot";
+import { Chip } from "@mui/material";
 
 export const APP_ROUTES = {
   DASHBOARD: "/",
@@ -26,18 +27,26 @@ export const APP_ROUTES = {
   SUCCESS_MESSAGE: "/auth/success",
   NOT_FOUND: "/404",
 };
+
 export const NAVIGATION: Navigation = [
   {
-    segment: APP_ROUTES.CHAT,
+    segment: "chats",
     title: "Chat",
     icon: <ChatIcon />,
+    action: <Chip label={7} color="primary" size="small" />,
   },
   {
-    segment: APP_ROUTES.FRIEND,
+    segment: "friends",
     title: "Danh sách bạn bè",
     icon: <BallotIcon />,
   },
 ];
+
+export const BRANDING = {
+  title: "Meta",
+  logo: <img src="/assets/images/logo-zalo.webp" />,
+  homeUrl: "/chats",
+};
 
 export const DUMMY_USER = {
   user: {

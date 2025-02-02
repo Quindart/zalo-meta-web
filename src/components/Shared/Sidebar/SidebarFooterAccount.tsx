@@ -11,27 +11,8 @@ import {
 import {
   Account,
   AccountPopoverFooter,
-  AccountPreview,
-  AccountPreviewProps,
   SignOutButton,
 } from "@toolpad/core/Account";
-import { SidebarFooterProps } from "@toolpad/core/DashboardLayout";
-import React from "react";
-
-function AccountSidebarPreview(props: AccountPreviewProps & { mini: boolean }) {
-  const { handleClick, open, mini } = props;
-  return (
-    <Stack direction="column" p={0}>
-      <Divider />
-      <AccountPreview
-        variant={mini ? "condensed" : "expanded"}
-        handleClick={handleClick}
-        open={open}
-      />
-    </Stack>
-  );
-}
-
 const accounts = [
   {
     id: 1,
@@ -49,7 +30,7 @@ const accounts = [
     id: 2,
     name: "Bharat MUI",
     email: "bharat@mui.com",
-    color: "#8B4513", // Brown color
+    color: "#8B4513",
     projects: [{ id: 4, title: "Project A" }],
   },
 ];
@@ -94,8 +75,6 @@ function SidebarFooterAccountPopover() {
               }}
               primary={account.name}
               secondary={account.email}
-              primaryTypographyProps={{ variant: "body2" }}
-              secondaryTypographyProps={{ variant: "caption" }}
             />
           </MenuItem>
         ))}
@@ -108,22 +87,10 @@ function SidebarFooterAccountPopover() {
   );
 }
 
-const createPreviewComponent = (mini: boolean) => {
-  function PreviewComponent(props: AccountPreviewProps) {
-    return <AccountSidebarPreview {...props} mini={mini} />;
-  }
-  return PreviewComponent;
-};
-
-function SidebarFooterAccount({ mini }: SidebarFooterProps) {
-  const PreviewComponent = React.useMemo(
-    () => createPreviewComponent(mini),
-    [mini],
-  );
+function SidebarFooterAccount() {
   return (
     <Account
       slots={{
-        preview: PreviewComponent,
         popoverContent: SidebarFooterAccountPopover,
       }}
       slotProps={{
