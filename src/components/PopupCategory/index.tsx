@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, MenuItem, Button, ListItemIcon, ListItemText, Checkbox } from "@mui/material";
+import { Menu, MenuItem, Button, ListItemIcon, ListItemText, Checkbox, Box } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
 
 const categories = [
@@ -27,26 +27,26 @@ const PopupCategory = () => {
   };
 
   return (
-    <div className="relative">
-      <Button variant="contained" className="bg-blue-500 hover:bg-blue-600 text-white" endIcon={<ExpandMore />} onClick={handleOpen}>
+    <Box className="relative">
+      <Button size="small" color="inherit" variant="text" endIcon={<ExpandMore />} onClick={handleOpen}>
         Phân loại
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        <MenuItem disabled className="font-semibold opacity-70">
+        <MenuItem disabled>
           Theo thẻ phân loại
         </MenuItem>
         {categories.map(({ label, color, icon }, index) => (
           <MenuItem key={index} onClick={() => handleToggle(label)}>
-            <ListItemIcon>{icon ? <span className="text-lg">{icon}</span> : <span className={`w-3 h-3 ${color} rounded-full`}></span>}</ListItemIcon>
+            <ListItemIcon>{icon ? <span>{icon}</span> : <span className={` ${color}`}></span>}</ListItemIcon>
             <ListItemText>{label}</ListItemText>
             <Checkbox checked={selected.includes(label)} />
           </MenuItem>
         ))}
-        <MenuItem className="text-blue-500 hover:bg-gray-100">
+        <MenuItem>
           <ListItemText primary="Quản lý thẻ phân loại" />
         </MenuItem>
       </Menu>
-    </div>
+    </Box>
   );
 };
 
