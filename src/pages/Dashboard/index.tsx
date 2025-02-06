@@ -20,13 +20,15 @@ function DashBoardTemplate() {
     },
     {
       image: "/assets/images/dashboard/quicklyMessage.png",
-      description: "Sử dụng tin nhắn nhanh để lưu trữ những tin nhắn thường dùng và gửi nhanh trong hộp thoại bất kỳ",
+      description:
+        "Sử dụng tin nhắn nhanh để lưu trữ những tin nhắn thường dùng và gửi nhanh trong hộp thoại bất kỳ",
       title: "Nhắn tin nhiều hơn, soạn thảo ít hơn",
       titleBtn: "Thử ngay",
     },
     {
       image: "/assets/images/dashboard/experienceThrough.png",
-      description: "Kết nối và giải quyết mọi công việc trên mọi thiết bị với dữ liệu luôn được đồng bộ",
+      description:
+        "Kết nối và giải quyết mọi công việc trên mọi thiết bị với dữ liệu luôn được đồng bộ",
       title: "Trải nghiệm xuyên suốt",
       titleBtn: "Thử ngay",
     },
@@ -39,7 +41,7 @@ function DashBoardTemplate() {
   ];
 
   return (
-    <Container maxWidth="md" sx={{ textAlign: "center", mt: 5 }}>
+    <Container sx={{ textAlign: "center", mt: 5 }}>
       <Typography variant="h5" fontWeight="bold" mb={2}>
         Chào mừng đến với Zalo PC!
       </Typography>
@@ -59,13 +61,14 @@ function DashBoardTemplate() {
       >
         {slides.map((item, index) => (
           <Box key={index} sx={{ p: 3 }}>
-            <img src={item.image} style={{ maxWidth: "60%", height: "300px" }} />
+            <img
+              src={item.image}
+              style={{ maxWidth: "60%", height: "300px" }}
+            />
             <Typography variant="h5" color="#005ae0" mb={2}>
               {item.title}
             </Typography>
-            <Typography mb={2}>
-              {item.description}
-            </Typography>
+            <Typography mb={2}>{item.description}</Typography>
           </Box>
         ))}
       </Carousel>

@@ -4,14 +4,11 @@ import { StyledInputBase, SearchIconWrapper, Search } from "./style";
 
 interface CustomSearchBarProps {
   placeholder?: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  value: string;
 }
 
 export default function CustomSearchBar({
   placeholder,
-  onChange,
-  value,
+  ...rest
 }: CustomSearchBarProps) {
   return (
     <Box>
@@ -22,8 +19,7 @@ export default function CustomSearchBar({
         <StyledInputBase
           placeholder={placeholder || "Tìm kiếm"} // Placeholder mặc định nếu không truyền vào
           inputProps={{ "aria-label": "search" }}
-          onChange={onChange} // Sự kiện khi người dùng nhập
-          value={value} // Giá trị hiện tại của input
+          {...rest}
         />
       </Search>
     </Box>

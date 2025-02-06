@@ -1,4 +1,5 @@
 import PopupCategory from "@/components/PopupCategory";
+import CustomSearchBar from "@/components/SearchBar";
 import { Box, Button, Stack } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 
@@ -18,6 +19,9 @@ function ChatTemplate() {
           borderRight: "0.5px solid #E0E8EF",
         }}
       >
+        <Box mx={2}>
+          <CustomSearchBar placeholder="Search for" />
+        </Box>
         <Box sx={{ alignContent: "end" }}>
           <PopupCategory />
         </Box>

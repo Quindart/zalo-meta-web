@@ -5,6 +5,7 @@ import LoginTemplate from "@/pages/auth/Login";
 import LoginQRTemplate from "@/pages/auth/QR";
 import ChatTemplate from "@/pages/Chat";
 import ChatDetailTemplate from "@/pages/ChatDetail";
+import DashBoardTemplate from "@/pages/Dashboard";
 import FriendTemplate from "@/pages/Friend";
 import PCLandingTemplate from "@/pages/pc";
 import { createBrowserRouter } from "react-router-dom";
@@ -15,7 +16,13 @@ const router = createBrowserRouter([
       {
         path: "/",
         Component: Layout,
+
         children: [
+          {
+            path: "",
+            index: true,
+            Component: DashBoardTemplate,
+          },
           {
             path: "chats",
             Component: ChatTemplate,

@@ -19,7 +19,12 @@ export default function Layout() {
         },
       }}
     >
-      <Container sx={{ m: 0, p: "0px!important" }}>
+      <Container
+        sx={{
+          maxWidth: "100vw!important",
+          p: "0px!important",
+        }}
+      >
         <Outlet />
       </Container>
     </DashboardLayout>
