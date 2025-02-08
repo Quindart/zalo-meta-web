@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Menu, MenuItem, Button, ListItemIcon, ListItemText, Checkbox, Box } from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
+import { Menu, MenuItem, ListItemIcon, ListItemText, Checkbox, Box } from "@mui/material";
 
 const categories = [
   { label: "Tin Người thân quen", color: "bg-teal-400" },
@@ -10,28 +9,21 @@ const categories = [
   { label: "Tin nhắn từ người lạ", icon: "🤷‍♂️" },
 ];
 
-const PopupCategory = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+interface PopupCategoryProps {
+  anchorEl: null | HTMLElement;
+  onClose: () => void;
+}
+
+const PopupCategory: React.FC<PopupCategoryProps> = ({ anchorEl, onClose }) => {
   const [selected, setSelected] = useState<string[]>([]);
-
-  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleToggle = (label: string) => {
     setSelected((prev) => (prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label]));
   };
 
   return (
-    <Box className="relative">
-      <Button size="small" color="inherit" variant="text" endIcon={<ExpandMore />} onClick={handleOpen}>
-        Phân loại
-      </Button>
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+    <Box className="relative ">
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={onClose}>
         <MenuItem disabled>
           Theo thẻ phân loại
         </MenuItem>
