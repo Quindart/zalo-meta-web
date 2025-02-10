@@ -41,34 +41,31 @@ const classifyOptionMute = [
   { label: 'Cho đến khi mở lại', },
 ];
 
+interface SubMenuProps {
+  listItem: { label: string; icon?: JSX.Element; divider?: boolean }[];
+}
 
-
-const SubMenu = ({ listItem }) => {
+const SubMenu: React.FC<SubMenuProps> = ({ listItem }) => {
   return (
     <div className='min-w-60 absolute top-0 -right-[245px] bg-white z-50 shadow-md border border-gray-100 font-normal text-gray-600 flex items-start justify-start text-base'>
       <ul className='w-full'>
         {listItem.map((item, index) => (
-          <>
-            {
-              item.divider && (
-                <li className='flex items-center justify-center my-1'>
-                  <Divider sx={{ width: "90%" }} />
-                </li>
-              )
-            }
-            <li key={index} className='px-4 py-1 flex gap-2 text-left hover:bg-gray-200'>
+          <React.Fragment key={index}>
+            {item.divider && (
+              <li className='flex items-center justify-center my-1'>
+                <Divider sx={{ width: "90%" }} />
+              </li>
+            )}
+            <li className='px-4 py-1 flex gap-2 text-left hover:bg-gray-200'>
               {item.icon}
               {item.label}
-
             </li>
-
-          </>
+          </React.Fragment>
         ))}
       </ul>
     </div>
   );
 };
-
 
 export default function PopupMessage() {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
@@ -88,25 +85,19 @@ export default function PopupMessage() {
     };
   }, []);
 
-  const handleIconClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
+  const handleIconClick = () => {
     setIsPopupVisible(!isPopupVisible);
   };
 
-  const handleMenuClick = (itemId: string) => (event: React.MouseEvent) => {
+  const handleMenuClick = (itemId: string) => () => {
     if (itemId !== 'category' && itemId !== 'mute' && itemId !== 'auto-delete') {
       setIsPopupVisible(false);
     }
   };
 
-  const handleHoverMenu = (itemId: string) => (event: React.MouseEvent) => {
-    if (itemId === 'category') {
-      setOpenSubMenu(itemId)
-    } else {
-      setOpenSubMenu(itemId)
-    }
+  const handleHoverMenu = (itemId: string) => () => {
+    setOpenSubMenu(itemId);
   };
-
 
   return (
     <div className='absolute top-0 right-0'>
@@ -125,27 +116,20 @@ export default function PopupMessage() {
                   onMouseEnter={handleHoverMenu(option.itemId)}
                   className='relative px-4 py-1 text-left hover:bg-gray-200'>
                   <div className='grid grid-flow-col gap-4'>
-                    <div className='col-span-10'>
-
+                    <div className={`col-span-10 ${option.itemId === "delete" ? "text-red-500" : ""}`}>
                       {option.label}
                     </div>
                     <div className='col-span-2 text-right'>{option.icon}</div>
                   </div>
-                  {
-                    openSubMenu === "category" && openSubMenu === option.itemId && (
-                      <SubMenu listItem={classifyOptionCategory} />
-                    )
-                  }
-                  {
-                    openSubMenu === "mute" && openSubMenu === option.itemId && (
-                      <SubMenu listItem={classifyOptionMute} />
-                    )
-                  }
-                  {
-                    openSubMenu === "auto-delete" && openSubMenu === option.itemId && (
-                      <SubMenu listItem={classifyOptionAutoDelete} />
-                    )
-                  }
+                  {openSubMenu === "category" && openSubMenu === option.itemId && (
+                    <SubMenu listItem={classifyOptionCategory} />
+                  )}
+                  {openSubMenu === "mute" && openSubMenu === option.itemId && (
+                    <SubMenu listItem={classifyOptionMute} />
+                  )}
+                  {openSubMenu === "auto-delete" && openSubMenu === option.itemId && (
+                    <SubMenu listItem={classifyOptionAutoDelete} />
+                  )}
                 </li>
                 <li className='flex items-center justify-center my-1'>
                   {option.itemId === 'pin' && <Divider sx={{ width: "90%" }} />}
@@ -153,7 +137,6 @@ export default function PopupMessage() {
                   {option.itemId === 'auto-delete' && <Divider sx={{ width: "90%" }} />}
                   {option.itemId === 'delete' && <Divider sx={{ width: "90%" }} />}
                 </li>
-
               </React.Fragment>
             ))}
           </ul>
