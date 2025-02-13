@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Menu, MenuItem, Button, ListItemIcon, ListItemText, Checkbox, Box } from "@mui/material";
+import LabelIcon from "@mui/icons-material/Label";
 import { ExpandMore } from "@mui/icons-material";
+import { BsPersonFillExclamation } from "react-icons/bs";
 
 const categories = [
-  { label: "Tin Người thân quen", color: "bg-teal-400" },
-  { label: "Công việc", color: "bg-red-500" },
-  { label: "Code ngoài", color: "bg-yellow-400" },
-  { label: "Học trên lớp", color: "bg-green-500" },
-  { label: "Tin nhắn từ người lạ", icon: "🤷‍♂️" },
+  { label: "Khách hàng", color: "#D91B1B" },
+  { label: "Gia đình", color: "#F31BC8" },
+  { label: "Công việc", color: "#FF6905" },
+  { label: "Bạn bè", color: "#FAC000" },
+  { label: "Trả lời sau", color: "#4BC377" },
+  { label: "Đồng nghiệp", color: "#0068FF" },
+  { label: "Tin nhắn từ người lạ", icon: <BsPersonFillExclamation /> },
 ];
 
 const PopupCategory = () => {
@@ -33,16 +37,17 @@ const PopupCategory = () => {
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem disabled>
-          Theo thẻ phân loại
+          <span style={{ color: "black" }}>Theo thẻ phân loại</span>
         </MenuItem>
+
         {categories.map(({ label, color, icon }, index) => (
           <MenuItem key={index} onClick={() => handleToggle(label)}>
-            <ListItemIcon>{icon ? <span>{icon}</span> : <span className={` ${color}`}></span>}</ListItemIcon>
-            <ListItemText>{label}</ListItemText>
             <Checkbox checked={selected.includes(label)} />
+            <ListItemIcon>{icon ? <span style={{ fontSize: '1.5em', color: 'black' }}>{icon}</span> : <LabelIcon className={`mr-2`} style={{ color }} />}</ListItemIcon>
+            <ListItemText>{label}</ListItemText>
           </MenuItem>
         ))}
-        <MenuItem>
+        <MenuItem style={{ color: "black", textAlign: "center", borderTop: "1px solid #e0e0e0", marginLeft: "15px", marginRight: "15px" }}>
           <ListItemText primary="Quản lý thẻ phân loại" />
         </MenuItem>
       </Menu>
