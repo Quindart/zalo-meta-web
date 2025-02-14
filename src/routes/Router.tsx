@@ -4,7 +4,7 @@ import Layout from "@/components/Shared/Layout/Layout";
 import LoginTemplate from "@/pages/auth/Login";
 import LoginQRTemplate from "@/pages/auth/QR";
 import ChatTemplate from "@/pages/Chat";
-import RightSideBar from "@/pages/Chat/RighSideBar";
+import RightSideBar from "@/pages/ChatDetail/RighSideBar";
 import ChatDetailTemplate from "@/pages/ChatDetail";
 import DashBoardTemplate from "@/pages/Dashboard";
 import FriendTemplate from "@/pages/Friend";

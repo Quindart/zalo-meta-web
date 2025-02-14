@@ -30,7 +30,7 @@ export const APP_ROUTES = {
 
 export const NAVIGATION: Navigation = [
   {
-    segment: "chats",
+    segment: "chats/0",
     title: "Chat",
     icon: <ChatIcon />,
     action: <Chip label={7} color="primary" size="small" />,

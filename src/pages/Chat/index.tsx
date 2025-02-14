@@ -13,6 +13,7 @@ function ChatTemplate() {
         spacing={1}
         sx={{
           pt: 1,
+          px: 1,
           width: 300,
           height: "calc(100vh - 70px)",
           bgcolor: "white",
@@ -25,6 +26,13 @@ function ChatTemplate() {
         <Box sx={{ alignContent: "end" }}>
           <PopupCategory />
         </Box>
+        <Button
+          onClick={() => {
+            navigate("/chats/0");
+          }}
+        >
+          Cloud của tôi
+        </Button>
         <Button
           onClick={() => {
             navigate("/chats/1");
@@ -47,7 +55,9 @@ function ChatTemplate() {
           chat 3
         </Button>
       </Stack>
-      <Outlet />
+      <Box width={"100%"}>
+        <Outlet />
+      </Box>
     </Box>
   );
 }
