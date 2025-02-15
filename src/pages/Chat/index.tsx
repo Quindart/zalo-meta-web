@@ -2,9 +2,39 @@ import PopupCategory from "@/components/PopupCategory";
 import CustomSearchBar from "@/components/SearchBar";
 import { Box, Button, Stack } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
+import ChatItem from "./ChatInfo/ChatItem"
 
 function ChatTemplate() {
   const navigate = useNavigate();
+  const infoChat =[
+  {
+    id:1,
+    avatar:"https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2021/11/20/975861/F0B28C78-C0D5-4255-B-01.jpeg",
+    name: 'Tuyen Nguyen',
+    message:'Ngay mai di choi nhajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj',
+    time: new Date("2024-05-12"),
+    isRead:true,
+    isChoose: true,
+  },
+  {
+    id:2,
+    avatar:"https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2021/11/20/975861/F0B28C78-C0D5-4255-B-01.jpeg",
+    name: 'Lê Minh Quang',
+    message:'bai tap sao roi ban',
+    time: new Date("2024-12-12"),
+    isRead:true,
+    isChoose: false,
+  },
+  {
+    id:3,
+    avatar:"https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2021/11/20/975861/F0B28C78-C0D5-4255-B-01.jpeg",
+    name: 'Lê Quốc Phòng',
+    message:'ok bạn',
+    time: new Date("2025-01-12"),
+    isRead:false,
+    isChoose: false,
+  },
+]
   return (
     <Box display={"flex"}>
       {" "}
@@ -33,27 +63,11 @@ function ChatTemplate() {
         >
           Cloud của tôi
         </Button>
-        <Button
-          onClick={() => {
-            navigate("/chats/1");
-          }}
-        >
-          chat 1
-        </Button>
-        <Button
-          onClick={() => {
-            navigate("/chats/2");
-          }}
-        >
-          chat 2
-        </Button>
-        <Button
-          onClick={() => {
-            navigate("/chats/3");
-          }}
-        >
-          chat 3
-        </Button>
+        {/* CODE DAY NE */}
+        {infoChat.map((item) => (
+          <ChatItem item={item} />
+        ))}
+        
       </Stack>
       <Box width={"100%"}>
         <Outlet />
