@@ -33,7 +33,7 @@ function ChatTemplate() {
         >
           Cloud của tôi
         </Button>
-        <Button
+        {/* <Button
           onClick={() => {
             navigate("/chats/1");
           }}
@@ -53,7 +53,7 @@ function ChatTemplate() {
           }}
         >
           chat 3
-        </Button>
+        </Button> */}
       </Stack>
       <Box width={"100%"}>
         <Outlet />

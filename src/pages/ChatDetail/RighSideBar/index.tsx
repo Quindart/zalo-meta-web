@@ -96,6 +96,7 @@ const RightSideBar = () => {
     >
       {/* Header */}
       <Box sx={{ py: 3, textAlign: "center" }}>
+        
         <Typography variant="body1">Thông tin nhóm</Typography>
       </Box>
 
