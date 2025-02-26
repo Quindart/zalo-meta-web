@@ -1,5 +1,9 @@
 import MessageChat from "@/components/Message";
+import SocketClientService from "@/services/socket";
 import { Box } from "@mui/material";
+import { useEffect, useState } from "react";
+import ChatInput from "../ChatInput";
+import { io } from "socket.io-client";
 
 const MESS_LIST = [
   {
@@ -76,13 +80,36 @@ const MESS_LIST = [
   },
 ];
 
+
+
 function MainChat() {
+  const [message, setMessage] = useState<string>("");
+  const [messages, setMessages] = useState<any[]>([]);
+const socket = io("http://localhost:5000")
+
+  const onChangeInput = (mess:string)=>{
+      setMessage(mess)
+  }
+    socket.on('receive_message',(data: any) => {
+      setMessages((prev) => [...prev, data]); 
+    });
+     
+
+  const sendMessage = () => {
+     socket.emit("send_message", {
+            userId: '123',
+            threadId: "456",
+            message:message,
+        });
+  };
+
   return (
+    <>
     <Box
       sx={{
         maxWidth: "calc(100% - 358px)",
         overflowY: "auto",
-        height: "600px",
+        height: "calc(100vh - 120px)",
         "&::-webkit-scrollbar": {
           display: "none",
         },
@@ -98,12 +125,28 @@ function MainChat() {
           gap: 2,
         }}
       >
-        {MESS_LIST.map((mess) => (
-          <MessageChat {...mess} />
-        ))}
+        <ul>
+          {messages.map((msg, index) => (
+            <li key={index}>
+              <strong>{msg.userId}:</strong> {msg.message}
+            </li>
+          ))}
+        </ul>
       </Box>
+      
+     
+
     </Box>
+    <Box display={'flex'} gap={2}>
+
+     <ChatInput onChangeInput={onChangeInput}/>
+      <button onClick={()=>sendMessage()}>Send</button>
+    </Box>
+
+    </>
   );
 }
 
 export default MainChat;
+
+
