@@ -34,7 +34,7 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
       fullWidth
       sx={{
         "& .MuiDialog-paper": {
-          background: grey[100],
+          background: "white",
           boxShadow: 5,
           borderRadius: 2,
         },
@@ -50,6 +50,8 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
           <CloseIcon />
         </IconButton>
       </DialogTitle>
+
+      <Divider/>
 
       <DialogContent
         sx={{
@@ -171,45 +173,45 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
 
         {/* Hình ảnh */}
         <Box sx={{ mt: 2, p: 2 }}>
-  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-    Hình ảnh
-  </Typography>
-  <Box
-    sx={{
-      display: "flex",
-      gap: 1,
-      mt: 1,
-      overflowX: "auto",
-      scrollbarWidth: "none", // Ẩn scrollbar trên Firefox
-      "&::-webkit-scrollbar": {
-        display: "none", // Ẩn scrollbar trên Chrome, Safari
-      },
-      paddingBottom: 1, // Thêm padding để tránh bị che mất hình ảnh
-    }}
-  >
-    {[
-      "/assets/images/dog1.jpg",
-      "/assets/images/dog2.jpg",
-      "/assets/images/dog1.jpg",
-      "/assets/images/dog2.jpg",
-      "/assets/images/zalo-welcom.png",
-      "/assets/images/check_welcom.png",
-    ].map((src, index) => (
-      <img
-        key={index}
-        src={src}
-        alt={`Ảnh ${index + 1}`}
-        width="100"
-        height="100"
-        style={{
-          borderRadius: 12,
-          objectFit: "cover",
-          flexShrink: 0, // Tránh co lại khi cuộn
-        }}
-      />
-    ))}
-  </Box>
-</Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+            Hình ảnh
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              mt: 1,
+              overflowX: "auto",
+              scrollbarWidth: "none", // Ẩn scrollbar trên Firefox
+              "&::-webkit-scrollbar": {
+                display: "none", // Ẩn scrollbar trên Chrome, Safari
+              },
+              paddingBottom: 1, // Thêm padding để tránh bị che mất hình ảnh
+            }}
+          >
+            {[
+              "/assets/images/dog1.jpg",
+              "/assets/images/dog2.jpg",
+              "/assets/images/dog1.jpg",
+              "/assets/images/dog2.jpg",
+              "/assets/images/zalo-welcom.png",
+              "/assets/images/check_welcom.png",
+            ].map((src, index) => (
+              <img
+                key={index}
+                src={src}
+                alt={`Ảnh ${index + 1}`}
+                width="100"
+                height="100"
+                style={{
+                  borderRadius: 12,
+                  objectFit: "cover",
+                  flexShrink: 0, // Tránh co lại khi cuộn
+                }}
+              />
+            ))}
+          </Box>
+      </Box>
 
 
         <Divider />
