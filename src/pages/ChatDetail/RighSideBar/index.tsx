@@ -32,7 +32,7 @@ import {
   ExitToApp,
   BorderColor,
 } from "@mui/icons-material";
-
+import InfoGroupDialog from "./InfoGroup/InfoGroupDialog.tsx"
 const sections = [
   {
     id: "members",
@@ -80,6 +80,7 @@ const actions = [
 ];
 
 const RightSideBar = () => {
+  const [open, setOpen] =useState<boolean>(false);
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(
     {},
   );
@@ -102,7 +103,7 @@ const RightSideBar = () => {
 
       {/* Avatar + Actions */}
       <Box sx={{ width: 340, p: 1, textAlign: "center" }}>
-        <AvatarGroup max={3} sx={{ justifyContent: "center", mt: 1 }}>
+        <AvatarGroup max={3} sx={{ justifyContent: "center", mt: 1 }} onClick={()=>setOpen(true)} >
           {[
             "/static/avatar1.jpg",
             "/static/avatar2.jpg",
@@ -214,6 +215,7 @@ const RightSideBar = () => {
           </ListItemButton>
         ))}
       </List>
+      <InfoGroupDialog open={open} onClose={() => setOpen(false)}/>
     </Drawer>
   );
 };
