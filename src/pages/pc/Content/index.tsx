@@ -1,13 +1,9 @@
-import { APP_ROUTES } from "@/constants";
 import { Box, Button, Typography, Stack  } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import LanguageIcon from "@mui/icons-material/Language";
 
-import PopupCategory from "@/components/PopupCategory";
 
 function ContentPCLandingTemplate() {
-  const navigate = useNavigate();
   return (
     <Box
         justifyContent="center"

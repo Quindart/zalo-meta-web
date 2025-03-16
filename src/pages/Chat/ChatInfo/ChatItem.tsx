@@ -1,24 +1,24 @@
 import { Box, Button, Typography, Badge } from "@mui/material";
-import { blue, cyan, grey } from "@mui/material/colors";
+import { blue, grey } from "@mui/material/colors";
 import { useNavigate, useParams } from "react-router-dom";
 
-interface ChatItemProps{
-    item:{
-        id:number | string | undefined;
-        avatar: string;
-        name: string;
-        message: string;
-        time: Date;
-        isRead: boolean;
-        isChoose: boolean;
-    };
+interface ChatItemProps {
+  item: {
+    id: number | string | undefined;
+    avatar: string;
+    name: string;
+    message: string;
+    time: Date;
+    isRead: boolean;
+    isChoose: boolean;
+  };
 }
 const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
   const navigate = useNavigate();
   const getTimeDisplay = (time: Date) => {
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);
-  
+
     if (diffInSeconds < 60) {
       return `${diffInSeconds} giây`;
     } else if (diffInSeconds < 3600) {
@@ -29,7 +29,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
       return `${time.getDate()}/${time.getMonth() + 1}`; // Hiển thị ngày/tháng
     }
   };
-  const params =useParams();
+  const params = useParams();
   return (
     <Button
       onClick={() => navigate(`/chats/${item.id}`)}
@@ -46,8 +46,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
     >
       <Box display="flex" alignItems="center" gap={1} width="100%">
         {/* Avatar */}
-        <Badge
-        >
+        <Badge>
           <img
             src={item.avatar}
             alt={item.name}
@@ -59,10 +58,31 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
 
         {/* Nội dung chat */}
         <Box flexGrow={1}>
-          <Typography fontWeight="400" color="grey.800" fontSize={12} sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100px", }} textAlign={"left"}>
+          <Typography
+            fontWeight="400"
+            color="grey.800"
+            fontSize={12}
+            sx={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "100px",
+            }}
+            textAlign={"left"}
+          >
             {item.name}
           </Typography>
-          <Typography fontSize={10} color="gray" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",maxWidth: "140px", }} textAlign={"left"}>
+          <Typography
+            fontSize={10}
+            color="gray"
+            sx={{
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "140px",
+            }}
+            textAlign={"left"}
+          >
             {item.message}
           </Typography>
         </Box>
@@ -80,7 +100,6 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
           variant="dot"
           invisible={item.isRead} // Nếu đã đọc (true) thì ẩn dấu đỏ
         ></Badge>
-        
       </Box>
     </Button>
   );
