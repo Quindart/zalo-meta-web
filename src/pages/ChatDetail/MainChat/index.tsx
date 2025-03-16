@@ -1,36 +1,80 @@
-import MessageChat from "@/components/Message";
-import { Avatar, Box } from "@mui/material";
-import { useEffect, useRef } from "react";
+import { Box } from "@mui/material";
+import { useRef } from "react";
 import InfoUser from "./InfoUser/InfoUser";
-import { blue, grey } from "@mui/material/colors";
+import MessageChat from "@/components/Message";
+import { useChat } from "@/hook/api/useChat";
 
-const MESS_LIST = [
-  { content: "Xin chào mọi người!", author: "Quang", dateCreated: "10:00", userId: "user_1", emojis: ["😂", "👍"], isMe: true },
-  { content: "Chào Quang! Hôm nay bạn thế nào?", author: "Linh", dateCreated: "10:05", userId: "user_2", emojis: ["😍"], isMe: false },
-  { content: "Mình ổn, cảm ơn nhé!", author: "Quang", dateCreated: "10:10", userId: "user_1", emojis: ["🎉"], isMe: true },
-  { content: "Cuối tuần này có ai rảnh đi cafe không?", author: "Nam", dateCreated: "10:15", userId: "user_3", emojis: ["🔥", "👍"], isMe: false },
-  { content: "Nghe hay đó! Tầm mấy giờ nhỉ?", author: "Quang", dateCreated: "10:20", userId: "user_1", emojis: [], isMe: true },
-  { content: "Chiều 3h nha, chỗ cũ nhé!", author: "Nam", dateCreated: "10:25", userId: "user_3", emojis: ["🎉"], isMe: false },
-];
-const Users=[
-  {
-    avatar: "/images/zalo-icon.png",
-    bgAvatar: "/images/zalo-welcom.png",
-    name:"Nguyễn Kim Ngọc Tuyền",
-    birthday: new Date("2003-04-29"),
+// const MESS_LIST = [
+//   {
+//     content: "Xin chào mọi người!",
+//     author: "Quang",
+//     dateCreated: "10:00",
+//     userId: "user_1",
+//     emojis: ["😂", "👍"],
+//     isMe: true,
+//   },
+//   {
+//     content: "Chào Quang! Hôm nay bạn thế nào?",
+//     author: "Linh",
+//     dateCreated: "10:05",
+//     userId: "user_2",
+//     emojis: ["😍"],
+//     isMe: false,
+//   },
+//   {
+//     content: "Mình ổn, cảm ơn nhé!",
+//     author: "Quang",
+//     dateCreated: "10:10",
+//     userId: "user_1",
+//     emojis: ["🎉"],
+//     isMe: true,
+//   },
+//   {
+//     content: "Cuối tuần này có ai rảnh đi cafe không?",
+//     author: "Nam",
+//     dateCreated: "10:15",
+//     userId: "user_3",
+//     emojis: ["🔥", "👍"],
+//     isMe: false,
+//   },
+//   {
+//     content: "Nghe hay đó! Tầm mấy giờ nhỉ?",
+//     author: "Quang",
+//     dateCreated: "10:20",
+//     userId: "user_1",
+//     emojis: [],
+//     isMe: true,
+//   },
+//   {
+//     content: "Chiều 3h nha, chỗ cũ nhé!",
+//     author: "Nam",
+//     dateCreated: "10:25",
+//     userId: "user_3",
+//     emojis: ["🎉"],
+//     isMe: false,
+//   },
+// ];
 
-  }
-]
-
+const user = {
+  _id: "67b4b8fa40191e21f03c08f2",
+  email: "huyvu@gmail.com",
+  avatar: "",
+  phone: "0334405617",
+  gender: "Nam",
+  dateOfBirth: "2003-01-01T00:00:00.000Z",
+  firstName: "Vu",
+  lastName: "Huy",
+  status: "ACTIVE",
+  twoFactorAuthenticationSecret: null,
+  isTwoFactorAuthenticationEnabled: false,
+  updatedAt: "2025-02-18T16:44:42.665Z",
+  createdAt: "2025-02-18T16:44:42.665Z",
+  __v: 0,
+};
 function MainChat() {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [MESS_LIST.length]); // Cập nhật khi danh sách tin nhắn thay đổi
-
+  const { readMessage, messages } = useChat();
+  // console.log("💲💲💲 ~ MainChat ~ messages:", messages);
   return (
     <Box
       sx={{
@@ -50,10 +94,10 @@ function MainChat() {
           top: 0, // Luôn nằm trên cùng
           zIndex: 10, // Đảm bảo header không bị che mất
           borderBottom: "1px solid #ddd",
-          borderRight: "1px solid #ddd"
+          borderRight: "1px solid #ddd",
         }}
       >
-        <InfoUser/>
+        <InfoUser />
       </Box>
 
       <Box
@@ -65,10 +109,19 @@ function MainChat() {
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        <Box sx={{ mx: 1, my: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-          {MESS_LIST.map((mess, index) => (
-            <MessageChat key={index} {...mess} />
-          ))}
+        <Box
+          sx={{
+            mx: 1,
+            my: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {Array.isArray(messages) &&
+            messages.map((mess: any, index: number) => (
+              <MessageChat key={index} {...mess} />
+            ))}
         </Box>
       </Box>
     </Box>

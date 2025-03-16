@@ -4,14 +4,21 @@ import { useState } from "react";
 
 type MessPropsType = {
   content: string;
-  author: string;
-  dateCreated: string;
-  userId: string;
+  receiverId: string | any;
+  timestamp: string;
+  senderId: string;
   emojis: string[];
   isMe: boolean;
 };
 function MessageChat(props: Partial<MessPropsType>) {
-  const { content, author, dateCreated, userId, emojis, isMe = false } = props;
+  const {
+    content,
+    senderId,
+    timestamp,
+    receiverId,
+    emojis,
+    isMe = false,
+  } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -49,21 +56,15 @@ function MessageChat(props: Partial<MessPropsType>) {
       }}
     >
       {!isMe && (
-        <Typography
-          variant="body1"
-          fontSize={13}
-          mb={"1px"}
-          fontWeight={500}
-          color="grey.700"
-        >
-          {author}
+        <Typography fontSize={13} mb={"1px"} fontWeight={500} color="grey.700">
+          {senderId}
         </Typography>
       )}
       <Typography fontSize={13} color="grey.800">
         {content}
       </Typography>
       <Typography fontSize={11} color="grey.600">
-        {dateCreated}
+        {timestamp}
       </Typography>
       <IconButton
         size="small"
