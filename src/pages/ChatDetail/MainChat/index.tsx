@@ -55,22 +55,22 @@ import { useChat } from "@/hook/api/useChat";
 //   },
 // ];
 
-const user = {
-  _id: "67b4b8fa40191e21f03c08f2",
-  email: "huyvu@gmail.com",
-  avatar: "",
-  phone: "0334405617",
-  gender: "Nam",
-  dateOfBirth: "2003-01-01T00:00:00.000Z",
-  firstName: "Vu",
-  lastName: "Huy",
-  status: "ACTIVE",
-  twoFactorAuthenticationSecret: null,
-  isTwoFactorAuthenticationEnabled: false,
-  updatedAt: "2025-02-18T16:44:42.665Z",
-  createdAt: "2025-02-18T16:44:42.665Z",
-  __v: 0,
-};
+// const user = {
+//   _id: "67b4b8fa40191e21f03c08f2",
+//   email: "huyvu@gmail.com",
+//   avatar: "",
+//   phone: "0334405617",
+//   gender: "Nam",
+//   dateOfBirth: "2003-01-01T00:00:00.000Z",
+//   firstName: "Vu",
+//   lastName: "Huy",
+//   status: "ACTIVE",
+//   twoFactorAuthenticationSecret: null,
+//   isTwoFactorAuthenticationEnabled: false,
+//   updatedAt: "2025-02-18T16:44:42.665Z",
+//   createdAt: "2025-02-18T16:44:42.665Z",
+//   __v: 0,
+// };
 function MainChat() {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const { messages } = useChat();
