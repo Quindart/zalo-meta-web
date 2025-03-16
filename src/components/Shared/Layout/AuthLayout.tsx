@@ -34,7 +34,6 @@ function AuthLayout() {
           mt: 2,
           width: 480,
           display: "flex",
-          // justifyContent: "center",
           alignItems: "center",
           flexDirection: "column",
         }}

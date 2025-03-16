@@ -15,6 +15,7 @@ function LoginQRTemplate() {
   const id = open ? "simple-popover" : undefined;
 
   const navigate = useNavigate();
+
   return (
     <Box
       sx={{
