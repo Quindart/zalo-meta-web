@@ -11,14 +11,7 @@ type MessPropsType = {
   isMe: boolean;
 };
 function MessageChat(props: Partial<MessPropsType>) {
-  const {
-    content,
-    senderId,
-    timestamp,
-    receiverId,
-    emojis,
-    isMe = false,
-  } = props;
+  const { content, senderId, timestamp, emojis, isMe = false } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {

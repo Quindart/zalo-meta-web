@@ -73,7 +73,7 @@ const user = {
 };
 function MainChat() {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-  const { readMessage, messages } = useChat();
+  const { messages } = useChat();
   // console.log("💲💲💲 ~ MainChat ~ messages:", messages);
   return (
     <Box
