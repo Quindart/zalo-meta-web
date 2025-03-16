@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useChat } from "@/hook/api/useChat";
 
 function ChatDetailTemplate() {
-  const { messages, sendMessage } = useChat();
+  const { sendMessage } = useChat();
   const [newMessage, setNewMessage] = useState("");
   const [receiverId, setReceiverId] = useState("");
 
