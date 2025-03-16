@@ -7,10 +7,10 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 function DashBoardTemplate() {
   const navigate = useNavigate();
-  const logout = () => {
-    removeValueInLocalStorage("accessToken");
-    navigate(APP_ROUTES.USER.LOGIN_QR);
-  };
+  // const logout = () => {
+  //   removeValueInLocalStorage("accessToken");
+  //   navigate(APP_ROUTES.USER.LOGIN_QR);
+  // };
   const slides = [
     {
       image: "/assets/images/dashboard/mode.png",

@@ -12,7 +12,7 @@ function ChatDetailTemplate() {
   return (
     <div>
       <Box width={"100%"}>
-        <MainChat messages={messages} />
+        <MainChat />
         <RightSideBar />
       </Box>
 
