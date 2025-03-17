@@ -1,8 +1,8 @@
 import MessageChat from "@/components/Message";
-import { Avatar, Box } from "@mui/material";
+import {Box } from "@mui/material";
 import { useEffect, useRef } from "react";
 import InfoUser from "./InfoUser/InfoUser";
-import { blue, grey } from "@mui/material/colors";
+import ChatInput from "./ChatInput/ChatInput";
 
 const MESS_LIST = [
   { content: "Xin chào mọi người!", author: "Quang", dateCreated: "10:00", userId: "user_1", emojis: ["😂", "👍"], isMe: true },
@@ -12,15 +12,6 @@ const MESS_LIST = [
   { content: "Nghe hay đó! Tầm mấy giờ nhỉ?", author: "Quang", dateCreated: "10:20", userId: "user_1", emojis: [], isMe: true },
   { content: "Chiều 3h nha, chỗ cũ nhé!", author: "Nam", dateCreated: "10:25", userId: "user_3", emojis: ["🎉"], isMe: false },
 ];
-const Users=[
-  {
-    avatar: "/images/zalo-icon.png",
-    bgAvatar: "/images/zalo-welcom.png",
-    name:"Nguyễn Kim Ngọc Tuyền",
-    birthday: new Date("2003-04-29"),
-
-  }
-]
 
 function MainChat() {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
@@ -39,29 +30,32 @@ function MainChat() {
         bgcolor: "grey.300",
         display: "flex",
         flexDirection: "column",
+        position: "relative",
       }}
     >
+      {/* Header - Thanh thông tin người dùng */}
       <Box
         sx={{
           height: 65,
           flexShrink: 0,
           bgcolor: "white",
-          position: "sticky", // Giữ header cố định
-          top: 0, // Luôn nằm trên cùng
-          zIndex: 10, // Đảm bảo header không bị che mất
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
           borderBottom: "1px solid #ddd",
-          borderRight: "1px solid #ddd"
+          borderRight: "1px solid #ddd",
         }}
       >
-        <InfoUser/>
+        <InfoUser />
       </Box>
 
+      {/* Vùng hiển thị tin nhắn */}
       <Box
         ref={chatContainerRef}
         sx={{
           flexGrow: 1,
           overflowY: "auto",
-          paddingBottom: 2,
+          paddingBottom: "20px", // Chừa chỗ cho ô nhập tin nhắn
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
@@ -70,6 +64,21 @@ function MainChat() {
             <MessageChat key={index} {...mess} />
           ))}
         </Box>
+      </Box>
+
+      {/* Ô nhập tin nhắn - Cố định phía dưới */}
+      <Box
+        sx={{
+          position: "sticky",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          bgcolor: "white",
+          border: "1px solid #ccc",
+          zIndex: 10, // Đảm bảo luôn hiển thị trên tin nhắn
+        }}
+      >
+        <ChatInput />
       </Box>
     </Box>
   );
