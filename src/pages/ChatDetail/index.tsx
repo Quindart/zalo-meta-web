@@ -5,14 +5,15 @@ import { useState } from "react";
 import { useChat } from "@/hook/api/useChat";
 
 function ChatDetailTemplate() {
-  const { sendMessage } = useChat();
+  const { messages, sendMessage } = useChat();
   const [newMessage, setNewMessage] = useState("");
   const [receiverId, setReceiverId] = useState("");
+  const userId = "67b4b8fa40191e21f03c08f2";
 
   return (
     <div>
       <Box width={"100%"}>
-        <MainChat />
+        <MainChat messages={messages} />
         <RightSideBar />
       </Box>
 
@@ -30,13 +31,14 @@ function ChatDetailTemplate() {
           onChange={(e) => setNewMessage(e.target.value)}
         />
         <Button
-          onClick={() =>
-            sendMessage(
-              "67baead7581e27c55e2b3d24",
-              newMessage,
-              "67b4b8fa40191e21f03c08f2",
-            )
-          }
+          onClick={() => {
+            if (receiverId && newMessage) {
+              sendMessage(receiverId, newMessage, userId);
+              setNewMessage(""); // Xóa tin nhắn sau khi gửi
+            } else {
+              alert("Vui lòng nhập ID người nhận và nội dung tin nhắn");
+            }
+          }}
         >
           Gửi
         </Button>

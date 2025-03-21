@@ -44,7 +44,8 @@ export const useChat = () => {
             receiverId,
             content,
         };
-        SocketService.getSocket().emit("message:send", messageData);
+        console.log("Sending message:", messageData);
+        SocketService.getSocket().emit(SOCKET_EVENTS.MESSAGE.SEND, messageData);
     };
     //TODO: READ
     const readMessage = (messageId: string, userId: string) => {
