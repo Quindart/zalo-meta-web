@@ -19,6 +19,7 @@ function useAuth() {
         if (response.success === true) {
             dispatch(setMe(response.data.user))
             navigate(APP_ROUTES.DASHBOARD);
+            setValueInLocalStorage("userId", response.data.user.id);
             setValueInLocalStorage("accessToken", response.data?.tokens?.accessToken);
             setValueInLocalStorage("refreshToken", response.data?.tokens?.refreshToken);
             enqueueSnackbar({ variant: 'success', message: "Login success" })

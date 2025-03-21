@@ -1,13 +1,12 @@
 import { useRef } from "react";
 import MessageChat from "@/components/Message";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import InfoUser from "./InfoUser/InfoUser";
 import ChatInput from "../ChatInput";
 
-
-function MainChat({ messages }: { messages: any[] }) {
+function MainChat({ messages, loading = false }: { messages: any[], loading?: boolean }) {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-  // alert(JSON.stringify(me));
+
   return (
     <>
       <Box
@@ -46,20 +45,31 @@ function MainChat({ messages }: { messages: any[] }) {
             "&::-webkit-scrollbar": { display: "none" },
           }}
         >
-          <Box
-            sx={{
-              mx: 1,
-              my: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            {Array.isArray(messages) &&
-              messages.map((mess: any, index: number) => (
-                <MessageChat key={index} {...mess} />
-              ))}
-          </Box>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                mx: 1,
+                my: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              {Array.isArray(messages) && messages.length > 0 ? (
+                messages.map((mess: any, index: number) => (
+                  <MessageChat key={index} {...mess} />
+                ))
+              ) : (
+                <Box sx={{ textAlign: 'center', color: 'grey.500', mt: 3 }}>
+                  Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
+                </Box>
+              )}
+            </Box>
+          )}
         </Box>
 
         {/* Ô nhập tin nhắn - Cố định phía dưới */}
@@ -77,7 +87,6 @@ function MainChat({ messages }: { messages: any[] }) {
           <ChatInput />
         </Box>
       </Box>
-      <Box display={"flex"} gap={2}></Box>
     </>
   );
 }

@@ -1,37 +1,39 @@
 import { Box, Button, TextField } from "@mui/material";
 import RightSideBar from "./RighSideBar";
 import MainChat from "./MainChat";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useChat } from "@/hook/api/useChat";
+import useAuth from "@/hook/api/useAuth";
+import { useParams } from "react-router-dom";
 
 function ChatDetailTemplate() {
-  const { messages, sendMessage } = useChat();
+  const params = useParams();
+  const receiverId = params.id;
+  const { messages, sendMessage, loadMessages, loading } = useChat();
   const [newMessage, setNewMessage] = useState("");
-  const [receiverId, setReceiverId] = useState("");
-  const userId = "67b4b8fa40191e21f03c08f2";
+  const userId = localStorage.getItem("userId")?.replace(/"/g, "") || "";
+  const { me } = useAuth();
+
+  // Load messages when receiverId changes
+  useEffect(() => {
+    if (receiverId) {
+      loadMessages(receiverId, userId);
+    }
+  }, [receiverId, userId]);
 
   return (
     <div>
       <Box width={"100%"}>
-        <MainChat messages={messages} />
+        <MainChat messages={messages} loading={loading} />
         <RightSideBar />
       </Box>
 
       <Box mb={2}>
-        <TextField
-          type="text"
-          placeholder="Nhập ID người nhận"
-          value={receiverId}
-          onChange={(e) => setReceiverId(e.target.value)}
-        />
-        <TextField
-          type="text"
-          placeholder="Nhập tin nhắn..."
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-        />
+        <TextField type="text" disabled value={receiverId} />
+        <TextField type="text" placeholder="Nhập tin nhắn..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} />
         <Button
           onClick={() => {
+            console.log("Gửi tin nhắn:", me);
             if (receiverId && newMessage) {
               sendMessage(receiverId, newMessage, userId);
               setNewMessage(""); // Xóa tin nhắn sau khi gửi
