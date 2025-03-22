@@ -17,6 +17,9 @@ function LoginTemplate() {
     navigate(APP_ROUTES.DASHBOARD);
     setValueInLocalStorage("accessToken", "12345678");
   };
+  const handReserPassword =() => {
+    navigate(APP_ROUTES.FORGOT_PASSWORD);
+  }
   return (
     <Box sx={{ width: "100%" }}>
       <Typography
@@ -72,6 +75,8 @@ function LoginTemplate() {
           variant="body1"
           mt={2}
           color="initial"
+          onClick={handReserPassword}
+          style={{ cursor: "pointer"}}
         >
           Quên mật khẩu
         </Typography>

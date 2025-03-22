@@ -1,8 +1,10 @@
 import App from "@/App";
 import AuthLayout from "@/components/Shared/Layout/AuthLayout";
+import AuthLayoutResetPassword from "@/components/Shared/Layout/AuthLayoutResetPassWord"
 import Layout from "@/components/Shared/Layout/Layout";
 import LoginTemplate from "@/pages/auth/Login";
 import LoginQRTemplate from "@/pages/auth/QR";
+import ForgotTemplate from "@/pages/auth/Forgot";
 import ChatTemplate from "@/pages/Chat";
 import RightSideBar from "@/pages/ChatDetail/RighSideBar";
 import ChatDetailTemplate from "@/pages/ChatDetail";
@@ -37,7 +39,7 @@ const router = createBrowserRouter([
           {
             path: "friends",
             Component: FriendTemplate,
-          },
+          }
         ],
       },
       {
@@ -60,9 +62,20 @@ const router = createBrowserRouter([
             path: "login",
             Component: LoginTemplate,
           },
+          
         ],
       },
     ],
+  },
+  {
+    Component: AuthLayoutResetPassword,
+    path: "/auth",
+    children: [
+      {
+        path: "forgot-password",
+        Component: ForgotTemplate,
+      },
+    ]
   },
   {
     Component: PCLandingTemplate,
