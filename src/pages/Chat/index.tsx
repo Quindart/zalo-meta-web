@@ -8,9 +8,9 @@ function ChatTemplate() {
   const navigate = useNavigate();
   const infoChat =[
   {
-    id:1,
+    id:'67b4b8fa40191e21f03c08f2',
     avatar:"https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2021/11/20/975861/F0B28C78-C0D5-4255-B-01.jpeg",
-    name: 'Tuyen Nguyen',
+    name: 'MR.TESTER',
     message:'Ngay mai di choi nhajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj',
     time: new Date("2024-05-12"),
     isRead:true,
