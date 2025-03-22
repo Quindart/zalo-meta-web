@@ -5,6 +5,7 @@ const axiosConfig = axios.create({
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
+    "Authorization": `Bearer ${JSON.parse(getValueFromLocalStorage("accessToken"))}`,
   },
 });
 axiosConfig.interceptors.request.use(
@@ -19,7 +20,7 @@ axiosConfig.interceptors.request.use(
 );
 axiosConfig.interceptors.response.use(
   function (response) {
-    return response;
+    return response.data;
   },
   function (error) {
     return Promise.reject(error);

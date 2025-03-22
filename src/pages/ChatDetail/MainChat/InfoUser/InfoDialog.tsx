@@ -40,10 +40,9 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
         },
       }}
       BackdropProps={{
-        style: { backgroundColor: "rgba(0, 0, 0, 0.5)" }, // Màu nền mờ
+        style: { backgroundColor: "rgba(0, 0, 0, 0.5)" }, 
       }}
     >
-      {/* Tiêu đề có nút đóng */}
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" , fontSize: 15, fontWeight: "600"}}>
         Thông tin tài khoản
         <IconButton onClick={onClose}>
@@ -56,10 +55,10 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
       <DialogContent
         sx={{
           p: 0,
-          maxHeight: "70vh", // Giới hạn chiều cao để xuất hiện thanh cuộn
-          overflowY: "overlay", // Ẩn thanh cuộn khi không cần thiết
+          maxHeight: "70vh", 
+          overflowY: "overlay", 
           "&::-webkit-scrollbar": {
-            width: "8px", // Độ rộng của thanh cuộn
+            width: "8px", 
           },
           "&::-webkit-scrollbar-thumb": {
             backgroundColor: "rgba(0, 0, 0, 0.1)",
@@ -86,8 +85,6 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
             backgroundPosition: "center",
           }}
         />
-
-        {/* Ảnh đại diện + Tên */}
         <Box sx={{ textAlign: "center"}}>
             <Box
                 sx={{
@@ -109,26 +106,24 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
                         width: 30, 
                         height: 30, 
                         "&:hover": {
-                        backgroundColor: grey[100], // Màu hover
+                        backgroundColor: grey[100], 
                         },
                     }}
                     >
-                    <EditIcon sx={{ color: "#1a2b44" , fontSize:20}} /> {/* Màu icon xanh đậm */}
+                    <EditIcon sx={{ color: "#1a2b44" , fontSize:20}} /> 
                 </IconButton>
           </Box>
-
-
             <Button
             variant="contained"
             sx={{
-                backgroundColor: "#E6F0FF", // Màu nền xanh nhạt
-                color: "#235DB2", // Màu chữ xanh đậm
+                backgroundColor: "#E6F0FF", 
+                color: "#235DB2", 
                 fontWeight: "bold",
-                textTransform: "none", // Giữ nguyên chữ, không viết hoa
-                borderRadius: "5px", // Bo góc mềm mại
-                padding: "8px 16px", // Điều chỉnh padding cho nút
+                textTransform: "none", 
+                borderRadius: "5px", 
+                padding: "8px 16px", 
                 "&:hover": {
-                backgroundColor: "#DBEBFF", // Màu hover nhạt hơn một chút
+                backgroundColor: "#DBEBFF", 
                 },
                 width: "90%",
                 fontSize: 15,
@@ -166,9 +161,6 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
             <Typography variant="body2">{"•".repeat(10)}</Typography>
           </Box>
         </Box>
-
-
-
         <Divider />
 
         {/* Hình ảnh */}
@@ -215,9 +207,6 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
 
 
         <Divider />
-
-        {/* Các tùy chọn khác */}
-
       <Box sx={{ mt: 2, p: 2 }}>
         <List>
           <ListItemButton>

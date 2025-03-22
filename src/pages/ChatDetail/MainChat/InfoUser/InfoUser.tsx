@@ -1,4 +1,3 @@
-import { grey } from "@mui/material/colors";
 import React, { useState } from "react";
 import {
   Avatar,
@@ -26,7 +25,6 @@ const InfoUser: React.FC = () => {
         marginLeft: 1
       }}
     >
-      {/* Avatar + Tên người dùng */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <Avatar
           src="/assets/images/zalo-icon.png"
@@ -37,8 +35,6 @@ const InfoUser: React.FC = () => {
           Võ Thị Kim Ngân
         </Typography>
       </Box>
-
-      {/* Icon chức năng */}
       <Box sx={{ display: "flex", gap: 1 }}>
         <IconButton>
           <GroupAddIcon />
@@ -53,8 +49,6 @@ const InfoUser: React.FC = () => {
           <ViewAgendaIcon />
         </IconButton>
       </Box>
-
-      {/* Dialog hiển thị thông tin */}
       <InfoDialog open={open} onClose={() => setOpen(false)} />
     </Box>
   );

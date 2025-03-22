@@ -19,7 +19,6 @@ export default function App() {
   const authentication = useMemo(() => {
     return {
       signIn: () => {
-        setSession(demoSession);
       },
       signOut: () => {
         navigate("/auth/login");
