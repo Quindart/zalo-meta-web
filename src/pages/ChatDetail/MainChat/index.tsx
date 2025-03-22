@@ -1,75 +1,12 @@
 import { useRef } from "react";
 import MessageChat from "@/components/Message";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import InfoUser from "./InfoUser/InfoUser";
 import ChatInput from "../ChatInput";
-import { useChat } from "@/hook/api/useChat";
-import useAuth from "@/hook/api/useAuth";
 
-const MESS_LIST = [
-  {
-    content: "Xin chào mọi người!",
-    author: "Quang",
-    dateCreated: "10:00",
-    userId: "user_1",
-    emojis: ["😂", "👍"],
-    isMe: true,
-  },
-  {
-    content: "Chào Quang! Hôm nay bạn thế nào?",
-    author: "Linh",
-    dateCreated: "10:05",
-    userId: "user_2",
-    emojis: ["😍"],
-    isMe: false,
-  },
-  {
-    content: "Mình ổn, cảm ơn nhé!",
-    author: "Quang",
-    dateCreated: "10:10",
-    userId: "user_1",
-    emojis: ["🎉"],
-    isMe: true,
-  },
-  {
-    content: "Cuối tuần này có ai rảnh đi cafe không?",
-    author: "Nam",
-    dateCreated: "10:15",
-    userId: "user_3",
-    emojis: ["🔥", "👍"],
-    isMe: false,
-  },
-  {
-    content: "Nghe hay đó! Tầm mấy giờ nhỉ?",
-    author: "Quang",
-    dateCreated: "10:20",
-    userId: "user_1",
-    emojis: [],
-    isMe: true,
-  },
-  {
-    content: "Chiều 3h nha, chỗ cũ nhé!",
-    author: "Nam",
-    dateCreated: "10:25",
-    userId: "user_3",
-    emojis: ["🎉"],
-    isMe: false,
-  },
-];
-const Users = [
-  {
-    avatar: "/images/zalo-icon.png",
-    bgAvatar: "/images/zalo-welcom.png",
-    name: "Nguyễn Kim Ngọc Tuyền",
-    birthday: new Date("2003-04-29"),
-  },
-];
-
-function MainChat() {
-  const { me } = useAuth();
+function MainChat({ messages, loading = false }: { messages: any[], loading?: boolean }) {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-  const { messages } = useChat();
-  alert(JSON.stringify(me));
+
   return (
     <>
       <Box
@@ -108,20 +45,31 @@ function MainChat() {
             "&::-webkit-scrollbar": { display: "none" },
           }}
         >
-          <Box
-            sx={{
-              mx: 1,
-              my: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            {Array.isArray(messages) &&
-              messages.map((mess: any, index: number) => (
-                <MessageChat key={index} {...mess} />
-              ))}
-          </Box>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                mx: 1,
+                my: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              {Array.isArray(messages) && messages.length > 0 ? (
+                messages.map((mess: any, index: number) => (
+                  <MessageChat key={index} {...mess} />
+                ))
+              ) : (
+                <Box sx={{ textAlign: 'center', color: 'grey.500', mt: 3 }}>
+                  Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
+                </Box>
+              )}
+            </Box>
+          )}
         </Box>
 
         {/* Ô nhập tin nhắn - Cố định phía dưới */}
@@ -139,7 +87,6 @@ function MainChat() {
           <ChatInput />
         </Box>
       </Box>
-      <Box display={"flex"} gap={2}></Box>
     </>
   );
 }
