@@ -2,9 +2,15 @@ import { useRef } from "react";
 import MessageChat from "@/components/Message";
 import { Box, CircularProgress } from "@mui/material";
 import InfoUser from "./InfoUser/InfoUser";
-import ChatInput from "../ChatInput";
+import ChatInput from "./ChatInput";
 
-function MainChat({ messages, loading = false }: { messages: any[], loading?: boolean }) {
+function MainChat({
+  messages,
+  loading = false,
+}: {
+  messages: any[];
+  loading?: boolean;
+}) {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -12,7 +18,7 @@ function MainChat({ messages, loading = false }: { messages: any[], loading?: bo
       <Box
         sx={{
           maxWidth: "calc(100% - 358px)",
-          height: "600px",
+          height: "100vh",
           bgcolor: "grey.300",
           display: "flex",
           flexDirection: "column",
@@ -46,7 +52,14 @@ function MainChat({ messages, loading = false }: { messages: any[], loading?: bo
           }}
         >
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
               <CircularProgress />
             </Box>
           ) : (
@@ -64,7 +77,7 @@ function MainChat({ messages, loading = false }: { messages: any[], loading?: bo
                   <MessageChat key={index} {...mess} />
                 ))
               ) : (
-                <Box sx={{ textAlign: 'center', color: 'grey.500', mt: 3 }}>
+                <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
                   Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
                 </Box>
               )}
