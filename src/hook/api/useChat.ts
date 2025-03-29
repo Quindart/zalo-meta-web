@@ -15,30 +15,29 @@ const SOCKET_EVENTS = {
 export const useChat = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  console.log("✅ Socket connected:", SocketService.getSocket().connected);
 
   // Load messages function
   const loadMessages = async (receiverId: string, senderId: string) => {
     if (!receiverId || !senderId) return;
-    
+
     setLoading(true);
     try {
-      const response = await getMessages(receiverId, senderId);
+      const response: any = await getMessages(receiverId, senderId);
       if (response) {
-        console.log("Messages loaded:", response);
+        // console.log("Messages loaded:", response);
         setMessages(response);
       } else {
-        console.error("Failed to load messages:", response);
+        // console.error("Failed to load messages:", response);
         setMessages([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading messages:", error);
       setMessages([]);
     } finally {
       setLoading(false);
     }
   };
-  
+
   //TODO: HANDLE EVENT
   useEffect(() => {
     SocketService.getSocket().connect();
@@ -46,19 +45,17 @@ export const useChat = () => {
     SocketService.getSocket().off(SOCKET_EVENTS.MESSAGE.READ);
 
     SocketService.getSocket().on(SOCKET_EVENTS.MESSAGE.RECEIVED, (newMessage: any) => {
-      console.log("Tin nhắn mới:", newMessage);
-      setMessages((prev) => [...prev, newMessage]);
+      setMessages((prev: any[]) => [...prev, newMessage]);
     });
-    
+
     SocketService.getSocket().on(SOCKET_EVENTS.MESSAGE.READ, (update: any) => {
-      console.log("Tin nhắn đã đọc:", update);
-      setMessages((prev) =>
+      setMessages((prev: any[]) =>
         prev.map((msg) =>
           msg.id === update.messageId ? { ...msg, status: "read" } : msg,
         ),
       );
     });
-    
+
     return () => {
       SocketService.getSocket().disconnect();
       SocketService.getSocket().off(SOCKET_EVENTS.MESSAGE.RECEIVED);
@@ -73,10 +70,9 @@ export const useChat = () => {
       receiverId,
       content,
     };
-    console.log("Sending message:", messageData);
     SocketService.getSocket().emit(SOCKET_EVENTS.MESSAGE.SEND, messageData);
   };
-  
+
   //TODO: READ
   const readMessage = (messageId: string, userId: string) => {
     const readData = {
@@ -85,6 +81,6 @@ export const useChat = () => {
     };
     SocketService.getSocket().emit("message:read", readData);
   };
-  
+
   return { messages, sendMessage, readMessage, loadMessages, loading };
 };
