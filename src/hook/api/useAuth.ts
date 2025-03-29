@@ -6,7 +6,6 @@ import { setValueInLocalStorage } from '@/utils/localStorage';
 import { useSnackbar } from 'notistack';
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom';
-
 function useAuth() {
     const userStore = useSelector((state: RootState) => state.userSlice)
     const { me } = userStore

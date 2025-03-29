@@ -23,6 +23,7 @@ export const APP_ROUTES = {
     MANAGEMENT: "/authorizations",
     UPDATE_ROLE: "/authorizations/change",
   },
+  RESET_PASSWORD: '/auth/reset-password',
   FORGOT_PASSWORD: "/auth/forgot-password",
   SUCCESS_MESSAGE: "/auth/success",
   NOT_FOUND: "/404",

@@ -34,7 +34,7 @@ function LoginTemplate() {
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handReserPassword =() => {
+  const handReserPassword = () => {
     navigate(APP_ROUTES.FORGOT_PASSWORD);
   }
 
@@ -108,7 +108,7 @@ function LoginTemplate() {
           mt={2}
           color="initial"
           onClick={handReserPassword}
-          style={{ cursor: "pointer"}}
+          style={{ cursor: "pointer" }}
         >
           Quên mật khẩu
         </Typography>
