@@ -40,20 +40,28 @@ function ChatTemplate() {
     },
   ];
   return (
-    <Box display={"flex"}>
+    <Box  display={"flex"}>
       {" "}
       <Stack
         direction="column"
         spacing={1}
         sx={{
-          width: 450,
+          width: 300,
           height: "calc(100vh - 70px)",
           bgcolor: "white",
-          
+          position: "fixed",
+          top: 0,
+          zIndex: 1000,
           borderRight: "0.5px solid #E0E8EF",
         }}
       >
-        <Box py={'12px'} px={'12px'} gap={1} display={"flex"} alignItems={"center"}>
+        <Box
+          py={"12px"}
+          px={"12px"}
+          gap={1}
+          display={"flex"}
+          alignItems={"center"}
+        >
           <Box flex={1}>
             <CustomSearchBar placeholder="Search for" />
           </Box>
@@ -99,7 +107,7 @@ function ChatTemplate() {
           <ChatItem item={item} />
         ))}
       </Stack>
-      <Box width={"100%"}>
+      <Box bgcolor={"red"} marginLeft={"300px"} flex={1} width={"100%"}>
         <Outlet />
       </Box>
     </Box>

@@ -17,7 +17,7 @@ function MainChat({
     <>
       <Box
         sx={{
-          maxWidth: "calc(100% - 358px)",
+          maxWidth: "calc(100% - 340px)",
           height: "100vh",
           bgcolor: "grey.300",
           display: "flex",
@@ -25,7 +25,6 @@ function MainChat({
           position: "relative",
         }}
       >
-        {/* Header - Thanh thông tin người dùng */}
         <Box
           sx={{
             height: 65,

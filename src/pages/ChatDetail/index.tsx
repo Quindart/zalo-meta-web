@@ -18,12 +18,10 @@ function ChatDetailTemplate() {
   }, [receiverId, userId]);
 
   return (
-    <div>
-      <Box width={"100%"}>
-        <MainChat messages={messages} loading={loading} />
-        <RightSideBar />
-      </Box>
-    </div>
+    <Box width={"100%"}>
+      <MainChat messages={messages} loading={loading} />
+      <RightSideBar />
+    </Box>
   );
 }
 

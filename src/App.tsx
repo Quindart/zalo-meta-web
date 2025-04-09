@@ -9,6 +9,7 @@ import { setMe } from "./store/slice/use.slice";
 import { getValueFromLocalStorage, setValueInLocalStorage } from "./utils/localStorage";
 import { APP_ROUTES } from "./constants";
 import { getMe } from "./services/Auth";
+import { Box } from "@mui/material";
 
 export default function App() {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ export default function App() {
   }, [initDone, dispatch, authentication, me]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Box>Loading...</Box>;
   }
 
   return (
