@@ -13,29 +13,30 @@ import {
   AccountPopoverFooter,
   SignOutButton,
 } from "@toolpad/core/Account";
-const accounts = [
-  {
-    id: 1,
-    name: "Bharat Kashyap",
-    email: "bharatkashyap@outlook.com",
-    image: "https://avatars.githubusercontent.com/u/19550456",
-    projects: [
-      {
-        id: 3,
-        title: "Project X",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Bharat MUI",
-    email: "bharat@mui.com",
-    color: "#8B4513",
-    projects: [{ id: 4, title: "Project A" }],
-  },
-];
+
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store'
+
 
 function SidebarFooterAccountPopover() {
+  const userStore = useSelector((state: RootState) => state.userSlice)
+  const { me } = userStore
+  const accounts = [
+    {
+      id: 1,
+      name: me.lastName + " " + me.firstName,
+      email: me.phone,
+      image: me.avatar,
+      color: "primary.main",
+      projects: [
+        {
+          id: 3,
+          title: "Project X",
+        },
+      ],
+    },
+  ];
+  
   return (
     <Stack direction="column">
       <Typography variant="body2" mx={2} mt={1}>
