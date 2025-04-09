@@ -46,7 +46,7 @@ function MainChat({
           ref={chatContainerRef}
           sx={{
             flexGrow: 1,
-            overflowY: "auto",
+            // overflowY: "auto",
             paddingBottom: "80px", // Chừa chỗ cho ô nhập tin nhắn
             "&::-webkit-scrollbar": { display: "none" },
           }}

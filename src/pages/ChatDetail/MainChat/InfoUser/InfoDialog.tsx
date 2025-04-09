@@ -173,7 +173,7 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
               display: "flex",
               gap: 1,
               mt: 1,
-              overflowX: "auto",
+              // overflowX: "auto",
               scrollbarWidth: "none", // Ẩn scrollbar trên Firefox
               "&::-webkit-scrollbar": {
                 display: "none", // Ẩn scrollbar trên Chrome, Safari
