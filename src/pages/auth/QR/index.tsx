@@ -13,7 +13,7 @@ function LoginQRTemplate() {
   const [expired, setExpired] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [timeLeft, setTimeLeft] = useState<number>(10);
+  const [timeLeft, setTimeLeft] = useState<number>(180);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   const open = Boolean(anchorEl);
