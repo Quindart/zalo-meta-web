@@ -4,14 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { APP_ROUTES } from "@/constants";
 import axiosConfig from "@/services/axiosConfig";
-
 function LoginQRTemplate() {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [image, setImage] = useState<string>('');
   const [expired, setExpired] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [timeLeft, setTimeLeft] = useState<number>(180);
+  const [timeLeft, setTimeLeft] = useState<number>(10);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -29,7 +28,7 @@ function LoginQRTemplate() {
       const response:any = await axiosConfig.post('/api/v1/auth/QR');
       setImage(response.url);
       setExpired(false);
-      setTimeLeft(180);
+      setTimeLeft(10);
 
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -38,7 +37,7 @@ function LoginQRTemplate() {
 
       timerRef.current = setTimeout(() => {
         setExpired(true);
-      }, 180000);
+      }, 10000);
 
       countdownRef.current = setInterval(() => {
         setTimeLeft(prev => {
@@ -131,30 +130,49 @@ function LoginQRTemplate() {
             width: 240,
             height: 240,
             mb: 1,
+            borderRadius: 2,
           }}
         >
+          {/* Ảnh QR mờ */}
           <img
-            width={240}
-            height={240}
+            src={image || "/assets/images/QR_demo.PNG"}
+            alt="QR Code Expired"
             style={{
-              objectFit: "cover",
-              borderRadius: 4,
-              opacity: 0.3, // làm mờ QR
+              width: "100%",
+              height: "100%",
+              opacity: 0.3,
+              borderRadius: 8,
             }}
-            src="/assets/images/QR_demo.PNG"
-            alt="QR Code"
           />
 
+          {/* Chữ & Nút nằm giữa */}
           <Box
             sx={{
               position: "absolute",
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
+              textAlign: "center",
             }}
           >
-            <Button variant="contained" onClick={fetchData}>
-              Tải lại mã QR
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 1 }}
+            >
+              Mã QR hết hạn
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={fetchData}
+              sx={{
+                textTransform: "none",
+                px: 3,
+                borderRadius: "8px",
+              }}
+            >
+              Lấy mã mới
             </Button>
           </Box>
         </Box>
