@@ -10,7 +10,7 @@ function LoginQRTemplate() {
   const [expired, setExpired] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [timeLeft, setTimeLeft] = useState<number>(10);
+  const [timeLeft, setTimeLeft] = useState<number>(180);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -28,7 +28,7 @@ function LoginQRTemplate() {
       const response:any = await axiosConfig.post('/api/v1/auth/QR');
       setImage(response.url);
       setExpired(false);
-      setTimeLeft(10);
+      setTimeLeft(180);
 
       if (timerRef.current) {
         clearTimeout(timerRef.current);
@@ -37,7 +37,7 @@ function LoginQRTemplate() {
 
       timerRef.current = setTimeout(() => {
         setExpired(true);
-      }, 10000);
+      }, 180000);
 
       countdownRef.current = setInterval(() => {
         setTimeLeft(prev => {
