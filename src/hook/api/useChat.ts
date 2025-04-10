@@ -11,7 +11,9 @@ const SOCKET_EVENTS = {
     ERROR: "message:error",
   },
 };
-const socketService = new SocketService()
+
+
+const socketService = SocketService.getInstance().getSocket();
 
 export const useChat = () => {
   const [messages, setMessages] = useState<any[]>([]);
@@ -41,15 +43,15 @@ export const useChat = () => {
 
   //TODO: HANDLE EVENT
   useEffect(() => {
-    socketService.getSocket().connect();
-    socketService.getSocket().off(SOCKET_EVENTS.MESSAGE.RECEIVED);
-    socketService.getSocket().off(SOCKET_EVENTS.MESSAGE.READ);
+    socketService.connect();
+    socketService.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
+    socketService.off(SOCKET_EVENTS.MESSAGE.READ);
 
-    socketService.getSocket().on(SOCKET_EVENTS.MESSAGE.RECEIVED, (newMessage: any) => {
+    socketService.on(SOCKET_EVENTS.MESSAGE.RECEIVED, (newMessage: any) => {
       setMessages((prev: any[]) => [...prev, newMessage]);
     });
 
-    socketService.getSocket().on(SOCKET_EVENTS.MESSAGE.READ, (update: any) => {
+    socketService.on(SOCKET_EVENTS.MESSAGE.READ, (update: any) => {
       setMessages((prev: any[]) =>
         prev.map((msg) =>
           msg.id === update.messageId ? { ...msg, status: "read" } : msg,
@@ -58,9 +60,9 @@ export const useChat = () => {
     });
 
     return () => {
-      socketService.getSocket().disconnect();
-      socketService.getSocket().off(SOCKET_EVENTS.MESSAGE.RECEIVED);
-      socketService.getSocket().off(SOCKET_EVENTS.MESSAGE.READ);
+      socketService.disconnect();
+      socketService.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
+      socketService.off(SOCKET_EVENTS.MESSAGE.READ);
     };
   }, []);
 
@@ -71,7 +73,7 @@ export const useChat = () => {
       receiverId,
       content,
     };
-    socketService.getSocket().emit(SOCKET_EVENTS.MESSAGE.SEND, messageData);
+    socketService.emit(SOCKET_EVENTS.MESSAGE.SEND, messageData);
   };
 
   //TODO: READ
@@ -80,7 +82,7 @@ export const useChat = () => {
       messageId,
       readerId: userId,
     };
-    socketService.getSocket().emit("message:read", readData);
+    socketService.emit("message:read", readData);
   };
 
   return { messages, sendMessage, readMessage, loadMessages, loading };
