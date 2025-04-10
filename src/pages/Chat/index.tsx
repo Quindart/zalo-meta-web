@@ -8,6 +8,8 @@ import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import { useEffect, useMemo, useState } from "react";
 import SocketService from "@/services/socket/SocketService";
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 
 const socketService = new SocketService();
 const SOCKET_EVENTS = {
