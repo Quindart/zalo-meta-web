@@ -12,12 +12,22 @@ export default function CustomSearchBar({
 }: CustomSearchBarProps) {
   return (
     <Box>
-      <Search>
+      <Search
+        sx={{
+          backgroundColor: "#EBECF0",
+          border: "none",
+          height: "30px",
+        }}
+      >
         <SearchIconWrapper>
-          <SearchIcon />
+          <SearchIcon sx={{ width: 16 }} />
         </SearchIconWrapper>
         <StyledInputBase
-          placeholder={placeholder || "Tìm kiếm"} // Placeholder mặc định nếu không truyền vào
+          sx={{
+            backgroundColor: "#EBECF0",
+            fontSize: 15,
+          }}
+          placeholder={placeholder || "Tìm kiếm"}
           inputProps={{ "aria-label": "search" }}
           {...rest}
         />

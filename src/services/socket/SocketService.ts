@@ -18,4 +18,4 @@ class SocketService {
         return this.socket
     }
 }
-export default new SocketService()
+export default SocketService
