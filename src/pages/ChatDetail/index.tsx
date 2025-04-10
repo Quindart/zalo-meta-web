@@ -7,15 +7,15 @@ import { useParams } from "react-router-dom";
 
 function ChatDetailTemplate() {
   const params = useParams();
-  const receiverId = params.id;
+  const channelId = params.id;
   const { messages, loadMessages, loading } = useChat();
   const userId = localStorage.getItem("userId")?.replace(/"/g, "") || "";
 
   useEffect(() => {
-    if (receiverId) {
-      loadMessages(receiverId, userId);
+    if (channelId) {
+      loadMessages(channelId, userId);
     }
-  }, [receiverId, userId]);
+  }, [channelId, userId]);
 
   return (
     <Box width={"100%"}>

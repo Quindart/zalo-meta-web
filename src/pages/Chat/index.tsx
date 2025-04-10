@@ -40,7 +40,7 @@ function ChatTemplate() {
     },
   ];
   return (
-    <Box  display={"flex"}>
+    <Box display={"flex"}>
       {" "}
       <Stack
         direction="column"
@@ -50,7 +50,7 @@ function ChatTemplate() {
           height: "calc(100vh - 70px)",
           bgcolor: "white",
           position: "fixed",
-          top: 0,
+          top: 60,
           zIndex: 1000,
           borderRight: "0.5px solid #E0E8EF",
         }}
