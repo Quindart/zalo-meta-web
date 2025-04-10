@@ -92,7 +92,7 @@ function ChatTemplate() {
           height: "calc(100vh - 70px)",
           bgcolor: "white",
           position: "fixed",
-          top: 0,
+          top: 60,
           zIndex: 1000,
           borderRight: "0.5px solid #E0E8EF",
         }}
@@ -113,10 +113,10 @@ function ChatTemplate() {
               sx={{ borderRadius: 2 }}
               onClick={() => console.log("Edit")}
             >
-              <EditNotifications
+              <PersonAddAltIcon
                 sx={{
-                  width: 16,
-                  height: 16,
+                  width: 25,
+                  height: 25,
                 }}
               />
             </IconButton>
@@ -125,10 +125,10 @@ function ChatTemplate() {
               sx={{ borderRadius: 2 }}
               onClick={() => console.log("Delete")}
             >
-              <EditNotifications
+              <GroupAddIcon
                 sx={{
-                  width: 16,
-                  height: 16,
+                  width: 25,
+                  height: 25,
                 }}
               />
             </IconButton>

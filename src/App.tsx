@@ -10,8 +10,10 @@ import { getValueFromLocalStorage, setValueInLocalStorage } from "./utils/localS
 import { APP_ROUTES } from "./constants";
 import { getMe } from "./services/Auth";
 import { Box } from "@mui/material";
+import useAuth from "./hook/api/useAuth";
 
 export default function App() {
+  const {handleGetMe}  = useAuth()
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userStore = useSelector((state: RootState) => state.userSlice);
@@ -27,6 +29,9 @@ export default function App() {
     },
   } : null;
 
+   useEffect(()=>{
+    handleGetMe()
+  },[])
   const authentication = useMemo(() => {
     return {
       signIn: async () => {
