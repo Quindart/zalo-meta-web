@@ -3,71 +3,59 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { APP_ROUTES } from "@/constants";
-import axiosConfig from "@/services/axiosConfig";
+import useQR from "@/hook/api/useQR";
+import { formatTime } from "@/utils/formatTime";
+
 function LoginQRTemplate() {
+  const { handleGenerateQR, image, TIMELIVE_QR } = useQR();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [image, setImage] = useState<string>('');
   const [expired, setExpired] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [timeLeft, setTimeLeft] = useState<number>(10);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
 
-  const navigate = useNavigate();
-  const fetchData = async () => {
-    try {
-      const response:any = await axiosConfig.post('/api/v1/auth/QR');
-      setImage(response.url);
-      setExpired(false);
-      setTimeLeft(10);
-
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      if (countdownRef.current) clearInterval(countdownRef.current);
-
-      timerRef.current = setTimeout(() => {
-        setExpired(true);
-      }, 10000);
-
-      countdownRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            clearInterval(countdownRef.current!);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (error) {
-      console.error('Lỗi khi gửi request:', error);
-      return '';
+  const onGenerateQR = async () => {
+    handleGenerateQR();
+    setExpired(false);
+    setTimeLeft(TIMELIVE_QR / 1000);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
+    if (countdownRef.current) clearInterval(countdownRef.current);
+
+    timerRef.current = setTimeout(() => {
+      setExpired(true);
+    }, TIMELIVE_QR);
+
+    countdownRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownRef.current!);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
   useEffect(() => {
-    fetchData()
-
+    onGenerateQR();
     return () => {
+      
       if (timerRef.current) clearTimeout(timerRef.current);
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
-  }, [])
-  const formatTime = (seconds: number) => {
-    const min = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
-    const sec = (seconds % 60).toString().padStart(2, "0");
-    return `${min}:${sec}`;
-  };
+  }, []);
   return (
     <Box
       sx={{
@@ -155,17 +143,13 @@ function LoginQRTemplate() {
               textAlign: "center",
             }}
           >
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ mb: 1 }}
-            >
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
               Mã QR hết hạn
             </Typography>
             <Button
               variant="contained"
               size="small"
-              onClick={fetchData}
+              onClick={onGenerateQR}
               sx={{
                 textTransform: "none",
                 px: 3,
