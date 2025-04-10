@@ -18,7 +18,7 @@ export const getMe = async () => {
       }
   
       // Token sẽ tự động được thêm vào header bởi axiosConfig interceptors
-      const response = await axiosConfig.get("/api/v1/me?queries=firstName,lastName,email,avatar,id,phone");
+      const response = await axiosConfig.get("/api/v1/me?queries=firstName,lastName,email,avatar,id,phone,dateOfBirth");
       console.log("Response from API:", response);
       
       return { success: true, data: response };
