@@ -3,7 +3,8 @@ import CustomSearchBar from "@/components/SearchBar";
 import { Box, Button, IconButton, Stack } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 import ChatItem from "./ChatInfo/ChatItem";
-import { EditNotifications } from "@mui/icons-material";
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 
 function ChatTemplate() {
   const navigate = useNavigate();
@@ -71,10 +72,10 @@ function ChatTemplate() {
               sx={{ borderRadius: 2 }}
               onClick={() => console.log("Edit")}
             >
-              <EditNotifications
+              <PersonAddAltIcon
                 sx={{
-                  width: 16,
-                  height: 16,
+                  width: 25,
+                  height: 25,
                 }}
               />
             </IconButton>
@@ -83,10 +84,10 @@ function ChatTemplate() {
               sx={{ borderRadius: 2 }}
               onClick={() => console.log("Delete")}
             >
-              <EditNotifications
+              <GroupAddIcon
                 sx={{
-                  width: 16,
-                  height: 16,
+                  width: 25,
+                  height: 25,
                 }}
               />
             </IconButton>
