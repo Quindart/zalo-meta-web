@@ -12,6 +12,7 @@ import DashBoardTemplate from "@/pages/Dashboard";
 import FriendTemplate from "@/pages/Friend";
 import PCLandingTemplate from "@/pages/pc";
 import { createBrowserRouter } from "react-router-dom";
+import ResetPasswordTemplate from "@/pages/auth/ResetPassword";
 const router = createBrowserRouter([
   {
     Component: App,
@@ -62,7 +63,7 @@ const router = createBrowserRouter([
             path: "login",
             Component: LoginTemplate,
           },
-          
+
         ],
       },
     ],
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: "forgot-password",
         Component: ForgotTemplate,
+      },
+      {
+        path: "reset-password",
+        Component: ResetPasswordTemplate,
       },
     ]
   },

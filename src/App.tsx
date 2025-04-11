@@ -6,14 +6,17 @@ import { useMemo, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
 import { setMe } from "./store/slice/use.slice";
-import { getValueFromLocalStorage, setValueInLocalStorage } from "./utils/localStorage";
+import {
+  getValueFromLocalStorage,
+  setValueInLocalStorage,
+} from "./utils/localStorage";
 import { APP_ROUTES } from "./constants";
 import { getMe } from "./services/Auth";
 import { Box } from "@mui/material";
 import useAuth from "./hook/api/useAuth";
 
 export default function App() {
-  const {handleGetMe}  = useAuth()
+  const { handleGetMe } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userStore = useSelector((state: RootState) => state.userSlice);
@@ -21,17 +24,22 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [initDone, setInitDone] = useState(false);
 
-  const session = me ? {
-    user: {
-      name: me?.lastName && me?.firstName ? `${me.lastName} ${me.firstName}` : "User",
-      email: me?.phone || "",
-      image: me?.avatar || "https://via.placeholder.com/150",
-    },
-  } : null;
+  const session = me
+    ? {
+        user: {
+          name:
+            me?.lastName && me?.firstName
+              ? `${me.lastName} ${me.firstName}`
+              : "User",
+          email: me?.phone || "",
+          image: me?.avatar || "https://via.placeholder.com/150",
+        },
+      }
+    : null;
 
-   useEffect(()=>{
-    handleGetMe()
-  },[])
+  useEffect(() => {
+    handleGetMe();
+  }, []);
   const authentication = useMemo(() => {
     return {
       signIn: async () => {
@@ -54,15 +62,20 @@ export default function App() {
       setLoading(true);
       try {
         const token = getValueFromLocalStorage("accessToken");
-        
+
         if (token && (!me || !me.id)) {
           console.log("Found token, fetching user data");
-          
+
           try {
             const response = await getMe();
             console.log("getMe response:", response);
-            
-            if (response && response.success && response.data && response.data.user) {
+
+            if (
+              response &&
+              response.success &&
+              response.data &&
+              response.data.user
+            ) {
               console.log("Setting user data:", response.data.user);
               dispatch(setMe(response.data.user));
             } else {
@@ -83,7 +96,7 @@ export default function App() {
         setInitDone(true);
       }
     };
-    
+
     if (!initDone) {
       checkAuth();
     }

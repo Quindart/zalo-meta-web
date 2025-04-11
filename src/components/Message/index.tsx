@@ -1,17 +1,23 @@
+import { getHourAndMinute } from "@/utils/formatTime";
 import { MoreHoriz } from "@mui/icons-material";
-import { Box, IconButton, Popover, Typography } from "@mui/material";
+import { Avatar, Box, IconButton, Popover, Typography } from "@mui/material";
 import { useState } from "react";
 
 type MessPropsType = {
   content: string;
-  receiverId: string | any;
+  sender: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  channelId: string;
+  status: string;
   timestamp: string;
-  senderId: string;
   emojis: string[];
   isMe: boolean;
 };
 function MessageChat(props: Partial<MessPropsType>) {
-  const { content, senderId, timestamp, emojis, isMe = false } = props;
+  const { content, sender, timestamp, emojis, isMe = true } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -30,90 +36,95 @@ function MessageChat(props: Partial<MessPropsType>) {
 
   const open = Boolean(anchorEl);
   return (
-    <Box
-      maxWidth={500}
-      px={2}
-      py={1}
-      borderRadius={1}
-      alignSelf={isMe ? "flex-end" : "flex-start"}
-      bgcolor={isMe ? "#E8F3FF" : "grey.50"}
-      sx={{
-        "&:hover": {
-          boxShadow: "2px 2px 2px  #E8F3FF",
-          transition: "all 0.2s ease-in",
-          ".emoji-btn": {
-            opacity: 1,
-          },
-        },
-        position: "relative",
-      }}
-    >
+    <Box display={"flex"} gap={1} alignSelf={isMe ? "flex-end" : "flex-start"}>
       {!isMe && (
-        <Typography fontSize={13} mb={"1px"} fontWeight={500} color="grey.700">
-          {senderId}
-        </Typography>
-      )}
-      <Typography fontSize={13} color="grey.800">
-        {content}
-      </Typography>
-      <Typography fontSize={11} color="grey.600">
-        {timestamp}
-      </Typography>
-      <IconButton
-        size="small"
-        className="emoji-btn"
-        onClick={handleOpen}
-        sx={{
-          position: "absolute",
-          left: -4,
-          opacity: 0,
-          bottom: -12,
-          transition: "opacity 0.2s ease-in",
-        }}
-      >
-        <MoreHoriz fontSize="small" />
-      </IconButton>
-
-      {/* Popup chứa danh sách emoji */}
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-      >
-        <Box px={"4px"} py={"2px"} display="flex" gap={"4px"}>
-          {["😂", "😍", "👍", "🔥", "🎉"].map((emoji) => (
-            <Typography
-              key={emoji}
-              fontSize={14}
-              sx={{ cursor: "pointer", "&:hover": { transform: "scale(1.2)" } }}
-              onClick={() => {
-                const index = emoList[`${emoji}`];
-                emoList[index] += 1;
-                setEmolist(emoList);
-                handleClose();
-              }}
-            >
-              {emoji}
-            </Typography>
-          ))}
+        <Box>
+          <Avatar src={sender?.avatar} />
         </Box>
-      </Popover>
-      <Typography
-        position={"absolute"}
-        px={1}
-        borderRadius={4}
-        bgcolor={"white"}
-        right={0}
-        fontSize={12}
-        color="initial"
-        boxShadow={"1px 1px 1px 1pxrgb(192, 193, 194)"}
+      )}
+      <Box
+        maxWidth={500}
+        px={2}
+        py={1}
+        borderRadius={2}
+        border={"1px"}
+        borderColor={"grey.400"}
+        alignSelf={isMe ? "flex-end" : "flex-start"}
+        bgcolor={isMe ? "#DBEBFF" : "grey.50"}
+        sx={{
+          "&:hover": {
+            boxShadow: "2px 2px 2px  #E8F3FF",
+            transition: "all 0.2s ease-in",
+            ".emoji-btn": {
+              opacity: 1,
+            },
+          },
+          position: "relative",
+        }}
       >
-        {emojis}
-      </Typography>
+        <Typography fontSize={15}>{content}</Typography>
+        <Typography fontSize={14} color="grey.600">
+          {getHourAndMinute(`${timestamp}`)}
+        </Typography>
+        <IconButton
+          size="small"
+          className="emoji-btn"
+          onClick={handleOpen}
+          sx={{
+            position: "absolute",
+            left: -4,
+            opacity: 0,
+            bottom: -12,
+            transition: "opacity 0.2s ease-in",
+          }}
+        >
+          <MoreHoriz fontSize="small" />
+        </IconButton>
+
+        {/* Popup chứa danh sách emoji */}
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+        >
+          <Box px={"4px"} py={"2px"} display="flex" gap={"4px"}>
+            {["😂", "😍", "👍", "🔥", "🎉"].map((emoji) => (
+              <Typography
+                key={emoji}
+                fontSize={14}
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": { transform: "scale(1.2)" },
+                }}
+                onClick={() => {
+                  const index = emoList[`${emoji}`];
+                  emoList[index] += 1;
+                  setEmolist(emoList);
+                  handleClose();
+                }}
+              >
+                {emoji}
+              </Typography>
+            ))}
+          </Box>
+        </Popover>
+        <Typography
+          position={"absolute"}
+          px={1}
+          borderRadius={4}
+          bgcolor={"white"}
+          right={0}
+          fontSize={12}
+          color="initial"
+          boxShadow={"1px 1px 1px 1pxrgb(192, 193, 194)"}
+        >
+          {emojis}
+        </Typography>
+      </Box>{" "}
     </Box>
   );
 }
