@@ -8,10 +8,8 @@ export const login = async (phone: string, password: string): Promise<any> => {
 }
 
 export const getMe = async () => {
-    console.log("Fetching user data...");
     try {
       const token = getValueFromLocalStorage("accessToken");
-      console.log("Token from localStorage:", token ? "exists" : "not found");
       
       if (!token) {
         return { success: false, message: "No token found" };

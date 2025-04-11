@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Avatar,
   Box,
@@ -10,8 +10,12 @@ import VideoCallIcon from "@mui/icons-material/VideoCall";
 import SearchIcon from "@mui/icons-material/Search";
 import ViewAgendaIcon from "@mui/icons-material/ViewAgenda";
 import InfoDialog from "./InfoDialog";
+import { useEffect } from "react";
 
-const InfoUser: React.FC = () => {
+function InfoUser({
+  channel,
+  roomName,
+}:any) {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
@@ -27,12 +31,12 @@ const InfoUser: React.FC = () => {
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         <Avatar
-          src="/assets/images/zalo-icon.png"
+          src={channel?.avatar || ""}
           sx={{ width: 50, height: 50, cursor: "pointer" }}
           onClick={() => setOpen(true)}
         />
         <Typography variant="body1" fontWeight="600">
-          Võ Thị Kim Ngân
+          {roomName || ""}
         </Typography>
       </Box>
       <Box sx={{ display: "flex", gap: 1 }}>

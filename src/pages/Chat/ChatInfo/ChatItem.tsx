@@ -1,6 +1,7 @@
 import { Box, Button, Typography, Badge } from "@mui/material";
 import { blue, grey } from "@mui/material/colors";
 import { useNavigate, useParams } from "react-router-dom";
+import { memo } from "react";
 
 interface ChatItemProps {
   item: {
@@ -13,14 +14,16 @@ interface ChatItemProps {
     isChoose: boolean;
   };
 }
-const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
+const ChatItem: React.FC<ChatItemProps> = memo(({ item }) => {
   const navigate = useNavigate();
   const getTimeDisplay = (time: Date) => {
     const now = new Date();
+    time = new Date(time); 
     const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);
 
     if (diffInSeconds < 60) {
-      return `${diffInSeconds} giây`;
+      // return `${diffInSeconds} giây`;
+      return "Vài giây trước";
     } else if (diffInSeconds < 3600) {
       return `${Math.floor(diffInSeconds / 60)} phút`;
     } else if (diffInSeconds < 86400) {
@@ -103,6 +106,6 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
       </Box>
     </Button>
   );
-};
+});
 
 export default ChatItem;
