@@ -62,8 +62,8 @@ function SidebarFooterAccountPopover({
             <ListItemIcon>
               <Avatar
                 sx={{
-                  width: 32,
-                  height: 32,
+                  width: 40,
+                  height: 40,
                   fontSize: "0.95rem",
                   bgcolor: account.color,
                 }}

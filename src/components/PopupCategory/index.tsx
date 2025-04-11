@@ -28,9 +28,9 @@ const PopupCategory = () => {
 
   return (
     <Box className="relative">
-      <Button size="small" color="inherit" variant="text" endIcon={<ExpandMore />} onClick={handleOpen}>
+      {/* <Button size="small" color="inherit" variant="text" endIcon={<ExpandMore />} onClick={handleOpen}>
         Phân loại
-      </Button>
+      </Button> */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem disabled>
           Theo thẻ phân loại

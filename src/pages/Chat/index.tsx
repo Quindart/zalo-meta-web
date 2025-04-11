@@ -1,15 +1,25 @@
 import PopupCategory from "@/components/PopupCategory";
 import CustomSearchBar from "@/components/SearchBar";
-import { Box, Button, IconButton, Stack } from "@mui/material";
+import { Box, IconButton, Stack } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 import ChatItem from "./ChatInfo/ChatItem";
-import { EditNotifications } from "@mui/icons-material";
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 import { useEffect, useMemo, useState } from "react";
 import SocketService from "@/services/socket/SocketService";
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+
+const MY_CLOUD = {
+  id: 1,
+  avatar:
+    "https://res-zalo.zadn.vn/upload/media/2021/6/4/2_1622800570007_369788.jpg", // random avatar
+  name: "Cloud của tôi",
+  message: "Bạn vừa thêm một tệp vào Cloud.",
+  time: new Date("2025-04-11T01:42:48.268Z"),
+  isRead: false,
+  isChoose: true,
+};
 
 const socketService = new SocketService();
 const SOCKET_EVENTS = {
@@ -28,11 +38,9 @@ interface ResponseType {
   data: any;
 }
 
-
 function ChatTemplate() {
-  const navigate = useNavigate();
-  const userStore = useSelector((state: RootState) => state.userSlice)
-  const { me } = userStore
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
   const [listChannel, setListChannel] = useState<any[]>([]);
 
   useEffect(() => {
@@ -61,15 +69,18 @@ function ChatTemplate() {
     const socket = socketService.getSocket();
     const params = { currentUserId: me.id };
     socket.emit(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL, params);
-    socket.on(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE, (response: ResponseType) => {
-      console.log("response", response);
-      if (response.success) {
-        setListChannel(response.data);
-      } else {
-        console.error("Error loading channels:", response.message);
-      }
-    });
-  }
+    socket.on(
+      SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE,
+      (response: ResponseType) => {
+        console.log("response", response);
+        if (response.success) {
+          setListChannel(response.data);
+        } else {
+          console.error("Error loading channels:", response.message);
+        }
+      },
+    );
+  };
 
   const infoChat = useMemo(() => {
     console.log("listChannel", listChannel);
@@ -90,11 +101,10 @@ function ChatTemplate() {
         direction="column"
         spacing={1}
         sx={{
-          width: 300,
+          width: 360,
           height: "calc(100vh - 70px)",
           bgcolor: "white",
           position: "fixed",
-          top: 60,
           zIndex: 1000,
           borderRight: "0.5px solid #E0E8EF",
         }}
@@ -139,18 +149,10 @@ function ChatTemplate() {
         <Box sx={{ alignContent: "end" }}>
           <PopupCategory />
         </Box>
-        <Button
-          onClick={() => {
-            navigate("/chats");
-          }}
-        >
-          Cloud của tôi
-        </Button>
-        {
-          infoChat.map((item, index) => (
-            <ChatItem key={index} item={item} />
-          ))
-        }
+        <ChatItem item={MY_CLOUD} />
+        {infoChat.map((item, index) => (
+          <ChatItem key={index} item={item} />
+        ))}
       </Stack>
       <Box marginLeft={"300px"} flex={1} width={"100%"}>
         <Outlet />

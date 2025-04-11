@@ -18,11 +18,10 @@ const ChatItem: React.FC<ChatItemProps> = memo(({ item }) => {
   const navigate = useNavigate();
   const getTimeDisplay = (time: Date) => {
     const now = new Date();
-    time = new Date(time); 
+    time = new Date(time);
     const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);
 
     if (diffInSeconds < 60) {
-      // return `${diffInSeconds} giây`;
       return "Vài giây trước";
     } else if (diffInSeconds < 3600) {
       return `${Math.floor(diffInSeconds / 60)} phút`;
@@ -53,23 +52,23 @@ const ChatItem: React.FC<ChatItemProps> = memo(({ item }) => {
           <img
             src={item.avatar}
             alt={item.name}
-            width={'40px'}
-            height={'40px'}
-            style={{ borderRadius: "50%" }}
+            width={"50px"}
+            height={"50px"}
+            style={{ borderRadius: "50%", objectFit: "cover" }}
           />
         </Badge>
 
         {/* Nội dung chat */}
         <Box flexGrow={1}>
           <Typography
-            fontWeight="400"
-            color="grey.800"
-            fontSize={14}
+            fontWeight="600"
+            fontSize={'1rem'}
+            color="#081b3a"
             sx={{
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              maxWidth: "100px",
+              maxWidth: "200px",
             }}
             textAlign={"left"}
           >

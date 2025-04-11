@@ -12,6 +12,7 @@ import DashBoardTemplate from "@/pages/Dashboard";
 import FriendTemplate from "@/pages/Friend";
 import PCLandingTemplate from "@/pages/pc";
 import { createBrowserRouter } from "react-router-dom";
+
 const router = createBrowserRouter([
   {
     Component: App,

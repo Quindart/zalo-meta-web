@@ -14,7 +14,8 @@ function MainChat() {
   const { me } = userStore;
   const params = useParams();
   const channelId = params.id;
-  const { 
+
+  const {
     channel,
     findChannelById,
     roomName,
@@ -37,19 +38,21 @@ function MainChat() {
 
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
   return (
     <Box
       sx={{
-        maxWidth: "calc(100% - 340px)",
+        maxWidth: "calc(100% - 415px)",
         height: "100vh",
         bgcolor: "grey.300",
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        marginLeft: "59px",
       }}
     >
       <Box

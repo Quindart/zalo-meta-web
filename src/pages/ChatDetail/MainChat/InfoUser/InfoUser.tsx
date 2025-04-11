@@ -1,21 +1,12 @@
 import { useState } from "react";
-import {
-  Avatar,
-  Box,
-  Typography,
-  IconButton,
-} from "@mui/material";
+import { Avatar, Box, Typography, IconButton } from "@mui/material";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import VideoCallIcon from "@mui/icons-material/VideoCall";
 import SearchIcon from "@mui/icons-material/Search";
 import ViewAgendaIcon from "@mui/icons-material/ViewAgenda";
 import InfoDialog from "./InfoDialog";
-import { useEffect } from "react";
 
-function InfoUser({
-  channel,
-  roomName,
-}:any) {
+function InfoUser({ channel, roomName }: any) {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
@@ -26,7 +17,7 @@ function InfoUser({
         justifyContent: "space-between",
         backgroundColor: "white",
         marginTop: 1,
-        marginLeft: 1
+        marginLeft: 1,
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -56,6 +47,6 @@ function InfoUser({
       <InfoDialog open={open} onClose={() => setOpen(false)} />
     </Box>
   );
-};
+}
 
 export default InfoUser;

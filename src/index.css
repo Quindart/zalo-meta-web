@@ -15,3 +15,25 @@ html,
 div {
   box-sizing: border-box;
 }
+
+.MuiToolbar-root{
+  display: none!important;
+}
+
+nav{
+  background-color: #005AE0!important;
+ }
+
+.MuiList-root a {
+  margin-top: 10px;
+  padding-left: 4px;
+  
+}
+
+.MuiListItemIcon-root  svg {
+  font-size: 36px;
+  margin-right:20px;
+  font-weight: 500;
+  color: #f1f1f1!important;
+}
+

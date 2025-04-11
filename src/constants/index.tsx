@@ -1,8 +1,7 @@
 import { Navigation } from "@toolpad/core/AppProvider";
-import ChatIcon from "@mui/icons-material/Chat";
-import BallotIcon from "@mui/icons-material/Ballot";
+import RecentActorsRoundedIcon from "@mui/icons-material/RecentActorsRounded";
 import { Chip } from "@mui/material";
-
+import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
 export const APP_ROUTES = {
   DASHBOARD: "/",
   FILE_UPLOADED: "/files",
@@ -32,13 +31,14 @@ export const NAVIGATION: Navigation = [
   {
     segment: "chats",
     title: "Chat",
-    icon: <ChatIcon />,
+    icon: <QuestionAnswerRoundedIcon />,
+
     action: <Chip label={7} color="primary" size="small" />,
   },
   {
     segment: "friends",
     title: "Danh sách bạn bè",
-    icon: <BallotIcon />,
+    icon: <RecentActorsRoundedIcon />,
   },
 ];
 
