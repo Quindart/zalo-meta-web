@@ -16,22 +16,27 @@ function ForgotPasswordTemplate() {
 
   return (
     <Box
-    sx={{ 
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: 'center',
-      paddingTop: 5,
-      
-    }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingTop: 5,
+      }}
     >
       <Typography variant="body1" sx={{ mb: 1 }}>
         Nhập số điện thoại của bạn
       </Typography>
-      <FormGroup sx={{ mt: 4, mb: 2 }}>
-        <FormControl style={{ marginBottom: 4 }}>
-          <Box sx={{display: "flex", alignItems: "center", borderBottom: "1px solid #ccc"}}>
-            <PhoneIphoneIcon sx={{color: grey[800], fontSize: 15}}/>
+      <FormGroup sx={{ mt: 3, mb: 2 }}>
+        <FormControl style={{ marginBottom: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              borderBottom: "1px solid #ccc",
+            }}
+          >
+            <PhoneIphoneIcon sx={{ color: grey[800], fontSize: 15 }} />
             <PhoneInput
               country={"vn"} // Mặc định là Việt Nam (+84)
               value={phoneNumber}
@@ -42,34 +47,33 @@ function ForgotPasswordTemplate() {
                 fontSize: "14px",
                 borderRadius: "8px",
                 border: "none",
-                boxShadow: "none"
+                boxShadow: "none",
               }}
               dropdownStyle={{
                 borderRadius: "10px",
-                fontSize: "14px"
-               }}
-              />
+                fontSize: "14px",
+              }}
+            />
           </Box>
-
         </FormControl>
-          <Button
-        // onClick={}
-            size="large"
-            sx={{ mt: 3, mb: 2 ,backgroundColor: "#169bf4" , fontSize: 14}}
-            variant="contained"
-          >
-            Tiếp tục
-          </Button>
-          <Typography
+        <Button
+          // onClick={}
+          size="large"
+          sx={{ mt: 3, mb: 2, backgroundColor: "#0190F3", fontSize: 14 }}
+          variant="contained"
+        >
+          Tiếp tục
+        </Button>
+        <Typography
           onClick={handleLogin}
-           sx={{
+          sx={{
             color: grey[800],
             fontSize: 14,
-            cursor: "pointer"
-            }}
-          >
-             «Quay lại
-          </Typography>
+            cursor: "pointer",
+          }}
+        >
+          «Quay lại
+        </Typography>
       </FormGroup>
     </Box>
   );
