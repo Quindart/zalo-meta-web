@@ -4,26 +4,55 @@ import { getValueFromLocalStorage } from "@/utils/localStorage";
 const api = "/api/v1/auth"
 
 export const login = async (phone: string, password: string): Promise<any> => {
-    return await axiosConfig.post(`${api}/login`, { phone, password });
+  return await axiosConfig.post(`${api}/login`, { phone, password });
 }
 
+export const verifyOTP = async (OTP: string, email: string): Promise<any> => {
+  try {
+    const url = `${api}/verify-forgot-password`;
+    return await axiosConfig.post(url, { email, otp: OTP });
+  } catch (error: any) {
+    console.error("Error fetching user data:", error);
+    return error?.response.data;
+  }
+}
+export const sendOTP = async (email: string): Promise<any> => {
+  try {
+    const url = `${api}/forgot-password`;
+    return await axiosConfig.post(url, { email });
+  } catch (error: any) {
+    console.error("Error fetching user data:", error);
+    return error?.response.data;
+  }
+}
+export const resetPassword = async (email: string, password: string, resetToken: string): Promise<any> => {
+  try {
+    const url = `${api}/reset-password`;
+    return await axiosConfig.post(url, { email, password, resetToken });
+  } catch (error: any) {
+    console.error("Error fetching user data:", error);
+    return error?.response.data;
+  }
+}
+
+
 export const getMe = async () => {
-    try {
-      const token = getValueFromLocalStorage("accessToken");
-      
-      if (!token) {
-        return { success: false, message: "No token found" };
-      }
-  
-      // Token sẽ tự động được thêm vào header bởi axiosConfig interceptors
-      const response = await axiosConfig.get("/api/v1/me?queries=firstName,lastName,email,avatar,id,phone,dateOfBirth");
-      console.log("Response from API:", response);
-      
-      return { success: true, data: response };
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      return { success: false, message: "Failed to fetch user data" };
+  try {
+    const token = getValueFromLocalStorage("accessToken");
+
+    if (!token) {
+      return { success: false, message: "No token found" };
     }
+
+    // Token sẽ tự động được thêm vào header bởi axiosConfig interceptors
+    const response = await axiosConfig.get("/api/v1/me?queries=firstName,lastName,email,avatar,id,phone,dateOfBirth");
+    console.log("Response from API:", response);
+
+    return { success: true, data: response };
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return { success: false, message: "Failed to fetch user data" };
+  }
 };
 
 export const logout = async () => {
