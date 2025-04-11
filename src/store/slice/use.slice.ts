@@ -3,8 +3,11 @@ interface User {
     id: string;
     fullName: string;
     email: string;
-    gender: string;
     phone: string;
+    dateOfBirth: string;
+    firstName: string;
+    lastName: string;
+    avatar: string
 }
 export interface InitUserType {
     me: {
@@ -18,8 +21,11 @@ const initUser: InitUserType = {
             id: '',
             fullName: '',
             email: '',
-            gender: '',
-            phone: ''
+            phone: '',
+            dateOfBirth: '',
+            firstName: '',
+            lastName: '',
+            avatar: ''
         },
     },
 };

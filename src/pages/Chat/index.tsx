@@ -1,57 +1,110 @@
 import PopupCategory from "@/components/PopupCategory";
 import CustomSearchBar from "@/components/SearchBar";
-import { Box, Button, IconButton, Stack } from "@mui/material";
+import { Box, IconButton, Stack } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 import ChatItem from "./ChatInfo/ChatItem";
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { useEffect, useMemo, useState } from "react";
+import SocketService from "@/services/socket/SocketService";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+
+const MY_CLOUD = {
+  id: 1,
+  avatar:
+    "https://res-zalo.zadn.vn/upload/media/2021/6/4/2_1622800570007_369788.jpg", // random avatar
+  name: "Cloud của tôi",
+  message: "Bạn vừa thêm một tệp vào Cloud.",
+  time: new Date("2025-04-11T01:42:48.268Z"),
+  isRead: false,
+  isChoose: true,
+};
+
+const socketService = new SocketService();
+const SOCKET_EVENTS = {
+  MESSAGE: {
+    RECEIVED: "message:received",
+  },
+  CHANNEL: {
+    LOAD_CHANNEL: "channel:load",
+    LOAD_CHANNEL_RESPONSE: "channel:loadResponse",
+  },
+};
+
+interface ResponseType {
+  success: boolean;
+  message: string;
+  data: any;
+}
 
 function ChatTemplate() {
-  const navigate = useNavigate();
-  const infoChat = [
-    {
-      id: "67b4b8fa40191e21f03c08f2",
-      avatar:
-        "https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2021/11/20/975861/F0B28C78-C0D5-4255-B-01.jpeg",
-      name: "MR.TESTER",
-      message: "Ngay mai di choi nhajjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj",
-      time: new Date("2024-05-16"),
-      isRead: true,
-      isChoose: true,
-    },
-    {
-      id: 2,
-      avatar:
-        "https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2021/11/20/975861/F0B28C78-C0D5-4255-B-01.jpeg",
-      name: "Lê Minh Quang",
-      message: "bai tap sao roi ban",
-      time: new Date("2024-16-16"),
-      isRead: true,
-      isChoose: false,
-    },
-    {
-      id: 3,
-      avatar:
-        "https://media-cdn-v2.laodong.vn/Storage/NewsPortal/2021/11/20/975861/F0B28C78-C0D5-4255-B-01.jpeg",
-      name: "Lê Quốc Phòng",
-      message: "ok bạn",
-      time: new Date("2025-01-16"),
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  const [listChannel, setListChannel] = useState<any[]>([]);
+
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    if (!socket.connected) {
+      socket.connect();
+    }
+    return () => {
+      socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
+      socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE);
+    };
+  }, []);
+
+  useEffect(() => {
+    const socket = socketService.getSocket();
+    socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, () => {
+      reloadChannels();
+    });
+  }, []);
+
+  useEffect(() => {
+    reloadChannels();
+  }, []);
+
+  const reloadChannels = () => {
+    const socket = socketService.getSocket();
+    const params = { currentUserId: me.id };
+    socket.emit(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL, params);
+    socket.on(
+      SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE,
+      (response: ResponseType) => {
+        console.log("response", response);
+        if (response.success) {
+          setListChannel(response.data);
+        } else {
+          console.error("Error loading channels:", response.message);
+        }
+      },
+    );
+  };
+
+  const infoChat = useMemo(() => {
+    console.log("listChannel", listChannel);
+    return listChannel.map((item) => ({
+      id: item.id,
+      name: item.name,
+      avatar: item.avatar,
+      time: item.time, // Use the updated time
+      message: item.message, // Use the updated message
       isRead: false,
       isChoose: false,
-    },
-  ];
+    }));
+  }, [listChannel]);
+
   return (
     <Box display={"flex"}>
-      {" "}
       <Stack
         direction="column"
         spacing={1}
         sx={{
-          width: 300,
+          width: 360,
           height: "calc(100vh - 70px)",
           bgcolor: "white",
           position: "fixed",
-          top: 60,
           zIndex: 1000,
           borderRight: "0.5px solid #E0E8EF",
         }}
@@ -96,19 +149,12 @@ function ChatTemplate() {
         <Box sx={{ alignContent: "end" }}>
           <PopupCategory />
         </Box>
-        <Button
-          onClick={() => {
-            navigate("/chats/0");
-          }}
-        >
-          Cloud của tôi
-        </Button>
-        {/* CODE DAY NE */}
-        {infoChat.map((item) => (
-          <ChatItem item={item} />
+        <ChatItem item={MY_CLOUD} />
+        {infoChat.map((item, index) => (
+          <ChatItem key={index} item={item} />
         ))}
       </Stack>
-      <Box bgcolor={"red"} marginLeft={"300px"} flex={1} width={"100%"}>
+      <Box marginLeft={"300px"} flex={1} width={"100%"}>
         <Outlet />
       </Box>
     </Box>

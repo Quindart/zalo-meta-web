@@ -37,17 +37,15 @@ export const resetPassword = async (email: string, password: string, resetToken:
 
 
 export const getMe = async () => {
-  console.log("Fetching user data...");
   try {
     const token = getValueFromLocalStorage("accessToken");
-    console.log("Token from localStorage:", token ? "exists" : "not found");
 
     if (!token) {
       return { success: false, message: "No token found" };
     }
 
     // Token sẽ tự động được thêm vào header bởi axiosConfig interceptors
-    const response = await axiosConfig.get("/api/v1/me?queries=firstName,lastName,email,avatar,id,phone");
+    const response = await axiosConfig.get("/api/v1/me?queries=firstName,lastName,email,avatar,id,phone,dateOfBirth");
     console.log("Response from API:", response);
 
     return { success: true, data: response };

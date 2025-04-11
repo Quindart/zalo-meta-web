@@ -13,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { APP_ROUTES } from "@/constants";
 import { useState, ChangeEvent, KeyboardEvent } from "react";
 import useAuth from "@/hook/api/useAuth";
+import PhoneInput from "react-phone-input-2";
+import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 
 interface FormState {
   phone: string;
@@ -29,6 +31,7 @@ function LoginTemplate() {
     isLoading: false,
   });
 
+
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
@@ -36,7 +39,7 @@ function LoginTemplate() {
 
   const handReserPassword = () => {
     navigate(APP_ROUTES.FORGOT_PASSWORD);
-  }
+  };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -47,24 +50,40 @@ function LoginTemplate() {
   return (
     <Box sx={{ width: "100%" }}>
       <Typography
-        variant="body2"
         textAlign="center"
         fontWeight={600}
-        color="initial"
+        color="grey.800"
         pb={2}
-        mt={2}
+        mt={1}
         borderBottom="0.5px solid #d5d5d5"
       >
         Đăng nhập với mật khẩu
       </Typography>
       <FormGroup sx={{ mt: 4, mb: 2, px: 10 }}>
         <FormControl sx={{ mb: 4 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              borderBottom: "1px solid #ccc",
+            }}
+          >
+          </Box>
           <Input
             name="phone"
             id="phone"
             value={formState.phone}
+            disableUnderline
             onChange={handleInputChange}
-            sx={{ fontSize: 14 }}
+            sx={{
+              fontSize: 16,
+              "& .MuiInputBase-input": {
+                backgroundColor: "transparent",
+              },
+              pb: 1,
+              borderBottom: "1px solid rgb(220, 222, 225)",
+              mt: 4,
+            }}
             startAdornment={
               <PhoneAndroidIcon sx={{ width: 16, mr: 2, color: "grey.400" }} />
             }
@@ -72,8 +91,17 @@ function LoginTemplate() {
             disabled={formState.isLoading}
           />
           <Input
-            sx={{ fontSize: 14, mt: 2 }}
+            sx={{
+              fontSize: 16,
+              "& .MuiInputBase-input": {
+                backgroundColor: "transparent",
+              },
+              pb: 1,
+              borderBottom: "1px solid rgb(220, 222, 225)",
+              mt: 4,
+            }}
             name="password"
+            disableUnderline
             type="password"
             value={formState.password}
             onChange={handleInputChange}
@@ -91,7 +119,7 @@ function LoginTemplate() {
             handleLogin(formState.phone, formState.password);
           }}
           size="large"
-          sx={{ mt: 4 }}
+          sx={{ mt: 2, fontSize: 14, background: "#0190F3" }}
           variant="contained"
           disabled={formState.isLoading}
         >
@@ -103,10 +131,10 @@ function LoginTemplate() {
         </Button>
         <Typography
           textAlign={"center"}
-          fontSize={12}
+          fontSize={14}
           variant="body1"
           mt={2}
-          color="initial"
+          color="grey.800"
           onClick={handReserPassword}
           style={{ cursor: "pointer" }}
         >
@@ -114,9 +142,9 @@ function LoginTemplate() {
         </Typography>
         <Typography
           mt={4}
-          sx={{ cursor: "pointer" }}
+          sx={{ cursor: "pointer", color: "#0190F3", fontWeight: 600 }}
           textAlign={"center"}
-          fontSize={12}
+          fontSize={14}
           variant="body1"
           color="primary"
           onClick={() => navigate(APP_ROUTES.USER.LOGIN_QR)}

@@ -44,9 +44,15 @@ function ForgotPasswordTemplate() {
       <Typography variant="body1" sx={{ mb: 1 }}>
         Nhập số điện thoại của bạn
       </Typography>
-      <FormGroup sx={{ mt: 4, mb: 2 }}>
-        <FormControl style={{ marginBottom: 4 }}>
-          <Box sx={{ display: "flex", alignItems: "center", borderBottom: "1px solid #ccc" }}>
+      <FormGroup sx={{ mt: 3, mb: 2 }}>
+        <FormControl style={{ marginBottom: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              borderBottom: "1px solid #ccc",
+            }}
+          >
             <PhoneIphoneIcon sx={{ color: grey[800], fontSize: 15 }} />
             <PhoneInput
               country={"vn"} // Mặc định là Việt Nam (+84)
@@ -58,11 +64,11 @@ function ForgotPasswordTemplate() {
                 fontSize: "14px",
                 borderRadius: "8px",
                 border: "none",
-                boxShadow: "none"
+                boxShadow: "none",
               }}
               dropdownStyle={{
                 borderRadius: "10px",
-                fontSize: "14px"
+                fontSize: "14px",
               }}
             />
           </Box>

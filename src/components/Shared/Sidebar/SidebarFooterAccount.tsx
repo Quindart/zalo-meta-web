@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Button,
   Divider,
   ListItemIcon,
   ListItemText,
@@ -14,13 +15,17 @@ import {
   SignOutButton,
 } from "@toolpad/core/Account";
 
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
+import { grey } from "@mui/material/colors";
+import ProfileDialog  from "./DialogUpdateUser"
+import { useState } from "react";
+import useAuth from "@/hook/api/useAuth";
 
-
-function SidebarFooterAccountPopover() {
-  const userStore = useSelector((state: RootState) => state.userSlice)
-  const { me } = userStore
+function SidebarFooterAccountPopover({
+    onOpenProfile
+  }: {
+    onOpenProfile: () => void;
+  }) {
+  const {me} = useAuth()
   const accounts = [
     {
       id: 1,
@@ -28,6 +33,7 @@ function SidebarFooterAccountPopover() {
       email: me.phone,
       image: me.avatar,
       color: "primary.main",
+      birthday: me.birthday,
       projects: [
         {
           id: 3,
@@ -40,7 +46,7 @@ function SidebarFooterAccountPopover() {
   return (
     <Stack direction="column">
       <Typography variant="body2" mx={2} mt={1}>
-        Accounts
+        {accounts[0].name}
       </Typography>
       <MenuList>
         {accounts.map((account) => (
@@ -56,8 +62,8 @@ function SidebarFooterAccountPopover() {
             <ListItemIcon>
               <Avatar
                 sx={{
-                  width: 32,
-                  height: 32,
+                  width: 40,
+                  height: 40,
                   fontSize: "0.95rem",
                   bgcolor: account.color,
                 }}
@@ -82,49 +88,74 @@ function SidebarFooterAccountPopover() {
       </MenuList>
       <Divider />
       <AccountPopoverFooter>
-        <SignOutButton />
+        <Button
+            variant="outlined"
+            size="small"
+            sx={{
+              borderRadius: 3,
+              textTransform: "none",
+              fontSize: 13,
+              marginRight: 10,
+              borderColor: grey[500],
+              color: grey[900]
+            }}
+            onClick={() => {
+              onOpenProfile();
+            }}
+          >
+            Xem hồ sơ
+          </Button>
+          <SignOutButton />
       </AccountPopoverFooter>
     </Stack>
   );
 }
 
 function SidebarFooterAccount() {
+  const [open, setOpen] = useState(false);
   return (
-    <Account
+    <>
+      <Account
       slots={{
-        popoverContent: SidebarFooterAccountPopover,
+        popoverContent: () => (
+          <SidebarFooterAccountPopover 
+          onOpenProfile={() => setOpen(true)} 
+          />
+        ),
       }}
-      slotProps={{
-        popover: {
-          transformOrigin: { horizontal: "left", vertical: "bottom" },
-          anchorOrigin: { horizontal: "right", vertical: "bottom" },
-          disableAutoFocus: true,
-          slotProps: {
-            paper: {
-              elevation: 0,
-              sx: {
-                overflow: "visible",
-                filter: (theme) =>
-                  `drop-shadow(0px 2px 8px ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.32)"})`,
-                mt: 1,
-                "&::before": {
-                  content: '""',
-                  display: "block",
-                  position: "absolute",
-                  bottom: 10,
-                  left: 0,
-                  width: 10,
-                  height: 10,
-                  bgcolor: "background.paper",
-                  transform: "translate(-50%, -50%) rotate(45deg)",
-                  zIndex: 0,
+        slotProps={{
+          popover: {
+            transformOrigin: { horizontal: "left", vertical: "bottom" },
+            anchorOrigin: { horizontal: "right", vertical: "bottom" },
+            disableAutoFocus: true,
+            slotProps: {
+              paper: {
+                elevation: 0,
+                sx: {
+                  overflow: "visible",
+                  filter: (theme) =>
+                    `drop-shadow(0px 2px 8px ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.32)"})`,
+                  mt: 1,
+                  "&::before": {
+                    content: '""',
+                    display: "block",
+                    position: "absolute",
+                    bottom: 10,
+                    left: 0,
+                    width: 10,
+                    height: 10,
+                    bgcolor: "background.paper",
+                    transform: "translate(-50%, -50%) rotate(45deg)",
+                    zIndex: 0,
+                  },
                 },
               },
             },
           },
-        },
-      }}
-    />
+        }}
+      />
+      <ProfileDialog open={open} onClose={() => setOpen(false)}/>
+    </>
   );
 }
 export default SidebarFooterAccount;

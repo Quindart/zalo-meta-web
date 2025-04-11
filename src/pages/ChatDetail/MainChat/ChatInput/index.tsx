@@ -26,31 +26,37 @@ import BoltIcon from "@mui/icons-material/Bolt";
 import { useChat } from "@/hook/api/useChat";
 import { useParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
-export default function ChatInput() {
+
+export default function ChatInput({
+  channelId,
+}: {
+  channelId: any;
+}) {
   const format: string[] = [];
   const anchorEl = null;
   const inputRef = useRef<HTMLDivElement | null>(null);
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
 
   //TODO: phong
   const params = useParams();
   const receiverId = params.id;
-  const { sendMessage } = useChat();
+  const { sendMessage } = useChat(me.id);
   const [message, setMessage] = useState("");
-  const userId = localStorage.getItem("userId")?.replace(/"/g, "") || "";
   const { enqueueSnackbar } = useSnackbar();
 
   const handleSubmitMessage = () => {
-    {
-      if (receiverId && message) {
-        sendMessage(receiverId, message, userId);
-        setMessage("");
-      } else {
-        enqueueSnackbar({
-          variant: "error",
-          message: "Vui lòng nhập ID người nhận và nội dung tin nhắn",
-        });
-      }
+    if (receiverId && message) {
+      sendMessage(channelId, message);
+      setMessage("");
+    } else {
+      enqueueSnackbar({
+        variant: "error",
+        message: "Vui lòng nhập ID người nhận và nội dung tin nhắn",
+      });
     }
   };
 

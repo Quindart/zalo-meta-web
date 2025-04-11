@@ -15,7 +15,7 @@ export default function Layout() {
       sidebarExpandedWidth={64}
       sx={{
         "MuiToolbar-root": {
-          minHeight: 10,
+          minHeight: 20,
         },
       }}
     >
