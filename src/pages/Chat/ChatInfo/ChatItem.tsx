@@ -37,21 +37,21 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
         justifyContent: "flex-start",
         textTransform: "none",
         width: "100%",
-        padding: "8px",
-        borderRadius: "8px",
+        px: 2,
+        py: 1,
         backgroundColor: item.id == params.id ? blue[50] : "#fff",
         color: "black",
         "&:hover": { backgroundColor: grey[100] },
       }}
     >
-      <Box display="flex" alignItems="center" gap={1} width="100%">
+      <Box display="flex" alignItems="center" gap={2} width="100%">
         {/* Avatar */}
         <Badge>
           <img
             src={item.avatar}
             alt={item.name}
-            width={30}
-            height={30}
+            width={'40px'}
+            height={'40px'}
             style={{ borderRadius: "50%" }}
           />
         </Badge>
@@ -61,7 +61,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
           <Typography
             fontWeight="400"
             color="grey.800"
-            fontSize={12}
+            fontSize={14}
             sx={{
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -73,7 +73,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
             {item.name}
           </Typography>
           <Typography
-            fontSize={10}
+            fontSize={13}
             color="gray"
             sx={{
               whiteSpace: "nowrap",
@@ -89,7 +89,7 @@ const ChatItem: React.FC<ChatItemProps> = ({ item }) => {
 
         {/* Thời gian và số tin chưa đọc */}
         <Box textAlign="right">
-          <Typography fontSize={12} color="gray">
+          <Typography fontSize={14} color="gray">
             {getTimeDisplay(item.time)}
           </Typography>
         </Box>
