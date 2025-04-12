@@ -6,6 +6,7 @@ import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ReplyIcon from '@mui/icons-material/Reply';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import ShareDialog from "./ShareDialog";
 import { 
   Tooltip,
   Menu,
@@ -30,6 +31,7 @@ type MessPropsType = {
   isMe: boolean;
 };
 function MessageChat(props: Partial<MessPropsType>) {
+  const [openShare, setOpenShare] = useState(false);
   const { content, sender, timestamp, emojis, isMe = true } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -126,7 +128,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           <Tooltip title="chia sẻ">
             <IconButton
               size="small"
-              onClick={handleOpen}
+              onClick={() => setOpenShare(true)}
               sx={{
                 marginRight:1,
                 backgroundColor: "#fff",
@@ -218,6 +220,13 @@ function MessageChat(props: Partial<MessPropsType>) {
             <ListItemText>Xoá chỉ ở phía tôi</ListItemText>
           </MenuItem>
         </Menu>
+
+
+        <ShareDialog
+          open={openShare}
+          onClose={() => setOpenShare(false)}
+          messageToShare={content ?? ""}
+        />
       </Box>{" "}
     </Box>
   );
