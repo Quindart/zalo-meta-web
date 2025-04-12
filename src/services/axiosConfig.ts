@@ -73,7 +73,11 @@ axiosConfig.interceptors.response.use(
   },
   async function (error: AxiosError) {
     const originalRequest = error.config;
+    const isChangePasswordApi = error.config?.url?.includes("/me/change-password");
     if (error.response?.status === 401 && originalRequest && !(originalRequest as any)._retry) {
+      if(isChangePasswordApi){
+        return Promise.reject(error);
+      }
       if (isRefreshing) {
         return new Promise(function(resolve, reject) {
           failedQueue.push({ resolve, reject });

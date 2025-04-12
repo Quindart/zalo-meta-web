@@ -13,8 +13,6 @@ import { useNavigate } from "react-router-dom";
 import { APP_ROUTES } from "@/constants";
 import { useState, ChangeEvent, KeyboardEvent } from "react";
 import useAuth from "@/hook/api/useAuth";
-import PhoneInput from "react-phone-input-2";
-import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 
 interface FormState {
   phone: string;
