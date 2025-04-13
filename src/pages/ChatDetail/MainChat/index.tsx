@@ -1,11 +1,11 @@
 import { useRef, useEffect } from "react";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 import InfoUser from "./InfoUser/InfoUser";
 import ChatInput from "./ChatInput";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import MessageChat from "@/components/Message";
-import { useChat } from "@/hook/api/useChat";
+import { useChatContext } from "@/Context/ChatContextType";
 import { useParams } from "react-router-dom";
 
 function MainChat() {
@@ -15,33 +15,14 @@ function MainChat() {
   const params = useParams();
   const channelId = params.id;
 
-  const {
-    channel,
-    findChannelById,
-    roomName,
-    messages,
-    loadMessages,
-    loading,
-  } = useChat(me.id);
+  const { channel, messages, sendMessage, joinRoom, loading } = useChatContext();
+
 
   useEffect(() => {
     if (channelId) {
-      findChannelById(channelId);
+      joinRoom(channelId);
     }
-  }, [channelId, findChannelById]);
-
-  useEffect(() => {
-    if (channel) {
-      loadMessages(channel.id);
-    }
-  }, [channel]);
-
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
+  }, [channelId]);
 
   return (
     <Box
@@ -67,7 +48,8 @@ function MainChat() {
           borderRight: "1px solid #ddd",
         }}
       >
-        <InfoUser channel={channel} roomName={roomName} />
+        <InfoUser channel={channel} />
+
       </Box>
 
       <Box
@@ -79,19 +61,19 @@ function MainChat() {
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        {loading ? (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100%",
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        ) : (
-          <Box
+        {
+          loading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
+              <div className="loader"></div>
+            </Box>
+          ) : (<Box
             sx={{
               mx: 1,
               my: 1,
@@ -113,8 +95,8 @@ function MainChat() {
                 Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
               </Box>
             )}
-          </Box>
-        )}
+          </Box>)
+        }
       </Box>
 
       <Box
@@ -128,7 +110,7 @@ function MainChat() {
           zIndex: 10,
         }}
       >
-        <ChatInput channelId={channelId} />
+        <ChatInput channelId={channelId} sendMessage={sendMessage} />
       </Box>
     </Box>
   );

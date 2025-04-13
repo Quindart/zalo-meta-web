@@ -23,23 +23,25 @@ import {
 import ContactPage from "@mui/icons-material/ContactPage";
 import DrawIcon from "@mui/icons-material/Draw";
 import BoltIcon from "@mui/icons-material/Bolt";
-import { useChat } from "@/hook/api/useChat";
 import { useParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
 
-export default function ChatInput({ channelId }: { channelId: any }) {
+
+const ChatInput = ({
+  channelId,
+  sendMessage,
+}: {
+  channelId: any;
+  sendMessage: (channelId: string, message: string) => void;
+}) => {
   const format: string[] = [];
   const anchorEl = null;
   const inputRef = useRef<HTMLDivElement | null>(null);
-  const userStore = useSelector((state: RootState) => state.userSlice);
-  const { me } = userStore;
+
 
   //TODO: phong
   const params = useParams();
   const receiverId = params.id;
-  const { sendMessage } = useChat(me.id);
   const [message, setMessage] = useState("");
   const { enqueueSnackbar } = useSnackbar();
 
@@ -180,3 +182,5 @@ export default function ChatInput({ channelId }: { channelId: any }) {
     </Box>
   );
 }
+
+export default ChatInput;

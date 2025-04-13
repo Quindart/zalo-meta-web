@@ -20,10 +20,10 @@ const SOCKET_EVENTS = {
     LOAD_CHANNEL_RESPONSE: "channel:loadResponse",
     CREATE: "channel:create",
     CREATE_RESPONSE: "channel:createResponse",
+    JOIN_ROOM: "joinRoom",
+    JOIN_ROOM_RESPONSE: "joinRoomResponse",
   },
 };
-
-const socketService = new SocketService();
 
 interface ResponseType {
   success: boolean;
@@ -31,200 +31,208 @@ interface ResponseType {
   data: any;
 }
 
+interface MessageType {
+  id?: string;
+  _id?: string;
+  channelId: string;
+  senderId: string;
+  content: string;
+  timestamp: string;
+  status: string;
+  sender?: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+}
+
+
+const socketService = new SocketService();
 export const useChat = (currentUserId: string) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [channel, setChannel] = useState<any>(null);
   const [listChannel, setListChannel] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [roomName, setRoomName] = useState<string>("");
   const currentChannelRef = useRef<string | null>(null);
-  const [reloadChannel, setReloadChannel] = useState(false);
 
   useEffect(() => {
     const socket = socketService.getSocket();
-
     if (!socket.connected) {
       socket.connect();
     }
+    console.log("Socket connected:", socket.connected);
 
-    return () => {
-      socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
-      socket.off(SOCKET_EVENTS.MESSAGE.READ);
-      socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE);
-      socket.off(SOCKET_EVENTS.CHANNEL.FIND_BY_ID_RESPONSE);
-      socket.off(SOCKET_EVENTS.MESSAGE.LOAD_RESPONSE);
-      socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE);
-      socket.off(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE);
+    const findOrCreateResponse = (response: ResponseType) => {
+      if (response.success) {
+        console.log("Channel received:", response.data);
+        setChannel(response.data);
+        setLoading(false);
+        currentChannelRef.current = response.data.id;
+      } else {
+        console.error("Failed to create/find channel:", response.message);
+        setLoading(false);
+      }
     };
-  }, []);
 
-  useEffect(() => {
-    const socket = socketService.getSocket();
-    socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, (newMessage: any) => {
-      setLoading(true);
+    const joinRoomResponse = (response: ResponseType) => {
+      if (response.success) {
+        console.log("Joined room successfully:", response.data);
+        setChannel(response.data.channel);
+        setMessages(response.data.messages);
+        setLoading(false);
+        currentChannelRef.current = response.data.id;
+      }
+      else {
+        console.error("Failed to join room:", response.message);
+        setLoading(false);
+      }
+    }
+
+    const updateChannelWithMessage = (message: MessageType) => {
+      setListChannel(prevChannels => {
+        return prevChannels.map(channel => {
+          if (channel.id === message.channelId) {
+            // Update the channel with the latest message
+            return {
+              ...channel,
+              message: message.content,
+              time: message.timestamp,
+              lastMessage: message,
+              isRead: currentChannelRef.current === message.channelId
+            };
+          }
+          return channel;
+        });
+      });
+    };
+
+    const receivedMessage = (message: any) => {
+
+      updateChannelWithMessage(message);
+
+      if (message.channelId !== currentChannelRef.current) {
+        console.log("Message is for a different channel, ignoring", {
+          messageChannelId: message.channelId,
+          currentChannelId: currentChannelRef.current
+        });
+        return;
+      }
+      console.log("Received message:", message);
       setMessages((prev) => {
-        const messageId = newMessage.id || newMessage._id;
+        const messageId = message.id || message._id;
         const isDuplicate = messageId ?
           prev.some(msg => (msg.id === messageId || msg._id === messageId)) :
           false;
+
         if (isDuplicate) {
           console.log("Duplicate message detected, not adding");
           return prev;
         }
-        console.log("Adding new message to state");
-        return [...prev, newMessage];
+
+        console.log("Adding new message to state for channel:", currentChannelRef.current);
+        return [...prev, message];
       });
-      setLoading(false);
+    }
 
-    });
-
-    socket.on(SOCKET_EVENTS.MESSAGE.READ, (update: any) => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === update.messageId ? { ...msg, status: "read" } : msg
-        )
-      );
-    });
-
-    socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, (response: ResponseType) => {
+    const loadChannelResponse = (response: ResponseType) => {
       if (response.success) {
-        setChannel(response.data);
-        currentChannelRef.current = response.data.id;
-        setRoomName(response.data.name || "");
-        setLoading(false);
-      }
-    });
-
-    socket.on(SOCKET_EVENTS.CHANNEL.FIND_BY_ID_RESPONSE, (response: ResponseType) => {
-      if (response.success) {
-        setChannel(response.data);
-        currentChannelRef.current = response.data.id;
-        setRoomName(response.data.name || "");
-        setLoading(false);
-      }
-    });
-
-    socket.on(SOCKET_EVENTS.MESSAGE.LOAD_RESPONSE, (response: ResponseType) => {
-      if (response?.success) {
-        setMessages(response.data);
-        setLoading(false);
-      }
-    });
-
-    socket.on(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE, (response: ResponseType) => {
-      if (response.success) {
+        console.log("loadChannelResponse successfully:", response.data);
         setListChannel(response.data);
         setLoading(false);
       }
-    });
-
-    socket.on(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, (response: ResponseType) => {
-      setReloadChannel(false);
-      if (response.success) {
-        setReloadChannel(true);
+      else {
+        console.error("Failed to load channel:", response.message);
+        setLoading(false);
       }
-    });
+    }
+
+    const createGroupResponse = (response: ResponseType) => {
+      if (response.success) {
+        console.log("Group created successfully:", response.data);
+        setListChannel((prev) => [...prev, response.data]);
+        setLoading(false);
+      } else {
+        console.error("Failed to create group:", response.message);
+        setLoading(false);
+      }
+    }
+
+
+
+
+
+
+
+    socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
+    socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
+    socket.on(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE, loadChannelResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, createGroupResponse);
 
     return () => {
-      socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
-      socket.off(SOCKET_EVENTS.MESSAGE.READ);
-      socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE);
-      socket.off(SOCKET_EVENTS.CHANNEL.FIND_BY_ID_RESPONSE);
-      socket.off(SOCKET_EVENTS.MESSAGE.LOAD_RESPONSE);
-      socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE);
-      socket.off(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE);
+      socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
+      socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
+      socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE, loadChannelResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, createGroupResponse);
     };
-  }, [currentUserId]);
+  }, []);
 
-  const sendMessage = useCallback(
-    (channelId: string, content: string) => {
-      if (!channelId || !content.trim()) {
-        console.error("Cannot send message: Missing channel ID or content");
-        return;
-      }
-
-      const socket = socketService.getSocket();
-      const messageData = {
-        channelId,
-        senderId: currentUserId,
-        content: content.trim(),
-        timestamp: new Date().toISOString(),
-        status: "sent"
-      };
-      socket.emit(SOCKET_EVENTS.MESSAGE.SEND, messageData);
-    },
-    [currentUserId])
-
-  const readMessage = useCallback(
-    (messageId: string) => {
-      const socket = socketService.getSocket();
-      const readData = { messageId, readerId: currentUserId };
-      socket.emit(SOCKET_EVENTS.MESSAGE.READ, readData);
-    },
-    [currentUserId]
-  );
-
-  const findOrCreateChat = useCallback(
-    (receiverId: string) => {
-      const socket = socketService.getSocket();
-      const params = { senderId: currentUserId, receiverId };
-      setLoading(true);
-      setChannel(null);
-      setMessages([]);
-      socket.emit(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE, params);
-    },
-    [currentUserId]
-  );
-
-  const findChannelById = useCallback((channelId: string) => {
-    const socket = socketService.getSocket();
+  const findOrCreateChat = useCallback((receiverId: string) => {
     setLoading(true);
-    const data = { channelId, currentUserId };
-    currentChannelRef.current = channelId;
-    socket.emit(SOCKET_EVENTS.CHANNEL.FIND_BY_ID, data);
-  }, [currentUserId]);
-
-  const loadMessages = useCallback((channelId: string) => {
-    if (!channelId) {
-      console.error("Cannot load messages: No channel ID provided");
-      return;
-    }
-    const socket = socketService.getSocket();
-    setLoading(true);
+    setChannel(null);
     setMessages([]);
+    const socket = socketService.getSocket();
+    const params = { senderId: currentUserId, receiverId };
+    socket.emit(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE, params);
+  }, []);
+
+  const joinRoom = useCallback((channelId: string) => {
+    setLoading(true);
+    setChannel(null);
+    setMessages([]);
+    const socket = socketService.getSocket();
     currentChannelRef.current = channelId;
-    socket.emit(SOCKET_EVENTS.MESSAGE.LOAD, channelId);
+    socket.emit(SOCKET_EVENTS.CHANNEL.JOIN_ROOM, { channelId });
+  }, []);
+
+  const sendMessage = useCallback((channelId: string, content: string) => {
+    console.log("Sending message channelId:", channelId);
+    const socket = socketService.getSocket();
+    const messageData = {
+      channelId,
+      senderId: currentUserId,
+      content: content.trim(),
+      timestamp: new Date().toISOString(),
+      status: "sent"
+    };
+    currentChannelRef.current = channelId;
+    socket.emit(SOCKET_EVENTS.MESSAGE.SEND, messageData);
   }, []);
 
   const loadChannel = useCallback((userId: string) => {
-    if (userId) {
-      const socket = socketService.getSocket();
-      setLoading(true);
-      setListChannel([]);
-      const params = { currentUserId: userId };
-      socket.emit(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL, params);
-    }
+    setLoading(true);
+    const socket = socketService.getSocket();
+    const params = { currentUserId: userId };
+    socket.emit(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL, params);
   }, []);
 
-  const createChannel = useCallback((name: string, members: string[]) => {
+  const createGroup = useCallback((name: string, members: string[]) => {
+    setLoading(true);
     const socket = socketService.getSocket();
     const params = { name, currentUserId, members: members };
     socket.emit(SOCKET_EVENTS.CHANNEL.CREATE, params);
-  }, [currentUserId]);
+  }, []);
 
   return {
-    messages,
-    sendMessage,
-    readMessage,
     findOrCreateChat,
-    channel,
-    findChannelById,
-    loading,
-    loadMessages,
-    roomName,
+    joinRoom,
+    sendMessage,
     loadChannel,
+    createGroup,
     listChannel,
-    createChannel,
-    reloadChannel,
+    channel,
+    messages,
+    loading,
   };
-};  
+};

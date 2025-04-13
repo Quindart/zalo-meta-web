@@ -1,3 +1,4 @@
+import { data } from "react-router-dom";
 import axiosConfig from "./axiosConfig";
 import { getValueFromLocalStorage } from "@/utils/localStorage";
 
@@ -48,10 +49,10 @@ export const getMe = async () => {
     const response = await axiosConfig.get("/api/v1/me?queries=firstName,lastName,email,avatar,id,phone,dateOfBirth");
     console.log("Response from API:", response);
 
-    return { success: true, data: response };
+    return { success: true, data: response, message: "User data fetched successfully" };
   } catch (error) {
     console.error("Error fetching user data:", error);
-    return { success: false, message: "Failed to fetch user data" };
+    return { success: false, message: "Failed to fetch user data", data: null };
   }
 };
 
