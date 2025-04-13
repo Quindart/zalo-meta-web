@@ -1,15 +1,15 @@
 import PopupCategory from "@/components/PopupCategory";
 import CustomSearchBar from "@/components/SearchBar";
 import { Box, IconButton, Stack } from "@mui/material";
-import { Outlet } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import ChatItem from "./ChatInfo/ChatItem";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { useEffect, useMemo, useState } from "react";
-import SocketService from "@/services/socket/SocketService";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import PopupGroup from "@/components/PopupGroup";
+import { useChatContext } from '@/Context/ChatContextType';
 
 const MY_CLOUD = {
   id: 1,
@@ -22,78 +22,34 @@ const MY_CLOUD = {
   isChoose: true,
 };
 
-const socketService = new SocketService();
-const SOCKET_EVENTS = {
-  MESSAGE: {
-    RECEIVED: "message:received",
-  },
-  CHANNEL: {
-    LOAD_CHANNEL: "channel:load",
-    LOAD_CHANNEL_RESPONSE: "channel:loadResponse",
-  },
-};
-
-interface ResponseType {
-  success: boolean;
-  message: string;
-  data: any;
-}
-
 function ChatTemplate() {
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
-  const [listChannel, setListChannel] = useState<any[]>([]);
   const [showPopup, setShowPopup] = useState(false);
+  const params = useParams();
+  const currentChannelId = params.id;
+  const { listChannel, loadChannel, messages, createGroup} = useChatContext();
 
   useEffect(() => {
-    const socket = socketService.getSocket();
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    console.log("Socket connected:", socket.connected);
-
-    socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, () => {
-      console.log("Message received");
-      reloadChannels();
-    });
- 
-    reloadChannels();
-
-    return () => {
-      socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
-      socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE);
-    };
-  }, [me.id, showPopup]);
-
-  const reloadChannels = () => {
-    const socket = socketService.getSocket();
-    const params = { currentUserId: me.id };
-    socket.emit(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL, params);
-    socket.on(
-      SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE,
-      (response: ResponseType) => {
-        if (response.success) {
-          setListChannel(response.data);
-        } else {
-          console.error("Error loading channels:", response.message);
-        }
-      },
-    );
-  };
+    loadChannel(me.id);
+  }, [me, messages]);
 
   const infoChat = useMemo(() => {
-    console.log("listChannel", listChannel);
     return listChannel.map((item) => ({
       id: item.id,
       name: item.name,
       avatar: item.avatar,
-      time: item.time, // Use the updated time
-      message: item.message, // Use the updated message
-      isRead: false,
-      isChoose: false,
+      time: item.time,
+      message: item.message,
+      isRead: item.isRead !== undefined ? item.isRead : false,
+      isChoose: currentChannelId === item.id,
     }));
-  }, [listChannel]);
+  }, [listChannel, currentChannelId]);
+
+  const handleGroupIconClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowPopup(!showPopup);
+  }, [showPopup]);
 
   return (
     <Box display={"flex"}>
@@ -132,23 +88,23 @@ function ChatTemplate() {
                 }}
               />
             </IconButton>
-            <IconButton
-              color="default"
-              sx={{ borderRadius: 2 }}
-            >
-              <GroupAddIcon
-                onClick={() => setShowPopup(!showPopup)}
-                sx={{
-                  width: 25,
-                  height: 25,
-                }}
-              />
-              {
-                showPopup && (
-                  <PopupGroup setShow={setShowPopup} />
-                )
-              }
-            </IconButton>
+            <Box sx={{ position: "relative" }}>
+              <IconButton
+                color="default"
+                sx={{ borderRadius: 2 }}
+                onClick={handleGroupIconClick}
+              >
+                <GroupAddIcon
+                  sx={{
+                    width: 25,
+                    height: 25,
+                  }}
+                />
+              </IconButton>
+              {showPopup && (
+                <PopupGroup setShow={setShowPopup} createGroup={createGroup} />
+              )}
+            </Box>
           </Box>
         </Box>
         <Box sx={{ alignContent: "end" }}>
@@ -156,7 +112,7 @@ function ChatTemplate() {
         </Box>
         <ChatItem item={MY_CLOUD} />
         {infoChat.map((item, index) => (
-          <ChatItem key={index} item={item} />
+          <ChatItem key={item.id || index} item={item} />
         ))}
       </Stack>
       <Box marginLeft={"300px"} flex={1} width={"100%"}>

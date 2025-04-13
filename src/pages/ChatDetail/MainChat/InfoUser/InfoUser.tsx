@@ -6,9 +6,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import ViewAgendaIcon from "@mui/icons-material/ViewAgenda";
 import InfoDialog from "./InfoDialog";
 
-function InfoUser({ channel, roomName }: any) {
+function InfoUser({ channel }: any) {
   const [open, setOpen] = useState<boolean>(false);
-
   return (
     <Box
       sx={{
@@ -27,7 +26,7 @@ function InfoUser({ channel, roomName }: any) {
           onClick={() => setOpen(true)}
         />
         <Typography variant="body1" fontWeight="600">
-          {roomName || ""}
+          {channel?.name || ""}
         </Typography>
       </Box>
       <Box sx={{ display: "flex", gap: 1 }}>

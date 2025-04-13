@@ -14,6 +14,7 @@ import { APP_ROUTES } from "./constants";
 import { getMe } from "./services/Auth";
 import { Box } from "@mui/material";
 import useAuth from "./hook/api/useAuth";
+import { ChatProvider } from "./Context/ChatContextType";
 
 export default function App() {
   const { handleGetMe } = useAuth();
@@ -26,15 +27,15 @@ export default function App() {
 
   const session = me
     ? {
-        user: {
-          name:
-            me?.lastName && me?.firstName
-              ? `${me.lastName} ${me.firstName}`
-              : "User",
-          email: me?.phone || "",
-          image: me?.avatar || "https://via.placeholder.com/150",
-        },
-      }
+      user: {
+        name:
+          me?.lastName && me?.firstName
+            ? `${me.lastName} ${me.firstName}`
+            : "User",
+        email: me?.phone || "",
+        image: me?.avatar || "https://via.placeholder.com/150",
+      },
+    }
     : null;
 
   useEffect(() => {
@@ -68,7 +69,7 @@ export default function App() {
 
           try {
             const response = await getMe();
-            console.log("getMe response:", response);
+            console.log("Response from getMe:", response);
 
             if (
               response &&
@@ -76,7 +77,6 @@ export default function App() {
               response.data &&
               response.data.user
             ) {
-              console.log("Setting user data:", response.data.user);
               dispatch(setMe(response.data.user));
             } else {
               console.log("Invalid token, logging out");
@@ -114,7 +114,9 @@ export default function App() {
       authentication={authentication}
       session={session}
     >
-      <Outlet />
+      <ChatProvider userId={me.id}>
+        <Outlet />
+      </ChatProvider>
     </ReactRouterAppProvider>
   );
 }

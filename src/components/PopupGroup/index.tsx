@@ -12,7 +12,6 @@ import {
     TextField,
     Divider
 } from "@mui/material";
-import { useChat } from "@/hook/api/useChat";
 
 interface ResponseType {
     success: boolean;
@@ -20,7 +19,12 @@ interface ResponseType {
     data: any;
 }
 
-const PopupGroup = ({ setShow }: { setShow: any }) => {
+const PopupGroup = ({
+    setShow,
+    createGroup, }: {
+        setShow: any,
+        createGroup: (name: string, members: string[]) => void
+    }) => {
     const userStore = useSelector((state: RootState) => state.userSlice);
     const { me } = userStore;
     const [friends, setFriends] = useState<any[]>([]);
@@ -28,7 +32,6 @@ const PopupGroup = ({ setShow }: { setShow: any }) => {
     const [selected, setSelected] = useState<string[]>([]);
     const [groupName, setGroupName] = useState(""); // Add state for group name
     const [nameError, setNameError] = useState(""); // Add state for name validation
-    const { createChannel, reloadChannel } = useChat(me.id);
 
     useEffect(() => {
         const fetchFriends = async () => {
@@ -74,17 +77,9 @@ const PopupGroup = ({ setShow }: { setShow: any }) => {
             setNameError("Tên nhóm không được để trống");
             return;
         }
-        createChannel(groupName, selected);
+        createGroup(groupName, selected);
+        setShow(false);
     };
-
-    useEffect(() => {
-        if (reloadChannel) {
-            setShow(false);
-            setSelected([]);
-            setGroupName("");
-            setNameError("");
-        }
-    }, [reloadChannel]);
 
     return (
         <Box
