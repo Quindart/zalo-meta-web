@@ -20,34 +20,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import SortIcon from "@mui/icons-material/SwapVert";
 import FilterIcon from "@mui/icons-material/FilterList";
 
-const listFiends = [
-  {
-    id: "67f6486e0ea31acce03b3d13",
-    name: "John Doe",
-    avatar:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL2de_EUA1aFedrjCcpFf8FbMObTcG3BkGcQ&s",
-  },
-  {
-    id: "67f64929cc637ca8c01d9b70",
-    name: "Jane Smith",
-    avatar:
-      "https://media.wired.com/photos/593261cab8eb31692072f129/master/pass/85120553.jpg",
-  },
-  {
-    id: "67f674ca4d2de6647e0f37a3",
-    name: "Nguyen Van A",
-    avatar:
-      "https://www.aaha.org/wp-content/uploads/2024/03/b5e516f1655346558958c939e85de37a.jpg",
-  },
-  {
-    id: "67f64a9f4d2de6647e0f3786",
-    name: "LE QUOC PHONG",
-    avatar:
-      "https://www.aaha.org/wp-content/uploads/2024/03/b5e516f1655346558958c939e85de37a.jpg",
-  },
-];
-
-function ListFriend() {
+function ListFriend({ listFriends }: any) {
   const navigate = useNavigate();
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
@@ -78,7 +51,7 @@ function ListFriend() {
   const [sortOrder, setSortOrder] = useState("asc");
   const [filterLetter, setFilterLetter] = useState("all");
 
-  const filteredFriends = listFiends
+  const filteredFriends = listFriends
     .filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()))
     .filter((f) =>
       filterLetter === "all"
@@ -120,7 +93,7 @@ function ListFriend() {
         fontWeight={"bold"}
         color="initial"
       >
-        Bạn bè ({listFiends.length}){" "}
+        Bạn bè ({listFriends.length}){" "}
       </Typography>
 
       <Box mx={2} p={2} sx={{ bgcolor: "white", borderRadius: 2 }}>
@@ -192,7 +165,7 @@ function ListFriend() {
         </Stack>
 
         <List>
-          {filteredFriends.map((friend) => (
+          {filteredFriends.map((friend:any) => (
             <ListItem
               onClick={() => {
                 handleFindChat(friend.id);
@@ -212,11 +185,11 @@ function ListFriend() {
                   width: "50px",
                   height: "50px",
                   borderRadius: "50%",
+                  marginRight: "10px",
                 }}
                 src={friend.avatar}
                 alt={friend.name}
               />
-              <p>{"_" + friend.id + "_"}</p>
               <p>{friend.name}</p>
             </ListItem>
           ))}
@@ -243,7 +216,7 @@ export default ListFriend;
 // import FilterIcon from "@mui/icons-material/FilterList";
 // import { useState } from "react";
 
-// const listFiends = [
+// const listFriends = [
 //   {
 //     id: "67f6486e0ea31acce03b3d13",
 //     name: "John Doe",

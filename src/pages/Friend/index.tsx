@@ -3,11 +3,21 @@ import PersonIcon from "@mui/icons-material/Person";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import RequestAddFriend from "./RequestAddFriend";
 import { grey } from "@mui/material/colors";
-import { useState } from "react";
 import ListFriend from "./ListFiend";
+import { useFriend } from "@/hook/api/useFriend";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { useEffect, useState } from "react";
 
 function FriendTemplate() {
   const [tabIndex, setTabIndex] = useState(0);
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  const { listFriends, getListFriends } = useFriend(me.id);
+
+  useEffect(() => {
+    getListFriends();
+  },[]);
 
   return (
     <Box>
@@ -54,7 +64,7 @@ function FriendTemplate() {
         </Tabs>
 
         <Box sx={{ flex: 1 }}>
-          {tabIndex === 0 && <ListFriend />}
+          {tabIndex === 0 && <ListFriend listFriends={listFriends} />}
           {tabIndex === 1 && <RequestAddFriend />}
         </Box>
       </Box>

@@ -16,7 +16,6 @@ interface ChatItemProps {
 }
 const ChatItem: React.FC<ChatItemProps> = memo(({ item }) => {
   const navigate = useNavigate();
-  console.log("ChatItem", item);
   const getTimeDisplay = (time: Date) => {
     const now = new Date();
     time = new Date(time);
