@@ -1,7 +1,7 @@
 import PopupCategory from "@/components/PopupCategory";
 import CustomSearchBar from "@/components/SearchBar";
 import { Box, IconButton, Stack } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import ChatItem from "./ChatInfo/ChatItem";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import SocketService from "@/services/socket/SocketService";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import PopupGroup from "@/components/PopupGroup";
 
 const MY_CLOUD = {
   id: 1,
@@ -42,28 +43,28 @@ function ChatTemplate() {
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
   const [listChannel, setListChannel] = useState<any[]>([]);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     const socket = socketService.getSocket();
     if (!socket.connected) {
       socket.connect();
     }
+
+    console.log("Socket connected:", socket.connected);
+
+    socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, () => {
+      console.log("Message received");
+      reloadChannels();
+    });
+ 
+    reloadChannels();
+
     return () => {
       socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
       socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE);
     };
-  }, []);
-
-  useEffect(() => {
-    const socket = socketService.getSocket();
-    socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, () => {
-      reloadChannels();
-    });
-  }, []);
-
-  useEffect(() => {
-    reloadChannels();
-  }, []);
+  }, [me.id, showPopup]);
 
   const reloadChannels = () => {
     const socket = socketService.getSocket();
@@ -72,7 +73,6 @@ function ChatTemplate() {
     socket.on(
       SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE,
       (response: ResponseType) => {
-        console.log("response", response);
         if (response.success) {
           setListChannel(response.data);
         } else {
@@ -135,14 +135,19 @@ function ChatTemplate() {
             <IconButton
               color="default"
               sx={{ borderRadius: 2 }}
-              onClick={() => console.log("Delete")}
             >
               <GroupAddIcon
+                onClick={() => setShowPopup(!showPopup)}
                 sx={{
                   width: 25,
                   height: 25,
                 }}
               />
+              {
+                showPopup && (
+                  <PopupGroup setShow={setShowPopup} />
+                )
+              }
             </IconButton>
           </Box>
         </Box>
