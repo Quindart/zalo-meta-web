@@ -18,6 +18,8 @@ const SOCKET_EVENTS = {
     FIND_ORCREATE_RESPONSE: "channel:findOrCreateResponse",
     LOAD_CHANNEL: "channel:load",
     LOAD_CHANNEL_RESPONSE: "channel:loadResponse",
+    CREATE: "channel:create",
+    CREATE_RESPONSE: "channel:createResponse",
   },
 };
 
@@ -36,6 +38,7 @@ export const useChat = (currentUserId: string) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [roomName, setRoomName] = useState<string>("");
   const currentChannelRef = useRef<string | null>(null);
+  const [reloadChannel, setReloadChannel] = useState(false);
 
   useEffect(() => {
     const socket = socketService.getSocket();
@@ -45,13 +48,13 @@ export const useChat = (currentUserId: string) => {
     }
 
     return () => {
-      // Cleanup listeners on unmount
       socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
       socket.off(SOCKET_EVENTS.MESSAGE.READ);
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE);
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_BY_ID_RESPONSE);
       socket.off(SOCKET_EVENTS.MESSAGE.LOAD_RESPONSE);
       socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE);
+      socket.off(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE);
     };
   }, []);
 
@@ -115,6 +118,13 @@ export const useChat = (currentUserId: string) => {
       }
     });
 
+    socket.on(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, (response: ResponseType) => {
+      setReloadChannel(false);
+      if (response.success) {
+        setReloadChannel(true);
+      }
+    });
+
     return () => {
       socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
       socket.off(SOCKET_EVENTS.MESSAGE.READ);
@@ -122,6 +132,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_BY_ID_RESPONSE);
       socket.off(SOCKET_EVENTS.MESSAGE.LOAD_RESPONSE);
       socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE);
+      socket.off(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE);
     };
   }, [currentUserId]);
 
@@ -195,6 +206,12 @@ export const useChat = (currentUserId: string) => {
     }
   }, []);
 
+  const createChannel = useCallback((name: string, members: string[]) => {
+    const socket = socketService.getSocket();
+    const params = { name, currentUserId, members: members };
+    socket.emit(SOCKET_EVENTS.CHANNEL.CREATE, params);
+  }, [currentUserId]);
+
   return {
     messages,
     sendMessage,
@@ -207,5 +224,7 @@ export const useChat = (currentUserId: string) => {
     roomName,
     loadChannel,
     listChannel,
+    createChannel,
+    reloadChannel,
   };
 };  
