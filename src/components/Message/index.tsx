@@ -2,6 +2,20 @@ import { getHourAndMinute } from "@/utils/formatTime";
 import { MoreHoriz } from "@mui/icons-material";
 import { Avatar, Box, IconButton, Popover, Typography } from "@mui/material";
 import { useState } from "react";
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import ReplyIcon from '@mui/icons-material/Reply';
+import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import ShareDialog from "./ShareDialog";
+import { 
+  Tooltip,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider 
+} from "@mui/material";
+
 
 type MessPropsType = {
   content: string;
@@ -17,6 +31,7 @@ type MessPropsType = {
   isMe: boolean;
 };
 function MessageChat(props: Partial<MessPropsType>) {
+  const [openShare, setOpenShare] = useState(false);
   const { content, sender, timestamp, emojis, isMe = true } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -34,6 +49,14 @@ function MessageChat(props: Partial<MessPropsType>) {
     setAnchorEl(null);
   };
 
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchor(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
   const open = Boolean(anchorEl);
   return (
     <Box display={"flex"} gap={1} alignSelf={isMe ? "flex-end" : "flex-start"}>
@@ -43,6 +66,9 @@ function MessageChat(props: Partial<MessPropsType>) {
         </Box>
       )}
       <Box
+        display="flex" 
+        flexDirection="column" 
+        gap={1}
         maxWidth={500}
         px={2}
         py={1}
@@ -58,12 +84,15 @@ function MessageChat(props: Partial<MessPropsType>) {
             ".emoji-btn": {
               opacity: 1,
             },
+            ".more-btn": {
+              opacity: 1,
+            },
           },
           position: "relative",
         }}
       >
         <Typography fontSize={15}>{content}</Typography>
-        <Typography fontSize={14} color="grey.600">
+        <Typography fontSize={14} color="grey.600" mb={1}>
           {getHourAndMinute(`${timestamp}`)}
         </Typography>
         <IconButton
@@ -72,14 +101,60 @@ function MessageChat(props: Partial<MessPropsType>) {
           onClick={handleOpen}
           sx={{
             position: "absolute",
-            left: -4,
+            right: -4,
             opacity: 0,
             bottom: -12,
             transition: "opacity 0.2s ease-in",
+            backgroundColor: "#fff",
+            "&:hover": {
+              backgroundColor: "#f7f7f7"
+            }
           }}
         >
-          <MoreHoriz fontSize="small" />
+          <ThumbUpOffAltIcon fontSize="small" />
         </IconButton>
+
+        <Box
+          className="more-btn"
+          sx={{
+            position: "absolute",
+            left: -36, // điều chỉnh khoảng cách từ khung tin nhắn ra ngoài
+            top: "30%",
+            transform: "translateX(-60%)",
+            opacity: 0,
+            transition: "opacity 0.2s ease-in",
+          }}
+        >
+          <Tooltip title="chia sẻ">
+            <IconButton
+              size="small"
+              onClick={() => setOpenShare(true)}
+              sx={{
+                marginRight:1,
+                backgroundColor: "#fff",
+                "&:hover": {
+                  backgroundColor: "#f7f7f7"
+                }
+              }}
+            >
+              <ReplyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Thêm">
+            <IconButton
+              size="small"
+              onClick={handleMenuOpen}
+              sx={{
+                backgroundColor: "#fff",
+                "&:hover": {
+                  backgroundColor: "#f7f7f7"
+                }
+              }}
+            >
+              <MoreHoriz fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
 
         {/* Popup chứa danh sách emoji */}
         <Popover
@@ -124,6 +199,33 @@ function MessageChat(props: Partial<MessPropsType>) {
         >
           {emojis}
         </Typography>
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={handleMenuClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={handleMenuClose} sx={{ color: "error.main" }}>
+            <ListItemIcon>
+              <SettingsBackupRestoreIcon fontSize="small" color="error" />
+            </ListItemIcon>
+            <ListItemText>Thu hồi</ListItemText>
+          </MenuItem>
+          <Divider/>
+          <MenuItem onClick={handleMenuClose} sx={{ color: "error.main" }}>
+            <ListItemIcon>
+              <DeleteOutlineIcon fontSize="small" color="error" />
+            </ListItemIcon>
+            <ListItemText>Xoá chỉ ở phía tôi</ListItemText>
+          </MenuItem>
+        </Menu>
+
+        <ShareDialog
+          open={openShare}
+          onClose={() => setOpenShare(false)}
+          messageToShare={content ?? ""}
+        />
       </Box>{" "}
     </Box>
   );

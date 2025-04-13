@@ -13,6 +13,7 @@ import FriendTemplate from "@/pages/Friend";
 import PCLandingTemplate from "@/pages/pc";
 import { createBrowserRouter } from "react-router-dom";
 import ResetPasswordTemplate from "@/pages/auth/ResetPassword";
+import ComponentPage from "@/pages/ComponentPage";
 const router = createBrowserRouter([
   {
     Component: App,
@@ -40,13 +41,17 @@ const router = createBrowserRouter([
           {
             path: "friends",
             Component: FriendTemplate,
-          }
+          },
+          {
+            path: "components",
+            Component: ComponentPage,
+          },
         ],
       },
       {
-        path: 'right-sidebar',
-        Component: RightSideBar
-      }
+        path: "right-sidebar",
+        Component: RightSideBar,
+      },
     ],
   },
   {
@@ -63,7 +68,6 @@ const router = createBrowserRouter([
             path: "login",
             Component: LoginTemplate,
           },
-
         ],
       },
     ],
@@ -80,7 +84,7 @@ const router = createBrowserRouter([
         path: "reset-password",
         Component: ResetPasswordTemplate,
       },
-    ]
+    ],
   },
   {
     Component: PCLandingTemplate,
