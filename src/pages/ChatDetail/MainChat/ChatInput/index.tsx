@@ -29,12 +29,7 @@ import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 
-
-export default function ChatInput({
-  channelId,
-}: {
-  channelId: any;
-}) {
+export default function ChatInput({ channelId }: { channelId: any }) {
   const format: string[] = [];
   const anchorEl = null;
   const inputRef = useRef<HTMLDivElement | null>(null);
@@ -68,6 +63,8 @@ export default function ChatInput({
         width: "100%",
         borderTop: "1px solid #ccc",
         gap: 1,
+        px: 2,
+        py: 1,
       }}
     >
       {/* Hàng icon trên */}
@@ -174,7 +171,7 @@ export default function ChatInput({
         </IconButton>
         <IconButton onClick={handleSubmitMessage} sx={{ padding: "6px" }}>
           {message.trim() === "" ? (
-            <ThumbUp />
+            <ThumbUp sx={{ color: "#F8D171" }} />
           ) : (
             <Send sx={{ color: "blue" }} />
           )}

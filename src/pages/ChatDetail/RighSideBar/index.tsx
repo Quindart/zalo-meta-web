@@ -13,7 +13,6 @@ import {
   Stack,
   IconButton,
   Collapse,
-  ListItemIcon,
 } from "@mui/material";
 import {
   NotificationsOff,
@@ -28,11 +27,8 @@ import {
   InsertDriveFile,
   Link,
   Security,
-  DeleteOutline,
-  ExitToApp,
-  BorderColor,
 } from "@mui/icons-material";
-import InfoGroupDialog from "./InfoGroup/InfoGroupDialog.tsx"
+import InfoGroupDialog from "./InfoGroup/InfoGroupDialog.tsx";
 const sections = [
   {
     id: "members",
@@ -80,7 +76,7 @@ const actions = [
 ];
 
 const RightSideBar = () => {
-  const [open, setOpen] =useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(
     {},
   );
@@ -97,13 +93,19 @@ const RightSideBar = () => {
     >
       {/* Header */}
       <Box sx={{ py: 3, textAlign: "center" }}>
-        
-        <Typography variant="body1">Thông tin nhóm</Typography>
+        <Typography fontWeight={"bold"} fontSize={20} color="#081B3A">
+          Thông tin hội thoại
+        </Typography>
       </Box>
+      <Divider />
 
       {/* Avatar + Actions */}
-      <Box sx={{ width: 340, p: 1, textAlign: "center" }}>
-        <AvatarGroup max={3} sx={{ justifyContent: "center", mt: 1 }} onClick={()=>setOpen(true)} >
+      <Box sx={{ width: 340, textAlign: "center" }}>
+        <AvatarGroup
+          max={3}
+          sx={{ justifyContent: "center", mt: 3 }}
+          onClick={() => setOpen(true)}
+        >
           {[
             "/static/avatar1.jpg",
             "/static/avatar2.jpg",
@@ -119,26 +121,26 @@ const RightSideBar = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            mt: 1,
+            my: 2,
           }}
         >
-          <Typography variant="body1" noWrap>
-            Nhóm 🔥 Công Nghệ Mới
+          <Typography fontWeight={"bold"} fontSize={17} color="#081B3A" noWrap>
+            Nhóm Công Nghệ Mới
           </Typography>
-          <IconButton sx={{ marginLeft: 3 }}>
-            <BorderColor sx={{ color: "black" }} />
-          </IconButton>
+          {/* <IconButton sx={{ marginLeft: 1 }}>
+            <BorderColor sx={{ color: "#081B3A" }} />
+          </IconButton> */}
         </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 1 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, my: 2 }}>
           {actions.map(({ icon, label }, index) => (
             <Stack key={index} alignItems="center">
               <IconButton
                 sx={{
-                  bgcolor: "#f0f0f0",
+                  bgcolor: "#e5e7eb",
                   width: 40,
                   height: 40,
-                  color: "black",
+                  color: "#081B3A",
                   "&:hover": { bgcolor: "#e0e0e0" },
                 }}
               >
@@ -155,11 +157,13 @@ const RightSideBar = () => {
       {/* Menu Sections */}
       <Box sx={{ width: "100%", bgcolor: "white" }}>
         <List>
-          {sections.map(({ id, title, icon, content }) => (
+          {sections.map(({ id, title, content }) => (
             <div key={id}>
               <ListItemButton onClick={() => toggleSection(id)}>
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText sx={{ fontSize: 10 }} primary={title} />
+                <ListItemText
+                  sx={{ fontSize: 16, fontWeight: "bold" }}
+                  primary={title}
+                />
                 {openSections[id] ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
               <Collapse in={openSections[id]} timeout="auto" unmountOnExit>
@@ -176,19 +180,31 @@ const RightSideBar = () => {
 
       {/* Media Preview */}
       <Box sx={{ p: 2 }}>
-        <Typography variant="body1">Ảnh/Video</Typography>
+        <Typography color="#081B3A">Ảnh/Video</Typography>
         {/* <img
           src="/static/sample-image.jpg"
           alt="Ảnh nhóm"
           style={{ width: "100%", borderRadius: 8, marginTop: 8 }}
         /> */}
-        <Button variant="text" fullWidth>
+        <Button
+          fullWidth
+          variant="contained"
+          sx={{
+            bgcolor: "#E5E7EB",
+            color: "#081b3a",
+            boxShadow: "none",
+            height: 40,
+            border: 0,
+            fontSize: 16,
+            fontWeight: 600,
+            mt: 1,
+          }}
+        >
           Xem tất cả
         </Button>
       </Box>
       <Divider />
 
-      {/* Empty File Section */}
       <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>
         <Typography variant="body2">
           Chưa có File được chia sẻ trong hội thoại này
@@ -196,26 +212,20 @@ const RightSideBar = () => {
       </Box>
 
       <Divider />
-
-      {/* Danger Zone */}
-      <List sx={{ bgcolor: "white", borderRadius: 1, boxShadow: 2 }}>
-        {[
-          { icon: <DeleteOutline />, text: "Xóa lịch sử trò chuyện" },
-          { icon: <ExitToApp />, text: "Rời nhóm" },
-        ].map(({ icon, text }, index) => (
-          <ListItemButton
-            key={index}
-            sx={{ color: "red" }}
-            onClick={() => alert(text)}
-          >
-            <ListItemIcon sx={{ color: "red", minWidth: "40px" }}>
-              {icon}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItemButton>
-        ))}
+      <List sx={{ bgcolor: "white", borderRadius: 1 }}>
+        {[{ text: "Xóa lịch sử trò chuyện" }, { text: "Rời nhóm" }].map(
+          ({ icon, text }, index) => (
+            <ListItemButton
+              key={index}
+              sx={{ color: "#C62218" }}
+              onClick={() => alert(text)}
+            >
+              <ListItemText sx={{ ml: 2 }} primary={text} />
+            </ListItemButton>
+          ),
+        )}
       </List>
-      <InfoGroupDialog open={open} onClose={() => setOpen(false)}/>
+      <InfoGroupDialog open={open} onClose={() => setOpen(false)} />
     </Drawer>
   );
 };
