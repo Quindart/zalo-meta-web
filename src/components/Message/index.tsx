@@ -221,7 +221,6 @@ function MessageChat(props: Partial<MessPropsType>) {
           </MenuItem>
         </Menu>
 
-
         <ShareDialog
           open={openShare}
           onClose={() => setOpenShare(false)}
