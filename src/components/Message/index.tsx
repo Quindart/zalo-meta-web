@@ -118,9 +118,9 @@ function MessageChat(props: Partial<MessPropsType>) {
           className="more-btn"
           sx={{
             position: "absolute",
-            left: -36, // điều chỉnh khoảng cách từ khung tin nhắn ra ngoài
+            [isMe ? "left" : "right"]: -36, // điều chỉnh khoảng cách từ khung tin nhắn ra ngoài
             top: "30%",
-            transform: "translateX(-60%)",
+            transform: isMe ? "translateX(-60%)" : "translateX(60%)",
             opacity: 0,
             transition: "opacity 0.2s ease-in",
           }}
@@ -203,8 +203,14 @@ function MessageChat(props: Partial<MessPropsType>) {
           anchorEl={menuAnchor}
           open={Boolean(menuAnchor)}
           onClose={handleMenuClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: isMe ? "right" : "left",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: isMe ? "right" : "left",
+          }}
         >
           <MenuItem onClick={handleMenuClose} sx={{ color: "error.main" }}>
             <ListItemIcon>
