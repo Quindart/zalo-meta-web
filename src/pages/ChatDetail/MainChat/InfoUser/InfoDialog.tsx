@@ -9,8 +9,11 @@ import {
   Button,
   IconButton,
   Divider,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
-import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/Person";
 import ShareIcon from "@mui/icons-material/Share";
@@ -23,9 +26,23 @@ import { grey } from "@mui/material/colors";
 interface InfoDialogProps {
   open: boolean;
   onClose: () => void;
+  user: {
+    avatar?: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    gender?: string;
+    birthday?: string;
+  } | null;
 }
 
-const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
+const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose, user }) => {
+  const fullName = `${user?.lastName ?? ""} ${user?.firstName ?? ""}`.trim();
+  const birthday = user?.birthday ?? "Không rõ";
+  const phoneMasked = user?.phone
+    ? user.phone.replace(/.(?=.{4})/g, "•")
+    : "•".repeat(10);
+
   return (
     <Dialog
       open={open}
@@ -40,25 +57,33 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
         },
       }}
       BackdropProps={{
-        style: { backgroundColor: "rgba(0, 0, 0, 0.5)" }, 
+        style: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
       }}
     >
-      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" , fontSize: 15, fontWeight: "600"}}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontSize: 15,
+          fontWeight: "600",
+        }}
+      >
         Thông tin tài khoản
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <Divider/>
+      <Divider />
 
       <DialogContent
         sx={{
           p: 0,
-          maxHeight: "70vh", 
-          overflowY: "overlay", 
+          maxHeight: "70vh",
+          overflowY: "overlay",
           "&::-webkit-scrollbar": {
-            width: "8px", 
+            width: "8px",
           },
           "&::-webkit-scrollbar-thumb": {
             backgroundColor: "rgba(0, 0, 0, 0.1)",
@@ -66,16 +91,16 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
             visibility: "hidden",
           },
           "&:hover::-webkit-scrollbar-thumb": {
-            visibility: "visible"
+            visibility: "visible",
           },
           "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "rgba(0, 0, 0, 0.1)"
+            backgroundColor: "rgba(0, 0, 0, 0.1)",
           },
           "&::-webkit-scrollbar-track": {
-            backgroundColor: "transparent"
+            backgroundColor: "transparent",
           },
         }}
-      >   
+      >
         {/* Ảnh bìa */}
         <Box
           sx={{
@@ -85,53 +110,53 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
             backgroundPosition: "center",
           }}
         />
-        <Box sx={{ textAlign: "center"}}>
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap:1,
-                    paddingLeft:2
-                }}
+        <Box sx={{ textAlign: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              paddingLeft: 2,
+            }}
+          >
+            <Avatar
+              src={user?.avatar || "/assets/images/zalo-icon.png"}
+              sx={{ width: 80, height: 80, border: "2px solid #C3C5C8", mt: -3 }}
+            />
+            <Typography variant="h6" sx={{ mt: 1, fontWeight: "bold" }}>
+              {fullName || "Không rõ"}
+            </Typography>
+            <IconButton
+              sx={{
+                width: 30,
+                height: 30,
+                "&:hover": {
+                  backgroundColor: grey[100],
+                },
+              }}
             >
-                <Avatar
-                    src="/assets/images/zalo-icon.png"
-                    sx={{ width: 80, height: 80, border: "2px solid #C3C5C8", mt:-3}}
-                />
-                <Typography variant="h6" sx={{ mt: 1, fontWeight: "bold" }}>
-                    Nguyen Kim Ngoc Tuyen
-                </Typography>
-                <IconButton
-                    sx={{
-                        width: 30, 
-                        height: 30, 
-                        "&:hover": {
-                        backgroundColor: grey[100], 
-                        },
-                    }}
-                    >
-                    <EditIcon sx={{ color: "#1a2b44" , fontSize:20}} /> 
-                </IconButton>
+              <EditIcon sx={{ color: "#1a2b44", fontSize: 20 }} />
+            </IconButton>
           </Box>
-            <Button
+          <Button
             variant="contained"
             sx={{
-                backgroundColor: "#E6F0FF", 
-                color: "#235DB2", 
-                fontWeight: "bold",
-                textTransform: "none", 
-                borderRadius: "5px", 
-                padding: "8px 16px", 
-                "&:hover": {
-                backgroundColor: "#DBEBFF", 
-                },
-                width: "90%",
-                fontSize: 15,
-                mt:2
+              backgroundColor: "#E6F0FF",
+              color: "#235DB2",
+              fontWeight: "bold",
+              textTransform: "none",
+              borderRadius: "5px",
+              padding: "8px 16px",
+              "&:hover": {
+                backgroundColor: "#DBEBFF",
+              },
+              width: "90%",
+              fontSize: 15,
+              mt: 2,
             }}
-            >
+          >
             Nhắn tin
-            </Button>
+          </Button>
         </Box>
 
         {/* Thông tin cá nhân */}
@@ -142,25 +167,19 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
 
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <Typography variant="body2" sx={{ color: "gray", minWidth: 100 }}>
-              Giới tính
-            </Typography>
-            <Typography variant="body2">Nữ</Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <Typography variant="body2" sx={{ color: "gray", minWidth: 100 }}>
               Ngày sinh
             </Typography>
-            <Typography variant="body2">04 tháng 01, 2003</Typography>
+            <Typography variant="body2">{birthday}</Typography>
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <Typography variant="body2" sx={{ color: "gray", minWidth: 100 }}>
               Điện thoại
             </Typography>
-            <Typography variant="body2">{"•".repeat(10)}</Typography>
+            <Typography variant="body2">{phoneMasked}</Typography>
           </Box>
         </Box>
+
         <Divider />
 
         {/* Hình ảnh */}
@@ -173,12 +192,11 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
               display: "flex",
               gap: 1,
               mt: 1,
-              // overflowX: "auto",
-              scrollbarWidth: "none", // Ẩn scrollbar trên Firefox
+              scrollbarWidth: "none",
               "&::-webkit-scrollbar": {
-                display: "none", // Ẩn scrollbar trên Chrome, Safari
+                display: "none",
               },
-              paddingBottom: 1, // Thêm padding để tránh bị che mất hình ảnh
+              paddingBottom: 1,
             }}
           >
             {[
@@ -198,54 +216,53 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose }) => {
                 style={{
                   borderRadius: 12,
                   objectFit: "cover",
-                  flexShrink: 0, // Tránh co lại khi cuộn
+                  flexShrink: 0,
                 }}
               />
             ))}
           </Box>
-      </Box>
-
+        </Box>
 
         <Divider />
-      <Box sx={{ mt: 2, p: 2 }}>
-        <List>
-          <ListItemButton>
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            <ListItemText primary="Nhóm chung (8)" />
-          </ListItemButton>
 
-          <ListItemButton>
-            <ListItemIcon>
-              <ShareIcon />
-            </ListItemIcon>
-            <ListItemText primary="Chia sẻ danh thiếp" />
-          </ListItemButton>
+        <Box sx={{ mt: 2, p: 2 }}>
+          <List>
+            <ListItemButton>
+              <ListItemIcon>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText primary="Nhóm chung (8)" />
+            </ListItemButton>
 
-          <ListItemButton>
-            <ListItemIcon>
-              <BlockIcon />
-            </ListItemIcon>
-            <ListItemText primary="Chặn tin nhắn và cuộc gọi" />
-          </ListItemButton>
+            <ListItemButton>
+              <ListItemIcon>
+                <ShareIcon />
+              </ListItemIcon>
+              <ListItemText primary="Chia sẻ danh thiếp" />
+            </ListItemButton>
 
-          <ListItemButton>
-            <ListItemIcon>
-              <ReportIcon />
-            </ListItemIcon>
-            <ListItemText primary="Báo xấu" />
-          </ListItemButton>
+            <ListItemButton>
+              <ListItemIcon>
+                <BlockIcon />
+              </ListItemIcon>
+              <ListItemText primary="Chặn tin nhắn và cuộc gọi" />
+            </ListItemButton>
 
-          <ListItemButton sx={{ color: "red" }}>
-            <ListItemIcon sx={{ color: "red" }}>
-              <DeleteIcon />
-            </ListItemIcon>
-            <ListItemText primary="Xóa khỏi danh sách bạn bè" />
-          </ListItemButton>
-        </List>
-      </Box>;
+            <ListItemButton>
+              <ListItemIcon>
+                <ReportIcon />
+              </ListItemIcon>
+              <ListItemText primary="Báo xấu" />
+            </ListItemButton>
 
+            <ListItemButton sx={{ color: "red" }}>
+              <ListItemIcon sx={{ color: "red" }}>
+                <DeleteIcon />
+              </ListItemIcon>
+              <ListItemText primary="Xóa khỏi danh sách bạn bè" />
+            </ListItemButton>
+          </List>
+        </Box>
       </DialogContent>
     </Dialog>
   );
