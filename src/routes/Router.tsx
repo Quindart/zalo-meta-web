@@ -14,6 +14,41 @@ import PCLandingTemplate from "@/pages/pc";
 import { createBrowserRouter } from "react-router-dom";
 import ResetPasswordTemplate from "@/pages/auth/ResetPassword";
 import ComponentPage from "@/pages/ComponentPage";
+import { ChatProvider, useChatContext } from "@/Context/ChatContextType";
+import { RootState } from "@/store";
+import { useSelector } from "react-redux";
+
+const ChatWrapper = () => {
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  return (
+    <ChatProvider userId={me?.id}>
+      <ChatTemplate />
+    </ChatProvider>
+  );
+};
+
+const ChatDetailWrapper = () => {
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  return (
+    <ChatProvider userId={me?.id}>
+      <ChatDetailTemplate />
+    </ChatProvider>
+  );
+};
+
+const RightSideBarWrapper = () => {
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  const { channel, leaveRoom } = useChatContext();
+  return (
+    <ChatProvider userId={me?.id}>
+      <RightSideBar channel={channel} leaveRoom={leaveRoom} me={me} />
+    </ChatProvider>
+  );
+};
+
 const router = createBrowserRouter([
   {
     Component: App,
@@ -30,11 +65,11 @@ const router = createBrowserRouter([
           },
           {
             path: "chats",
-            Component: ChatTemplate,
+            Component: ChatWrapper,
             children: [
               {
                 path: ":id",
-                Component: ChatDetailTemplate,
+                Component: ChatDetailWrapper,
               },
             ],
           },
@@ -50,7 +85,7 @@ const router = createBrowserRouter([
       },
       {
         path: "right-sidebar",
-        Component: RightSideBar,
+        Component: RightSideBarWrapper,
       },
     ],
   },

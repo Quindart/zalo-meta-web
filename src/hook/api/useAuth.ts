@@ -29,7 +29,6 @@ function useAuth() {
     }
     const handleGetMe = async () => {
         const response :any= await getMe();
-        console.log("check me in useAuth: ",response);
         
         if (response && response.success)
             dispatch(setMe(response.data.user));

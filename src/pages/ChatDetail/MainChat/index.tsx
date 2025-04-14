@@ -1,28 +1,40 @@
-import { useRef, useEffect } from "react";
 import { Box } from "@mui/material";
 import InfoUser from "./InfoUser/InfoUser";
 import ChatInput from "./ChatInput";
-import { RootState } from "@/store";
-import { useSelector } from "react-redux";
 import MessageChat from "@/components/Message";
-import { useChatContext } from "@/Context/ChatContextType";
-import { useParams } from "react-router-dom";
+import MessageSystem from "@/components/MessageSystem";
+import { useRef, useEffect } from "react";
 
-function MainChat() {
+function MainChat(
+  {
+    channel,
+    messages,
+    sendMessage,
+    me,
+    channelId,
+  }: {
+    channel: any;
+    messages: any;
+    sendMessage: any;
+    me: any;
+    channelId: string | undefined;
+  }
+) {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
-  const userStore = useSelector((state: RootState) => state.userSlice);
-  const { me } = userStore;
-  const params = useParams();
-  const channelId = params.id;
 
-  const { channel, messages, sendMessage, joinRoom } = useChatContext();
-
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      window.requestAnimationFrame(() => {
+        if (chatContainerRef.current) {
+          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+      });
+    }
+  };
 
   useEffect(() => {
-    if (channelId) {
-      joinRoom(channelId);
-    }
-  }, [channelId]);
+    scrollToBottom();
+  }, [messages]);
 
   return (
     <Box
@@ -61,29 +73,38 @@ function MainChat() {
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        <Box
-          sx={{
-            mx: 1,
-            my: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
-          {messages && Array.isArray(messages) && messages.length > 0 ? (
-            messages.map((mess: any, index: number) => (
-              <MessageChat
-                key={mess.id || index} // Đảm bảo có key unique
-                {...mess}
-                isMe={mess.sender.id === me.id}
-              />
-            ))
-          ) : (
-            <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
-              Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
-            </Box>
-          )}
-        </Box>
+        {
+          <Box
+            sx={{
+              mx: 1,
+              my: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {messages && Array.isArray(messages) && messages.length > 0 ? (
+              messages.map((mess: any, index: number) => (
+                mess.messageType === "system" ? (
+                  <MessageSystem
+                    key={mess.id || index} // Đảm bảo có key unique
+                    {...mess}
+                  />
+                ) : (
+                  <MessageChat
+                    key={mess.id || index} // Đảm bảo có key unique
+                    {...mess}
+                    isMe={mess.sender.id === me.id}
+                  />
+                )
+              ))
+            ) : (
+              <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
+                Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
+              </Box>
+            )}
+          </Box>
+        }
       </Box>
 
       <Box

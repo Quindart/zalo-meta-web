@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { getFriends } from "@/services/Friend";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { useFriend } from "@/hook/api/useFriend";
 import {
     Box,
     Checkbox,
@@ -13,12 +13,6 @@ import {
     Divider
 } from "@mui/material";
 
-interface ResponseType {
-    success: boolean;
-    message: string;
-    data: any;
-}
-
 const PopupGroup = ({
     setShow,
     createGroup, }: {
@@ -27,29 +21,16 @@ const PopupGroup = ({
     }) => {
     const userStore = useSelector((state: RootState) => state.userSlice);
     const { me } = userStore;
-    const [friends, setFriends] = useState<any[]>([]);
-    const [loadingRender, setLoadingRender] = useState(true);
+    const { listFriends, getListFriends, loading } = useFriend(me.id);
     const [selected, setSelected] = useState<string[]>([]);
-    const [groupName, setGroupName] = useState(""); // Add state for group name
-    const [nameError, setNameError] = useState(""); // Add state for name validation
+    const [groupName, setGroupName] = useState(""); 
+    const [nameError, setNameError] = useState(""); 
 
     useEffect(() => {
-        const fetchFriends = async () => {
-            try {
-                const response = await getFriends(me.id) as ResponseType;
-                if (response.success) {
-                    setFriends(response.data);
-                } else {
-                    console.error("Failed to fetch friends data");
-                }
-            } catch (error) {
-                console.error("Error fetching friends:", error);
-            } finally {
-                setLoadingRender(false);
-            }
-        };
-        fetchFriends();
-    }, [me.id]);
+        getListFriends();
+      },[]);
+    
+   
 
     const handleToggle = (id: string) => {
         setSelected((prev) =>
@@ -124,11 +105,11 @@ const PopupGroup = ({
                 Chọn thành viên ({selected.length})
             </Typography>
 
-            {loadingRender ? (
+            {loading ? (
                 <Box display="flex" justifyContent="center" my={3}>
                     <CircularProgress size={30} />
                 </Box>
-            ) : friends.length === 0 ? (
+            ) : listFriends.length === 0 ? (
                 <Typography color="text.secondary" align="center" my={3}>
                     Không có bạn bè
                 </Typography>
@@ -140,9 +121,9 @@ const PopupGroup = ({
                     borderRadius: 1,
                     p: 1
                 }}>
-                    {friends.map((elm) => (
+                    {listFriends.map((elm) => (
                         <Box
-                            key={elm.friend._id}
+                            key={elm.id}
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
@@ -155,17 +136,17 @@ const PopupGroup = ({
                             }}
                         >
                             <Checkbox
-                                checked={selected.includes(elm.friend._id)}
-                                onChange={() => handleToggle(elm.friend._id)}
+                                checked={selected.includes(elm.id)}
+                                onChange={() => handleToggle(elm.id)}
                                 size="small"
                             />
                             <Avatar
-                                src={elm.friend.avatar}
-                                alt={elm.friend.firstName}
+                                src={elm.avatar}
+                                alt={elm.name}
                                 sx={{ width: 36, height: 36, mr: 1 }}
                             />
                             <Typography noWrap>
-                                {elm.friend.lastName} {elm.friend.firstName}
+                                {elm.lastName} {elm.name}
                             </Typography>
                         </Box>
                     ))}
