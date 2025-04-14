@@ -213,17 +213,16 @@ const RightSideBar = () => {
 
       <Divider />
       <List sx={{ bgcolor: "white", borderRadius: 1 }}>
-        {[{ text: "Xóa lịch sử trò chuyện" }, { text: "Rời nhóm" }].map(
-          ({ icon, text }, index) => (
-            <ListItemButton
-              key={index}
-              sx={{ color: "#C62218" }}
-              onClick={() => alert(text)}
-            >
-              <ListItemText sx={{ ml: 2 }} primary={text} />
-            </ListItemButton>
-          ),
-        )}
+        <ListItemButton
+          sx={{ color: "#C62218" }}
+        >
+          <ListItemText sx={{ ml: 2 }} primary={'Xóa lịch sử trò chuyện'} />
+        </ListItemButton>
+        <ListItemButton
+          sx={{ color: "#C62218" }}
+        >
+          <ListItemText sx={{ ml: 2 }} primary={'Rời nhóm'} />
+        </ListItemButton>
       </List>
       <InfoGroupDialog open={open} onClose={() => setOpen(false)} />
     </Drawer>

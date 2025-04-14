@@ -15,7 +15,7 @@ function MainChat() {
   const params = useParams();
   const channelId = params.id;
 
-  const { channel, messages, sendMessage, joinRoom, loading } = useChatContext();
+  const { channel, messages, sendMessage, joinRoom } = useChatContext();
 
 
   useEffect(() => {
@@ -61,42 +61,29 @@ function MainChat() {
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        {
-          loading ? (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-              }}
-            >
-              <div className="loader"></div>
+        <Box
+          sx={{
+            mx: 1,
+            my: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {messages && Array.isArray(messages) && messages.length > 0 ? (
+            messages.map((mess: any, index: number) => (
+              <MessageChat
+                key={mess.id || index} // Đảm bảo có key unique
+                {...mess}
+                isMe={mess.sender.id === me.id}
+              />
+            ))
+          ) : (
+            <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
+              Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
             </Box>
-          ) : (<Box
-            sx={{
-              mx: 1,
-              my: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            {messages && Array.isArray(messages) && messages.length > 0 ? (
-              messages.map((mess: any, index: number) => (
-                <MessageChat
-                  key={mess.id || index} // Đảm bảo có key unique
-                  {...mess}
-                  isMe={mess.sender.id === me.id}
-                />
-              ))
-            ) : (
-              <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
-                Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
-              </Box>
-            )}
-          </Box>)
-        }
+          )}
+        </Box>
       </Box>
 
       <Box

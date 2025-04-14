@@ -35,15 +35,19 @@ function ChatTemplate() {
   }, [me, messages]);
 
   const infoChat = useMemo(() => {
-    return listChannel.map((item) => ({
-      id: item.id,
-      name: item.name,
-      avatar: item.avatar,
-      time: item.time,
-      message: item.message,
-      isRead: item.isRead !== undefined ? item.isRead : false,
-      isChoose: currentChannelId === item.id,
-    }));
+    return listChannel
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        avatar: item.avatar,
+        time: item.time,
+        message: item.message,
+        isRead: item.isRead !== undefined ? item.isRead : false,
+        isChoose: currentChannelId === item.id,
+      }))
+      .sort((a, b) => {
+        return new Date(b.time).getTime() - new Date(a.time).getTime();
+      });
   }, [listChannel, currentChannelId]);
 
   const handleGroupIconClick = useCallback((e: React.MouseEvent) => {

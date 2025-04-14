@@ -22,6 +22,8 @@ const SOCKET_EVENTS = {
     CREATE_RESPONSE: "channel:createResponse",
     JOIN_ROOM: "joinRoom",
     JOIN_ROOM_RESPONSE: "joinRoomResponse",
+    LEAVE_ROOM: "leaveRoom",
+    LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
   },
 };
 
@@ -46,14 +48,14 @@ interface MessageType {
   };
 }
 
-
-const socketService = new SocketService();
 export const useChat = (currentUserId: string) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [channel, setChannel] = useState<any>(null);
   const [listChannel, setListChannel] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const currentChannelRef = useRef<string | null>(null);
+
+  const socketService = SocketService.getInstance(currentUserId);
 
   useEffect(() => {
     const socket = socketService.getSocket();
@@ -76,7 +78,6 @@ export const useChat = (currentUserId: string) => {
 
     const joinRoomResponse = (response: ResponseType) => {
       if (response.success) {
-        console.log("Joined room successfully:", response.data);
         setChannel(response.data.channel);
         setMessages(response.data.messages);
         setLoading(false);
@@ -95,10 +96,13 @@ export const useChat = (currentUserId: string) => {
             // Update the channel with the latest message
             return {
               ...channel,
-              message: message.content,
-              time: message.timestamp,
-              lastMessage: message,
-              isRead: currentChannelRef.current === message.channelId
+              id: 123456789,
+              avatar: message.sender?.avatar || "https://example.com/default-avatar.png",
+              name:    message.sender?.name || "Unknown",
+              message:  message.content,
+              time:   message.timestamp,
+              isRead:   message.status === "read",
+              isChoose:   currentChannelRef.current === message.channelId,
             };
           }
           return channel;
@@ -106,7 +110,15 @@ export const useChat = (currentUserId: string) => {
       });
     };
 
-    const receivedMessage = (message: any) => {
+    const receivedMessage = (message: any) => { 
+      const members = message.members;
+      const isMember = members.some((member: any) => member.userId === currentUserId);
+      if (!isMember) {
+        console.log("Received message not for current user, ignoring:", message);
+        return;
+      }
+      
+      loadChannel(currentUserId);
 
       updateChannelWithMessage(message);
 
@@ -117,7 +129,6 @@ export const useChat = (currentUserId: string) => {
         });
         return;
       }
-      console.log("Received message:", message);
       setMessages((prev) => {
         const messageId = message.id || message._id;
         const isDuplicate = messageId ?
@@ -136,7 +147,6 @@ export const useChat = (currentUserId: string) => {
 
     const loadChannelResponse = (response: ResponseType) => {
       if (response.success) {
-        console.log("loadChannelResponse successfully:", response.data);
         setListChannel(response.data);
         setLoading(false);
       }
@@ -148,7 +158,6 @@ export const useChat = (currentUserId: string) => {
 
     const createGroupResponse = (response: ResponseType) => {
       if (response.success) {
-        console.log("Group created successfully:", response.data);
         setListChannel((prev) => [...prev, response.data]);
         setLoading(false);
       } else {
@@ -157,6 +166,18 @@ export const useChat = (currentUserId: string) => {
       }
     }
 
+    const leaveRoomResponse = (response: ResponseType) => {
+      if (response.success) {
+        setChannel(null);
+        setMessages([]);
+        setLoading(false);
+        setListChannel((prev) => prev.filter(channel => channel.id !== response.data.channelId));
+      }
+      else {
+        console.error("Failed to leave room:", response.message);
+        setLoading(false);
+      }
+    }
 
 
 
@@ -168,6 +189,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
     socket.on(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE, loadChannelResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, createGroupResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
 
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -175,6 +197,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
       socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE, loadChannelResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, createGroupResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
     };
   }, []);
 
@@ -193,11 +216,11 @@ export const useChat = (currentUserId: string) => {
     setMessages([]);
     const socket = socketService.getSocket();
     currentChannelRef.current = channelId;
-    socket.emit(SOCKET_EVENTS.CHANNEL.JOIN_ROOM, { channelId });
+    const params = { channelId, currentUserId };
+    socket.emit(SOCKET_EVENTS.CHANNEL.JOIN_ROOM, params);
   }, []);
 
   const sendMessage = useCallback((channelId: string, content: string) => {
-    console.log("Sending message channelId:", channelId);
     const socket = socketService.getSocket();
     const messageData = {
       channelId,
@@ -224,12 +247,22 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.CHANNEL.CREATE, params);
   }, []);
 
+  const leaveRoom = useCallback((channelId: string) => {
+    const socket = socketService.getSocket();
+    const params = { 
+      channelId,
+      userId: currentUserId
+     };
+    socket.emit(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM, params);
+  }, []);
+
   return {
     findOrCreateChat,
     joinRoom,
     sendMessage,
     loadChannel,
     createGroup,
+    leaveRoom,
     listChannel,
     channel,
     messages,
