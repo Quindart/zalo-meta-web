@@ -57,6 +57,61 @@ const ChatInput = ({
     }
   };
 
+
+  const hiddenFileInput = useRef<HTMLInputElement | null>(null);
+  const handleClickLink = () => {
+    hiddenFileInput.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const extension = file.name.split(".").pop()?.toLowerCase() || "default";
+      const sizeInKB = (file.size / 1024).toFixed(2) + " KB";
+
+      // 🧠 Gửi tin nhắn dạng file (ở đây chỉ ví dụ là hiển thị thông tin)
+      const fileMessage = {
+        type: "file",
+        name: file.name.replace(/\.[^/.]+$/, ""),
+        extension,
+        size: sizeInKB,
+      };
+      setMessage(JSON.stringify(fileMessage));
+      sendMessage(channelId, JSON.stringify({
+        type: "file",
+        name: file.name.replace(/\.[^/.]+$/, ""),
+        extension,
+        size: sizeInKB,
+      }));
+
+    }
+  };
+
+
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleClickImage = () => {
+    imageInputRef.current?.click();
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const images: File[] = Array.from(files);
+
+    // Gửi tin nhắn kiểu ảnh (ở đây demo: gửi mỗi ảnh là 1 object đơn giản, có thể mở rộng ra upload lên S3,...)
+    images.forEach((image) => {
+      const imageMessage = {
+        type: "image",
+        name: image.name,
+        size: `${(image.size / 1024).toFixed(2)} KB`,
+        url: URL.createObjectURL(image), // hoặc upload lên server rồi lấy URL thật
+      };
+      sendMessage(channelId, JSON.stringify(imageMessage));
+    });
+  };
+
   return (
     <Box
       sx={{
@@ -74,12 +129,27 @@ const ChatInput = ({
         <IconButton>
           <InsertEmoticon />
         </IconButton>
-        <IconButton>
+        <IconButton  onClick={handleClickImage}>
           <Image />
         </IconButton>
-        <IconButton>
+        <input
+          type="file"
+          accept="image/*"
+          ref={imageInputRef}
+          onChange={handleImageUpload}
+          style={{ display: "none" }}
+          multiple // nếu muốn chọn nhiều ảnh cùng lúc
+        />
+        <IconButton onClick={handleClickLink}>
           <Link />
         </IconButton>
+        <input
+          type="file"
+          ref={hiddenFileInput}
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+          accept=".pdf,.doc,.docx,.txt,.xlsx,.csv,.zip,.rar,.ppt,.pptx"
+        />
         <IconButton>
           <ContactPage />
         </IconButton>
