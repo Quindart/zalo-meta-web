@@ -5,11 +5,13 @@ import { Outlet, useParams } from "react-router-dom";
 import ChatItem from "./ChatInfo/ChatItem";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import PopupGroup from "@/components/PopupGroup";
 import { useChatContext } from '@/Context/ChatContextType';
+import AddFriendDialog from "./AddFriend.tsx";
+import CreateGroupDialog from "./CreateGroupDialog/index.tsx";
 
 const MY_CLOUD = {
   id: 1,
@@ -29,6 +31,9 @@ function ChatTemplate() {
   const params = useParams();
   const currentChannelId = params.id;
   const { listChannel, loadChannel, messages, createGroup} = useChatContext();
+
+  const [openAddFriend, setOpenAddFriend] = useState(false);
+  const [openCreateGroup, setOpenCreateGroup] = useState(false);
 
   useEffect(() => {
     loadChannel(me.id);
@@ -51,11 +56,6 @@ function ChatTemplate() {
       }
     );
   }, [listChannel, currentChannelId]);
-
-  const handleGroupIconClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setShowPopup(!showPopup);
-  }, [showPopup]);
 
   return (
     <Box display={"flex"}>
@@ -85,7 +85,7 @@ function ChatTemplate() {
             <IconButton
               color="default"
               sx={{ borderRadius: 2 }}
-              onClick={() => console.log("Edit")}
+              onClick={() => setOpenAddFriend(true)}
             >
               <PersonAddAltIcon
                 sx={{
@@ -98,7 +98,7 @@ function ChatTemplate() {
               <IconButton
                 color="default"
                 sx={{ borderRadius: 2 }}
-                onClick={handleGroupIconClick}
+                onClick={() => setOpenCreateGroup(true)}
               >
                 <GroupAddIcon
                   sx={{
@@ -124,6 +124,9 @@ function ChatTemplate() {
       <Box marginLeft={"300px"} flex={1} width={"100%"}>
         <Outlet />
       </Box>
+      <AddFriendDialog open={openAddFriend} onClose={() => setOpenAddFriend(false)} />
+      <CreateGroupDialog open={openCreateGroup} onClose={() => setOpenCreateGroup(false)} />
+
     </Box>
   );
 }

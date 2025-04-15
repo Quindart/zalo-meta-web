@@ -7,13 +7,14 @@ import ReplyIcon from '@mui/icons-material/Reply';
 import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ShareDialog from "./ShareDialog";
-import { 
+import FileCard from "../FileCard";
+import {
   Tooltip,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Divider 
+  Divider
 } from "@mui/material";
 
 
@@ -29,6 +30,8 @@ type MessPropsType = {
   timestamp: string;
   emojis: string[];
   isMe: boolean;
+  fileUrl?: string;
+  fileName?: string;
 };
 function MessageChat(props: Partial<MessPropsType>) {
   const [openShare, setOpenShare] = useState(false);
@@ -56,7 +59,24 @@ function MessageChat(props: Partial<MessPropsType>) {
   const handleMenuClose = () => {
     setMenuAnchor(null);
   };
+  let parsedContent = null;
+  let isFile = false;
+  let isImage = false;
 
+  if (content) {
+    try {
+      const parsed = JSON.parse(content);
+      if (parsed?.type === "file") {
+        parsedContent = parsed;
+        isFile = true;
+      } else if (parsed?.type === "image") {
+        parsedContent = parsed;
+        isImage = true;
+      }
+    } catch {
+      // không phải JSON, giữ nguyên là text
+    }
+  }
   const open = Boolean(anchorEl);
   return (
     <Box display={"flex"} gap={1} alignSelf={isMe ? "flex-end" : "flex-start"}>
@@ -66,8 +86,8 @@ function MessageChat(props: Partial<MessPropsType>) {
         </Box>
       )}
       <Box
-        display="flex" 
-        flexDirection="column" 
+        display="flex"
+        flexDirection="column"
         gap={1}
         maxWidth={500}
         px={2}
@@ -91,7 +111,31 @@ function MessageChat(props: Partial<MessPropsType>) {
           position: "relative",
         }}
       >
-        <Typography fontSize={15}>{content}</Typography>
+        {isFile ? (
+          <FileCard
+            name={parsedContent.name}
+            size={parsedContent.size}
+            extension={parsedContent.extension}
+          />
+        ) : isImage ? (
+          <Box
+            component="img"
+            src={parsedContent.url}
+            alt={parsedContent.name || "image"}
+            sx={{
+              width: 220,
+              borderRadius: 2,
+              objectFit: "cover",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                opacity: 0.9
+              }
+            }}
+          />
+        ) : (
+          <Typography fontSize={15}>{content}</Typography>
+        )}
         <Typography fontSize={14} color="grey.600" mb={1}>
           {getHourAndMinute(`${timestamp}`)}
         </Typography>
@@ -118,9 +162,9 @@ function MessageChat(props: Partial<MessPropsType>) {
           className="more-btn"
           sx={{
             position: "absolute",
-            left: -36, // điều chỉnh khoảng cách từ khung tin nhắn ra ngoài
+            [isMe ? "left" : "right"]: -36, // điều chỉnh khoảng cách từ khung tin nhắn ra ngoài
             top: "30%",
-            transform: "translateX(-60%)",
+            transform: isMe ? "translateX(-60%)" : "translateX(60%)",
             opacity: 0,
             transition: "opacity 0.2s ease-in",
           }}
@@ -130,7 +174,7 @@ function MessageChat(props: Partial<MessPropsType>) {
               size="small"
               onClick={() => setOpenShare(true)}
               sx={{
-                marginRight:1,
+                marginRight: 1,
                 backgroundColor: "#fff",
                 "&:hover": {
                   backgroundColor: "#f7f7f7"
@@ -203,8 +247,14 @@ function MessageChat(props: Partial<MessPropsType>) {
           anchorEl={menuAnchor}
           open={Boolean(menuAnchor)}
           onClose={handleMenuClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: isMe ? "right" : "left",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: isMe ? "right" : "left",
+          }}
         >
           <MenuItem onClick={handleMenuClose} sx={{ color: "error.main" }}>
             <ListItemIcon>
@@ -212,7 +262,7 @@ function MessageChat(props: Partial<MessPropsType>) {
             </ListItemIcon>
             <ListItemText>Thu hồi</ListItemText>
           </MenuItem>
-          <Divider/>
+          <Divider />
           <MenuItem onClick={handleMenuClose} sx={{ color: "error.main" }}>
             <ListItemIcon>
               <DeleteOutlineIcon fontSize="small" color="error" />
