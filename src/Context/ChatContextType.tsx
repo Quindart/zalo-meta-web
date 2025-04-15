@@ -14,6 +14,7 @@ interface ChatContextType {
   listChannel: any[];
   createGroup: (name: string, members: string[]) => void;
   leaveRoom: (channelId: string) => void;
+  uploadFile: (channelId: string, file: File) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);

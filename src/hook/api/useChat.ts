@@ -25,6 +25,10 @@ const SOCKET_EVENTS = {
     LEAVE_ROOM: "leaveRoom",
     LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
   },
+  FILE: {
+    UPLOAD: "file:upload",
+    UPLOAD_RESPONSE: "file:uploadResponse",
+  },
 };
 
 interface ResponseType {
@@ -135,14 +139,14 @@ export const useChat = (currentUserId: string) => {
       });
     };
     const receivedMessage = (message: any) => {
-      console.log("Received message:", message); 
+      console.log("Received message:", message);
       const members = message.members;
       const isMember = members.some((member: any) => member.userId === currentUserId);
       if (!isMember) {
         console.log("Received message not for current user, ignoring:", message);
         return;
       }
-      
+
       loadChannel(currentUserId);
 
       updateChannelWithMessage(message);
@@ -174,10 +178,10 @@ export const useChat = (currentUserId: string) => {
     const loadChannelResponse = (response: ResponseType) => {
       if (response.success) {
         // Remove duplicates using a Set with channel IDs
-        const uniqueChannels = (response.data as ChannelType[]).filter((channel, index, self) => 
+        const uniqueChannels = (response.data as ChannelType[]).filter((channel, index, self) =>
           index === self.findIndex((c) => c.id === channel.id)
         );
-        
+
         setListChannel(uniqueChannels);
         setLoading(false);
       } else {
@@ -192,12 +196,12 @@ export const useChat = (currentUserId: string) => {
           const channelExists = prev.some(
             (channel) => channel.id === response.data.id
           );
-          
+
           if (channelExists) {
             console.log("Channel already exists in list, not adding duplicate:", response.data.id);
             return prev;
           }
-          
+
           console.log("Adding new channel to list:", response.data.id);
           return [...prev, response.data];
         });
@@ -222,9 +226,29 @@ export const useChat = (currentUserId: string) => {
       }
     }
 
-
-
-
+    const uploadFileResponse = (response: ResponseType) => {
+      if (response.success) {
+        const newMessage = response.data.message;
+        setMessages((prev) => {
+          const messageId = newMessage.id;
+          const isDuplicate = messageId ? 
+            prev.some(msg => (msg.id === messageId)) : 
+            false;
+            
+          if (isDuplicate) {
+            console.log("Duplicate file message detected, not adding");
+            return prev;
+          }
+          
+          return [...prev, newMessage];
+        });
+        
+        updateChannelWithMessage(response.data.message);
+      } else {
+        console.error("Failed to upload file:", response.message);
+      }
+      setLoading(false);
+    };
 
 
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
@@ -233,6 +257,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE, loadChannelResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, createGroupResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
+    socket.on(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
 
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -241,6 +266,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE, loadChannelResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, createGroupResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
+      socket.off(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
     };
   }, []);
 
@@ -293,11 +319,32 @@ export const useChat = (currentUserId: string) => {
 
   const leaveRoom = useCallback((channelId: string) => {
     const socket = socketService.getSocket();
-    const params = { 
+    const params = {
       channelId,
       userId: currentUserId
-     };
+    };
     socket.emit(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM, params);
+  }, []);
+
+  const uploadFile = useCallback((channelId: string, file: File) => {
+    const socket = socketService.getSocket();
+    setLoading(true);
+    const reader = new FileReader();
+    console.log("Uploading file:", file);
+    reader.onload = () => {
+      const fileData = reader.result as ArrayBuffer;
+      const fileMessage = {
+        channelId,
+        senderId: currentUserId,
+        fileName: file.name,
+        fileData,
+        timestamp: new Date().toISOString(),
+        status: "sent",
+      };
+      console.log("File data read:", fileData);
+      socket.emit(SOCKET_EVENTS.FILE.UPLOAD, fileMessage);
+    };
+    reader.readAsArrayBuffer(file);
   }, []);
 
   return {
@@ -311,5 +358,6 @@ export const useChat = (currentUserId: string) => {
     channel,
     messages,
     loading,
+    uploadFile
   };
 };

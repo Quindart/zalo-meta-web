@@ -28,6 +28,13 @@ import {
   Link,
   Security,
 } from "@mui/icons-material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 import InfoGroupDialog from "./InfoGroup/InfoGroupDialog.tsx";
 const sections = [
   {
@@ -85,10 +92,9 @@ const RightSideBar = ({
   me: any;
 }) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(
-    {},
-  );
+  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({},);
   const [role, setRole] = useState<string>("member");
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (channel && channel.members) {
@@ -103,6 +109,29 @@ const RightSideBar = ({
 
   const toggleSection = (id: string) => {
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleDisbandGroup = async () => {
+    setConfirmDialogOpen(true);
+  };
+
+  const confirmDisbandGroup = async () => {
+    try {
+      // Gọi API để giải tán nhóm
+      // await apiService.disbandGroup(channel.id);
+
+      // Đóng dialog xác nhận
+      setConfirmDialogOpen(false);
+
+      // Điều hướng người dùng về trang chính sau khi giải tán
+      // navigate('/');
+
+      // Hiển thị thông báo thành công
+      // toast.success("Nhóm đã được giải tán thành công");
+    } catch (error) {
+      console.error("Error confirming disband group:", error);
+      // toast.error("Không thể giải tán nhóm. Vui lòng thử lại.");
+    }
   };
 
   return (
@@ -242,8 +271,8 @@ const RightSideBar = ({
         {
           role === "captain" && (
             <ListItemButton
-              onClick={() => leaveRoom(channel.id)}
               sx={{ color: "#C62218" }}
+              onClick={handleDisbandGroup}
             >
               <ListItemText sx={{ ml: 2 }} primary={'Giải tán nhóm'} />
             </ListItemButton>
@@ -264,6 +293,73 @@ const RightSideBar = ({
 
       </List>
       <InfoGroupDialog open={open} onClose={() => setOpen(false)} />
+      {/* Dialog xác nhận giải tán nhóm */}
+      <Dialog
+  open={confirmDialogOpen}
+  onClose={() => setConfirmDialogOpen(false)}
+  PaperProps={{
+    sx: {
+      borderRadius: 2,
+      width: { xs: '90%', sm: 400 },
+      maxWidth: 400
+    }
+  }}
+>
+  <DialogTitle sx={{ 
+    textAlign: 'center', 
+    fontWeight: 600, 
+    fontSize: 18,
+    pt: 3 
+  }}>
+    Giải tán nhóm
+  </DialogTitle>
+  <DialogContent sx={{ px: 3 }}>
+    <DialogContentText sx={{ 
+      textAlign: 'center',
+      fontSize: 15,
+      color: '#343a40'
+    }}>
+      Mời tất cả mọi người rời nhóm và xóa tin nhắn? Nhóm đã giải tán sẽ KHÔNG THỂ khôi phục.
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions sx={{ 
+    justifyContent: 'center', 
+    pb: 3,
+    px: 2,
+    gap: 1 
+  }}>
+    <Button 
+      onClick={() => setConfirmDialogOpen(false)}
+      variant="outlined"
+      fullWidth
+      sx={{
+        borderRadius: 1.5,
+        textTransform: 'none',
+        py: 1,
+        border: '1px solid #e0e0e0',
+        color: '#616161'
+      }}
+    >
+      Không
+    </Button>
+    <Button 
+      onClick={confirmDisbandGroup} 
+      variant="contained"
+      fullWidth
+      sx={{
+        borderRadius: 1.5,
+        textTransform: 'none',
+        py: 1,
+        bgcolor: '#e53935',
+        '&:hover': {
+          bgcolor: '#d32f2f'
+        }
+      }}
+    >
+      Giải tán nhóm
+    </Button>
+  </DialogActions>
+</Dialog>
     </Drawer>
   );
 };

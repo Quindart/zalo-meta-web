@@ -4,6 +4,7 @@ import ChatInput from "./ChatInput";
 import MessageChat from "@/components/Message";
 import MessageSystem from "@/components/MessageSystem";
 import { useRef, useEffect } from "react";
+import FileCard from "@/components/FileCard";
 
 function MainChat(
   {
@@ -12,12 +13,14 @@ function MainChat(
     sendMessage,
     me,
     channelId,
+    uploadFile,
   }: {
     channel: any;
     messages: any;
     sendMessage: any;
     me: any;
     channelId: string | undefined;
+    uploadFile: (channelId: string, file: File) => void;
   }
 ) {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
@@ -35,6 +38,16 @@ function MainChat(
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const RenderMessage = ({ mess, index }: { mess: any; index: number }) => {
+    if (mess.messageType === "system") {
+      return <MessageSystem key={mess.id || index} {...mess} />;
+    } else if (mess.messageType === "file") {
+      return <FileCard name={mess.file.filename} size={mess.file.size} path={mess.file.path} extension={mess.file.extension} isMe={mess.sender.id === me.id} />;
+    } else {
+      return <MessageChat {...mess} isMe={mess.sender.id === me.id} />;
+    }
+  }
 
   return (
     <Box
@@ -85,18 +98,7 @@ function MainChat(
           >
             {messages && Array.isArray(messages) && messages.length > 0 ? (
               messages.map((mess: any, index: number) => (
-                mess.messageType === "system" ? (
-                  <MessageSystem
-                    key={mess.id || index} // Đảm bảo có key unique
-                    {...mess}
-                  />
-                ) : (
-                  <MessageChat
-                    key={mess.id || index} // Đảm bảo có key unique
-                    {...mess}
-                    isMe={mess.sender.id === me.id}
-                  />
-                )
+                RenderMessage({ mess, index })
               ))
             ) : (
               <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
@@ -118,7 +120,7 @@ function MainChat(
           zIndex: 10,
         }}
       >
-        <ChatInput channelId={channelId} sendMessage={sendMessage} />
+        <ChatInput channelId={channelId} sendMessage={sendMessage} uploadFile={uploadFile} />
       </Box>
     </Box>
   );
