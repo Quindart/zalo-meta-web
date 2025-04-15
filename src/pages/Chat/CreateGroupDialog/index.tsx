@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -20,6 +20,10 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
+import { useFriend } from "@/hook/api/useFriend";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { enqueueSnackbar } from "notistack";
 
 type Contact = {
   id: string;
@@ -28,20 +32,31 @@ type Contact = {
   phone: string;
 };
 
-const mockContacts: Contact[] = [
-  { id: "1", name: "Lê Minh Quang", phone: "0364835692", avatar: "https://i.pravatar.cc/40?img=1" },
-  { id: "2", name: "Kiệt", phone: "0912345678", avatar: "https://i.pravatar.cc/40?img=2" },
-  { id: "3", name: "Tân", phone: "0987654321", avatar: "https://i.pravatar.cc/40?img=3" },
-  { id: "4", name: "Nguyễn Chương", phone: "0977888999", avatar: "https://i.pravatar.cc/40?img=4" },
-  { id: "5", name: "Vũ Quốc Huy", phone: "0909123456", avatar: "https://i.pravatar.cc/40?img=5" },
-];
-
-const CreateGroupDialog = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
+const CreateGroupDialog = ({ open, onClose, createGroup }: { 
+  open: boolean; 
+  onClose: () => void;
+  createGroup: (name: string, members: string[]) => void;
+}) => {
   const [groupName, setGroupName] = useState("");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [foundUser, setFoundUser] = useState<Contact | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  const { listFriends, getListFriends } = useFriend(me.id);
+
+  useEffect(() => {
+    getListFriends();
+  }, []);
+
+  const mockContacts = listFriends.map((friend) => ({
+    id: friend.id,
+    name: friend.name,
+    avatar: friend.avatar,
+    phone: friend.phone,
+  }));
+
 
   // Hàm tìm kiếm theo tên
   const searchByName = (query: string, contacts: Contact[]) => {
@@ -120,18 +135,27 @@ const CreateGroupDialog = ({ open, onClose }: { open: boolean; onClose: () => vo
     onClose(); // Đóng dialog
   };
 
+  const handleCreateGroup = async () => {
+    if (!groupName.trim()) {
+        enqueueSnackbar("Tên nhóm không được để trống", { variant: "error" });
+        return;
+    }
+    createGroup(groupName, selectedIds);
+    handleConfirmClose();
+  };
+
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
+    <Dialog
+      open={open}
+      onClose={onClose}
       PaperProps={{
         sx: {
-            minWidth: "700px",
-            minHeight: "90vh",
-            maxHeight: "90vh",
-            position: "relative", // cần cho việc căn giữa alert
+          minWidth: "700px",
+          minHeight: "90vh",
+          maxHeight: "90vh",
+          position: "relative", // cần cho việc căn giữa alert
         },
-    }}
+      }}
     >
       <DialogTitle sx={{ display: "flex", justifyContent: "space-between", p: 1.5 }}>
         <Typography fontWeight={600} fontSize={17}>Tạo nhóm</Typography>
@@ -149,34 +173,34 @@ const CreateGroupDialog = ({ open, onClose }: { open: boolean; onClose: () => vo
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
           size="medium"
-          variant="standard" 
+          variant="standard"
           sx={{
-            mt:2,
+            mt: 2,
             mb: 2,
             "& .MuiInputBase-root": {
-                height: 40, // Matches the height in the image
-                fontSize: 20, // Font size for the input text
+              height: 40, // Matches the height in the image
+              fontSize: 20, // Font size for the input text
             },
             "& .MuiInputLabel-root": {
-                fontSize: 18, // Font size for the label
-                transform: "translate(12px, 10px) scale(1)", // Adjust label position
+              fontSize: 18, // Font size for the label
+              transform: "translate(12px, 10px) scale(1)", // Adjust label position
             },
             "& .MuiInputLabel-shrink": {
-                transform: "translate(12px, -6px) scale(0.75)", // Label position when shrunk
+              transform: "translate(12px, -6px) scale(0.75)", // Label position when shrunk
             },
             "& .MuiInputBase-input": {
-                paddingLeft: 1.5, // Matches the padding (pl: 1.5)
+              paddingLeft: 1.5, // Matches the padding (pl: 1.5)
             },
             "& .MuiInput-underline:before": {
-                borderBottom: "1px solid rgba(0, 0, 0, 0.42)", // Default underline
+              borderBottom: "1px solid rgba(0, 0, 0, 0.42)", // Default underline
             },
             "& .MuiInput-underline:hover:not(.Mui-disabled):before": {
-                borderBottom: "2px solid #1976d2", // Hover effect (blue underline)
+              borderBottom: "2px solid #1976d2", // Hover effect (blue underline)
             },
             "& .MuiInput-underline:after": {
-                borderBottom: "2px solid #1976d2", // Focused underline (blue)
+              borderBottom: "2px solid #1976d2", // Focused underline (blue)
             },
-        }}
+          }}
         />
         <Box sx={{ position: "relative" }}>
           {/* Tìm kiếm */}
@@ -199,7 +223,7 @@ const CreateGroupDialog = ({ open, onClose }: { open: boolean; onClose: () => vo
                   </IconButton>
                 </InputAdornment>
               ),
-              sx:{height: 42}
+              sx: { height: 42 }
             }}
             sx={{ mb: 2 }}
           />
@@ -332,6 +356,7 @@ const CreateGroupDialog = ({ open, onClose }: { open: boolean; onClose: () => vo
           Huỷ
         </Button>
         <Button
+          onClick={handleCreateGroup}
           variant="contained"
           disabled={!groupName.trim() || selectedIds.length === 0}
           sx={{

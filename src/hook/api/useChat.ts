@@ -24,6 +24,8 @@ const SOCKET_EVENTS = {
     JOIN_ROOM_RESPONSE: "joinRoomResponse",
     LEAVE_ROOM: "leaveRoom",
     LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
+    DISSOLVE_GROUP: "channel:dissolveGroup",
+    DISSOLVE_GROUP_RESPONSE: "channel:dissolveGroupResponse",
   },
   FILE: {
     UPLOAD: "file:upload",
@@ -78,6 +80,7 @@ interface ChannelType {
   lastMessage?: MessageType;
   isRead?: boolean;
   avatar?: string;
+  isDeleted?: boolean;
 }
 
 export const useChat = (currentUserId: string) => {
@@ -226,6 +229,20 @@ export const useChat = (currentUserId: string) => {
       }
     }
 
+    const dissolveGroupResponse = (response: ResponseType) => {
+      if (response.success) {
+        setChannel(null);
+        setMessages([]);
+        setLoading(false);
+        console.log("Group dissolved successfully:", response.data);
+        setListChannel((prev) => prev.filter(channel => channel.id !== response.data.id));
+      }
+      else {
+        console.error("Failed to dissolve group:", response.message);
+        setLoading(false);
+      }
+    }
+
     const uploadFileResponse = (response: ResponseType) => {
       if (response.success) {
         const newMessage = response.data.message;
@@ -258,6 +275,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, createGroupResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
     socket.on(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
 
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -267,6 +285,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.CREATE_RESPONSE, createGroupResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
       socket.off(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
     };
   }, []);
 
@@ -347,6 +366,17 @@ export const useChat = (currentUserId: string) => {
     reader.readAsArrayBuffer(file);
   }, []);
 
+
+  const dissolveGroup = useCallback((channelId: string) => {
+    setLoading(true);
+    const socket = socketService.getSocket();
+    const params = {
+      channelId,
+      userId: currentUserId
+    };
+    socket.emit(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP, params);
+  }, []); 
+
   return {
     findOrCreateChat,
     joinRoom,
@@ -355,6 +385,7 @@ export const useChat = (currentUserId: string) => {
     createGroup,
     leaveRoom,
     listChannel,
+    dissolveGroup,
     channel,
     messages,
     loading,

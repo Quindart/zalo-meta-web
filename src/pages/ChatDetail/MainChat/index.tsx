@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import InfoUser from "./InfoUser/InfoUser";
 import ChatInput from "./ChatInput";
 import MessageChat from "@/components/Message";
@@ -109,19 +109,59 @@ function MainChat(
         }
       </Box>
 
-      <Box
-        sx={{
-          position: "sticky",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          bgcolor: "white",
-          border: "1px solid #ccc",
-          zIndex: 10,
-        }}
-      >
-        <ChatInput channelId={channelId} sendMessage={sendMessage} uploadFile={uploadFile} />
-      </Box>
+      {channel && !channel.isDeleted ?
+        (
+          <Box
+            sx={{
+              position: "sticky",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              bgcolor: "white",
+              border: "1px solid #ccc",
+              zIndex: 10,
+            }}
+          >
+            <ChatInput channelId={channelId} sendMessage={sendMessage} uploadFile={uploadFile} />
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: 'rgba(245, 245, 245, 0.8)',
+              borderTop: '1px solid #e0e0e0',
+              borderBottom: '1px solid #e0e0e0',
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                color: '#d32f2f',
+                fontWeight: 500,
+                fontSize: '0.875rem',
+                textAlign: 'center',
+              }}
+            >
+              Nhóm đã bị giải tán
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#757575',
+                mt: 0.5,
+                fontSize: '0.75rem',
+                textAlign: 'center',
+              }}
+            >
+              Không thể gửi hoặc nhận tin nhắn trong nhóm này nữa.
+            </Typography>
+          </Box>
+        )
+      }
     </Box>
   );
 }

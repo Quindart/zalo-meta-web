@@ -125,7 +125,7 @@ function ChatTemplate() {
         <Outlet />
       </Box>
       <AddFriendDialog open={openAddFriend} onClose={() => setOpenAddFriend(false)} />
-      <CreateGroupDialog open={openCreateGroup} onClose={() => setOpenCreateGroup(false)} />
+      <CreateGroupDialog open={openCreateGroup} onClose={() => setOpenCreateGroup(false)} createGroup={createGroup} />
 
     </Box>
   );
