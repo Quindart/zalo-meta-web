@@ -114,9 +114,9 @@ export default function App() {
       authentication={authentication}
       session={session}
     >
-      <ChatProvider userId={me.id}>
-        <Outlet />
-      </ChatProvider>
+     <ChatProvider userId={me?.id}>
+      <Outlet />
+    </ChatProvider>
     </ReactRouterAppProvider>
   );
 }

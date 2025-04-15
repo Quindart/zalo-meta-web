@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Drawer,
   List,
@@ -75,11 +75,31 @@ const actions = [
   { icon: <Settings />, label: "Quản lý nhóm" },
 ];
 
-const RightSideBar = () => {
+const RightSideBar = ({
+  channel,
+  leaveRoom,
+  me,
+}: {
+  channel: any;
+  leaveRoom: (channelId: string) => void;
+  me: any;
+}) => {
   const [open, setOpen] = useState<boolean>(false);
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(
     {},
   );
+  const [role, setRole] = useState<string>("member");
+
+  useEffect(() => {
+    if (channel && channel.members) {
+      const currentUser = channel.members.find(
+        (member: any) => member.userId === me.id,
+      );
+      if (currentUser) {
+        setRole(currentUser.role);
+      }
+    }
+  }, [channel]);
 
   const toggleSection = (id: string) => {
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -218,11 +238,30 @@ const RightSideBar = () => {
         >
           <ListItemText sx={{ ml: 2 }} primary={'Xóa lịch sử trò chuyện'} />
         </ListItemButton>
-        <ListItemButton
-          sx={{ color: "#C62218" }}
-        >
-          <ListItemText sx={{ ml: 2 }} primary={'Rời nhóm'} />
-        </ListItemButton>
+
+        {
+          role === "captain" && (
+            <ListItemButton
+              onClick={() => leaveRoom(channel.id)}
+              sx={{ color: "#C62218" }}
+            >
+              <ListItemText sx={{ ml: 2 }} primary={'Giải tán nhóm'} />
+            </ListItemButton>
+          )
+        }
+
+
+        {
+          channel && channel.type === "group" && (
+            <ListItemButton
+              onClick={() => leaveRoom(channel.id)}
+              sx={{ color: "#C62218" }}
+            >
+              <ListItemText sx={{ ml: 2 }} primary={'Rời nhóm'} />
+            </ListItemButton>
+          )
+        }
+
       </List>
       <InfoGroupDialog open={open} onClose={() => setOpen(false)} />
     </Drawer>
