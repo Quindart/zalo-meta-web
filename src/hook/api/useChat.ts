@@ -25,6 +25,18 @@ const SOCKET_EVENTS = {
     LEAVE_ROOM: "leaveRoom",
     LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
   },
+  FRIEND: {
+    ADD_FRIEND: "friend:add",
+    ADD_FRIEND_RESPONSE: "friend:addResponse",
+    REMOVE_FRIEND: "friend:remove",
+    REMOVE_FRIEND_RESPONSE: "friend:removeResponse",
+    ACCEPT_FRIEND: "friend:accept",
+    ACCEPT_FRIEND_RESPONSE: "friend:acceptResponse",
+    REJECT_FRIEND: "friend:reject",
+    REJECT_FRIEND_RESPONSE: "friend:rejectResponse",
+    LIST_FRIEND: "friend:list",
+    LIST_FRIEND_RESPONSE: "friend:listResponse",
+  },
 };
 
 interface ResponseType {
@@ -93,7 +105,6 @@ export const useChat = (currentUserId: string) => {
       setListChannel(prevChannels => {
         return prevChannels.map(channel => {
           if (channel.id === message.channelId) {
-            // Update the channel with the latest message
             return {
               ...channel,
               id: 123456789,

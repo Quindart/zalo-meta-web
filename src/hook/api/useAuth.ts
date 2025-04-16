@@ -15,7 +15,7 @@ function useAuth() {
 
     const handleLogin = async (phone: string, password: string) => {
         const response = await login(phone, password)
-        if (response.success === true) {            
+        if (response.success === true) {
             dispatch(setMe(response.data.user))
             navigate(APP_ROUTES.DASHBOARD);
             setValueInLocalStorage("userId", response.data.user.id);
@@ -28,13 +28,13 @@ function useAuth() {
         }
     }
     const handleGetMe = async () => {
-        const response :any= await getMe();
-        console.log("check me in useAuth: ",response);
-        
+        const response: any = await getMe();
+        console.log("check me in useAuth: ", response);
+
         if (response && response.success)
             dispatch(setMe(response.data.user));
     }
-    return { handleLogin, me,handleGetMe }
+    return { handleLogin, me, handleGetMe }
 }
 
 export default useAuth

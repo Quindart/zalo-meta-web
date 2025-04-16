@@ -2,6 +2,9 @@ import FriendRequestCard from "@/components/FriendRequestCard";
 import SentRequestCard from "@/components/SendRequestCard";
 import { Box, Typography } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import useAuth from "@/hook/api/useAuth";
+import { useFriend } from "@/hook/api/useFriend";
+import { useEffect } from "react";
 
 const friendRequests = [
   {
@@ -68,6 +71,12 @@ const sentRequests = [
   },
 ];
 export default function RequestAddFriend() {
+  const { me } = useAuth();
+  const { sendFriends, getSendFriends } = useFriend(me.id);
+  useEffect(() => {
+    getSendFriends();
+  }, []);
+  console.log("💲💲💲 ~ RequestAddFriend ~ sendFriends:", sendFriends);
   return (
     <Box>
       <Box
@@ -102,15 +111,15 @@ export default function RequestAddFriend() {
           justifyContent={"start"}
           gap={"10px"}
         >
-          {friendRequests.map((request) => (
+          {sendFriends.map((request) => (
             <Box width={"calc(100% / 3 - 7px)"}>
               <FriendRequestCard
                 key={request.id}
                 avatar={request.avatar}
                 name={request.name}
                 date={request.date}
-                source={request.source}
-                message={request.message}
+                source={`request.source`}
+                message={request.email}
                 onAccept={() => alert(`Đồng ý kết bạn với ${request.name}`)}
                 onDecline={() => alert(`Từ chối kết bạn với ${request.name}`)}
               />
