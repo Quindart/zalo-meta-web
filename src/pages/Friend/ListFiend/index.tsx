@@ -58,7 +58,7 @@ function ListFriend({ listFriends }: any) {
         ? true
         : f.name.toLowerCase().startsWith(filterLetter.toLowerCase()),
     )
-    .sort((a, b) => {
+    .sort((a: any, b: any) => {
       const compare = a.name.localeCompare(b.name);
       return sortOrder === "asc" ? compare : -compare;
     });
@@ -165,7 +165,7 @@ function ListFriend({ listFriends }: any) {
         </Stack>
 
         <List>
-          {filteredFriends.map((friend:any) => (
+          {filteredFriends.map((friend: any) => (
             <ListItem
               onClick={() => {
                 handleFindChat(friend.id);
