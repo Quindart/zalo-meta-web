@@ -8,7 +8,16 @@ import { useSelector } from "react-redux";
 import { useEffect } from "react";
 
 function ChatDetailTemplate() {
-  const { channel, messages, sendMessage, joinRoom, leaveRoom, uploadFile, dissolveGroup } = useChatContext();
+  const {
+    channel,
+    messages,
+    sendMessage,
+    joinRoom,
+    leaveRoom,
+    uploadFile,
+    dissolveGroup,
+  } = useChatContext();
+  console.log("💲💲💲 ~ ChatDetailTemplate ~ messages:", messages);
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
   const params = useParams();
@@ -29,7 +38,12 @@ function ChatDetailTemplate() {
         channelId={channelId}
         uploadFile={uploadFile}
       />
-      <RightSideBar channel={channel} leaveRoom={leaveRoom} dissolveGroup={dissolveGroup} me={me} />
+      <RightSideBar
+        channel={channel}
+        leaveRoom={leaveRoom}
+        dissolveGroup={dissolveGroup}
+        me={me}
+      />
     </Box>
   );
 }

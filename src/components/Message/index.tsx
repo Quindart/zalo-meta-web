@@ -2,9 +2,9 @@ import { getHourAndMinute } from "@/utils/formatTime";
 import { MoreHoriz } from "@mui/icons-material";
 import { Avatar, Box, IconButton, Popover, Typography } from "@mui/material";
 import { useState } from "react";
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import ReplyIcon from '@mui/icons-material/Reply';
-import SettingsBackupRestoreIcon from '@mui/icons-material/SettingsBackupRestore';
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import ReplyIcon from "@mui/icons-material/Reply";
+import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ShareDialog from "./ShareDialog";
 import FileCard from "../FileCard";
@@ -14,9 +14,9 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
 } from "@mui/material";
-
+import { useChatContext } from "@/Context/ChatContextType";
 
 type MessPropsType = {
   content: string;
@@ -32,10 +32,12 @@ type MessPropsType = {
   isMe: boolean;
   fileUrl?: string;
   fileName?: string;
+  id?: string;
 };
 function MessageChat(props: Partial<MessPropsType>) {
+  const { deleteMessage, recallMessage } = useChatContext();
   const [openShare, setOpenShare] = useState(false);
-  const { content, sender, timestamp, emojis, isMe = true } = props;
+  const { content, sender, timestamp, emojis, isMe = true, id } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -129,8 +131,8 @@ function MessageChat(props: Partial<MessPropsType>) {
               cursor: "pointer",
               transition: "all 0.2s ease",
               "&:hover": {
-                opacity: 0.9
-              }
+                opacity: 0.9,
+              },
             }}
           />
         ) : (
@@ -151,8 +153,8 @@ function MessageChat(props: Partial<MessPropsType>) {
             transition: "opacity 0.2s ease-in",
             backgroundColor: "#fff",
             "&:hover": {
-              backgroundColor: "#f7f7f7"
-            }
+              backgroundColor: "#f7f7f7",
+            },
           }}
         >
           <ThumbUpOffAltIcon fontSize="small" />
@@ -177,27 +179,31 @@ function MessageChat(props: Partial<MessPropsType>) {
                 marginRight: 1,
                 backgroundColor: "#fff",
                 "&:hover": {
-                  backgroundColor: "#f7f7f7"
-                }
+                  backgroundColor: "#f7f7f7",
+                },
               }}
             >
               <ReplyIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Thêm">
-            <IconButton
-              size="small"
-              onClick={handleMenuOpen}
-              sx={{
-                backgroundColor: "#fff",
-                "&:hover": {
-                  backgroundColor: "#f7f7f7"
-                }
-              }}
-            >
-              <MoreHoriz fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <>
+            {isMe && (
+              <Tooltip title="Thêm">
+                <IconButton
+                  size="small"
+                  onClick={handleMenuOpen}
+                  sx={{
+                    backgroundColor: "#fff",
+                    "&:hover": {
+                      backgroundColor: "#f7f7f7",
+                    },
+                  }}
+                >
+                  <MoreHoriz fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </>
         </Box>
 
         {/* Popup chứa danh sách emoji */}
@@ -256,14 +262,26 @@ function MessageChat(props: Partial<MessPropsType>) {
             horizontal: isMe ? "right" : "left",
           }}
         >
-          <MenuItem onClick={handleMenuClose} sx={{ color: "error.main" }}>
+          <MenuItem
+            onClick={() => {
+              deleteMessage(id as string);
+              handleMenuClose();
+            }}
+            sx={{ color: "error.main" }}
+          >
             <ListItemIcon>
               <SettingsBackupRestoreIcon fontSize="small" color="error" />
             </ListItemIcon>
             <ListItemText>Thu hồi</ListItemText>
           </MenuItem>
           <Divider />
-          <MenuItem onClick={handleMenuClose} sx={{ color: "error.main" }}>
+          <MenuItem
+            onClick={() => {
+              recallMessage(id as string);
+              handleMenuClose();
+            }}
+            sx={{ color: "error.main" }}
+          >
             <ListItemIcon>
               <DeleteOutlineIcon fontSize="small" color="error" />
             </ListItemIcon>

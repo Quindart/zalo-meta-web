@@ -10,6 +10,10 @@ const SOCKET_EVENTS = {
     ERROR: "message:error",
     LOAD: "message:load",
     LOAD_RESPONSE: "message:loadResponse",
+    RECALL: "message:recall",
+    RECALL_RESPONSE: "message:recallResponse",
+    DELETE: "message:delete",
+    DELETE_RESPONSE: "message:deleteResponse",
   },
   CHANNEL: {
     FIND_BY_ID: "channel:findById",
@@ -26,6 +30,7 @@ const SOCKET_EVENTS = {
     LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
     DISSOLVE_GROUP: "channel:dissolveGroup",
     DISSOLVE_GROUP_RESPONSE: "channel:dissolveGroupResponse",
+
   },
   FILE: {
     UPLOAD: "file:upload",
@@ -160,11 +165,8 @@ export const useChat = (currentUserId: string) => {
         console.log("Received message not for current user, ignoring:", message);
         return;
       }
-
       loadChannel(currentUserId);
-
       updateChannelWithMessage(message);
-
       if (message.channelId !== currentChannelRef.current) {
         console.log("Message is for a different channel, ignoring", {
           messageChannelId: message.channelId,
@@ -188,7 +190,6 @@ export const useChat = (currentUserId: string) => {
       });
       setLoading(false);
     }
-
     const loadChannelResponse = (response: ResponseType) => {
       if (response.success) {
         // Remove duplicates using a Set with channel IDs
@@ -203,7 +204,6 @@ export const useChat = (currentUserId: string) => {
         setLoading(false);
       }
     }
-
     const createGroupResponse = (response: ResponseType) => {
       if (response.success) {
         setListChannel((prev) => {
@@ -225,7 +225,6 @@ export const useChat = (currentUserId: string) => {
         setLoading(false);
       }
     }
-
     const leaveRoomResponse = (response: ResponseType) => {
       if (response.success) {
         setChannel(null);
@@ -239,7 +238,6 @@ export const useChat = (currentUserId: string) => {
         setLoading(false);
       }
     }
-
     const dissolveGroupResponse = (response: ResponseType) => {
       if (response.success) {
         setChannel(null);
@@ -253,24 +251,23 @@ export const useChat = (currentUserId: string) => {
         setLoading(false);
       }
     }
-
     const uploadFileResponse = (response: ResponseType) => {
       if (response.success) {
         const newMessage = response.data.message;
         setMessages((prev) => {
           const messageId = newMessage.id;
-          const isDuplicate = messageId ? 
-            prev.some(msg => (msg.id === messageId)) : 
+          const isDuplicate = messageId ?
+            prev.some(msg => (msg.id === messageId)) :
             false;
-            
+
           if (isDuplicate) {
             console.log("Duplicate file message detected, not adding");
             return prev;
           }
-          
+
           return [...prev, newMessage];
         });
-        
+
         updateChannelWithMessage(response.data.message);
       } else {
         console.error("Failed to upload file:", response.message);
@@ -278,6 +275,33 @@ export const useChat = (currentUserId: string) => {
       setLoading(false);
     };
 
+    const recallMessageResponse = (response: ResponseType) => {
+      if (response.success) {
+        const messageId = response.data.messageId;
+        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+
+        loadChannel(currentUserId);
+        setLoading(false);
+
+      } else {
+        console.error("Failed to recall message:", response.message);
+      }
+    }
+
+    const deleteMessageResponse = (response: ResponseType) => {
+      if (response.success) {
+        const messageId = response.data.messageId;
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true } : msg
+          )
+        );
+        setLoading(false);
+      } else {
+        console.error("Failed to delete message:", response.message);
+        setLoading(false);
+      }
+    }
 
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -287,6 +311,9 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
     socket.on(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
+    socket.on(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
+    socket.on(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
+
 
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -297,6 +324,9 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
       socket.off(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
+      socket.off(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
+      socket.off(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
+
     };
   }, []);
 
@@ -386,11 +416,29 @@ export const useChat = (currentUserId: string) => {
       userId: currentUserId
     };
     socket.emit(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP, params);
-  }, []); 
+  }, []);
 
+  const deleteMessage = useCallback((messageId: string) => {
+    const socket = socketService.getSocket();
+    const params = {
+      senderId: currentUserId,
+      messageId
+    };
+    socket.emit(SOCKET_EVENTS.MESSAGE.DELETE, params);
+  }, [])
+  const recallMessage = useCallback((messageId: string) => {
+    const socket = socketService.getSocket();
+    const params = {
+      senderId: currentUserId,
+      messageId
+    };
+    socket.emit(SOCKET_EVENTS.MESSAGE.RECALL, params);
+  }, [])
   return {
     findOrCreateChat,
     joinRoom,
+    deleteMessage,
+    recallMessage,
     sendMessage,
     loadChannel,
     createGroup,

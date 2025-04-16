@@ -10,6 +10,8 @@ interface ChatContextType {
   joinRoom: (channelId: string) => void;
   messages: any[];
   sendMessage: (channelId: string, content: string) => void;
+  deleteMessage: (messageId: string) => void;
+  recallMessage: (messageId: string) => void;
   loadChannel: (userId: string) => void;
   listChannel: any[];
   createGroup: (name: string, members: string[]) => void;
@@ -24,7 +26,6 @@ export const ChatProvider: React.FC<{ userId?: string; children: React.ReactNode
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
 
-  // Use userId from props if provided, otherwise try to get it from me object
   const effectiveUserId = userId || me?.id || '';
   const chatHook = useChat(effectiveUserId);
 
