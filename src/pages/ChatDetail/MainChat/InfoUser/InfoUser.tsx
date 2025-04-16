@@ -8,7 +8,6 @@ import InfoDialog from "./InfoDialog";
 
 function InfoUser({ channel }: any) {
   const [open, setOpen] = useState<boolean>(false);
-  console.log("channel", channel);
   return (
     <Box
       sx={{

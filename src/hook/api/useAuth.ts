@@ -31,6 +31,8 @@ function useAuth() {
         const response: any = await getMe();
         console.log("check me in useAuth: ", response);
 
+        const response :any= await getMe();
+        
         if (response && response.success)
             dispatch(setMe(response.data.user));
     }

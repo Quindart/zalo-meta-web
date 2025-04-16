@@ -49,10 +49,12 @@ function ChatTemplate() {
         message: item.message,
         isRead: item.isRead !== undefined ? item.isRead : false,
         isChoose: currentChannelId === item.id,
-      }))
-      .sort((a, b) => {
-        return new Date(b.time).getTime() - new Date(a.time).getTime();
-      });
+      })).sort((a, b) => {
+        const dateA = new Date(a.time).getTime();
+        const dateB = new Date(b.time).getTime();
+        return dateB - dateA; 
+      }
+    );
   }, [listChannel, currentChannelId]);
 
   return (
@@ -123,7 +125,7 @@ function ChatTemplate() {
         <Outlet />
       </Box>
       <AddFriendDialog open={openAddFriend} onClose={() => setOpenAddFriend(false)} />
-      <CreateGroupDialog open={openCreateGroup} onClose={() => setOpenCreateGroup(false)} />
+      <CreateGroupDialog open={openCreateGroup} onClose={() => setOpenCreateGroup(false)} createGroup={createGroup} />
 
     </Box>
   );
