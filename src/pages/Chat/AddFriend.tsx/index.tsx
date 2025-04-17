@@ -17,13 +17,17 @@ import {
   IconButton,
   Divider,
 } from "@mui/material";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import { useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { grey } from "@mui/material/colors";
-import axios from "axios";
 import InfoDialog from "@/pages/ChatDetail/MainChat/InfoUser/InfoDialog";
 import { useFriend } from "@/hook/api/useFriend";
 import useAuth from "@/hook/api/useAuth";
+import { useSnackbar } from "notistack";
+import axiosConfig from "@/services/axiosConfig";
+import { useNavigate } from "react-router-dom";
+import { useChat } from "@/hook/api/useChat";
 
 interface User {
   _id: string;
@@ -32,6 +36,7 @@ interface User {
   phone: string;
   email: string;
   avatar: string;
+  isFriend: boolean;
 }
 
 interface Props {
@@ -48,7 +53,9 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
   const [openInfoDialog, setOpenInfoDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { me } = useAuth();
-  const { sendFriends, getSendFriends, inviteFriend } = useFriend(me.id);
+  const { inviteFriend } = useFriend(me.id);
+
+  const { enqueueSnackbar } = useSnackbar();
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
@@ -59,64 +66,90 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
   }, [error]);
 
   const handleSearch = async () => {
-    const cleanPhone = phone.replace(/\s+/g, "");
+    const cleanPhone = phone?.replace(/\s+/g, "");
 
     if (!/^\d{10}$/.test(cleanPhone)) {
-      setErrorMessage("Số điện thoại không đúng định dạng (10 chữ số)");
-      setError(true);
+      handleError("Số điện thoại không đúng định dạng (10 chữ số)");
       return;
     }
-
     try {
-      const response = await axios.get(
-        "http://localhost:5000/api/v1/users/search",
-        {
-          params: {
-            type: "phone",
-            keywords: cleanPhone,
-          },
+      const response = await axiosConfig.get("/api/v1/users/search-friends", {
+        params: {
+          type: "phone",
+          keywords: cleanPhone,
         },
-      );
+      });
+      const data: any = response;
 
-      const data = response.data;
+      if (data?.totalItems === 0) {
+        handleError("Không có người dùng hợp lệ để kết bạn");
+      }
+      if (data?.success === false) {
+        handleError("Tìm kiếm người dùng thất bại, vui lòng thử lại");
+      }
 
-      if (data.success && data.users.length > 0) {
+      if (data.totalItems > 0) {
         const user = data.users[0];
-
         setRecentResults((prev) => [
           user,
-          ...prev.filter((u) => u.phone !== user.phone),
+          ...prev.filter((u) => u.phone !== user?.phone),
         ]);
         setError(false);
         setErrorMessage("");
         setSelectedUser(user);
         setOpenInfoDialog(true);
       }
-    } catch (error) {
-      console.error("Lỗi khi tìm người dùng:", error);
-      setError(true);
-      setErrorMessage(
+    } catch (error: any) {
+      console.log("💲💲💲 ~ handleSearch ~ error:", error);
+      handleError(
         "Số điện thoại này không đăng ký tài khoản hoặc không cho phép tìm kiếm",
       );
     }
+  };
+  const handleError = (mess: string) => {
+    setError(true);
+    setErrorMessage(`${mess}`);
   };
   const handleClose = () => {
     setPhone("");
     setError(false);
     onClose();
   };
+
   const handleRemoveUser = (phone: string) => {
     setRecentResults((prevResults) =>
-      prevResults.filter((user) => user.phone !== phone),
+      prevResults.filter((user) => user?.phone !== phone),
     );
   };
 
   const handleInviteFriend = async (userFriendId: string) => {
     inviteFriend(userFriendId);
-    getSendFriends();
+    enqueueSnackbar({ variant: "success", message: "Đã gửi lời mời kết bạn" });
   };
 
-  const handleAcceptFriend = async (userId: string) => {};
+  //! Navigate to chat
+  const navigate = useNavigate();
+  const { findOrCreateChat, channel } = useChat(me.id);
+  const [shouldNavigate, setShouldNavigate] = useState<string | null>(null);
+  useEffect(() => {
+    if (channel && shouldNavigate === channel.id) {
+      navigate(`/chats/${channel.id}`);
+      setShouldNavigate(null);
+      handleClose();
+    }
+  }, [channel, navigate, shouldNavigate]);
+
+  const handleFindChat = (receiverId: string) => {
+    findOrCreateChat(receiverId);
+    setShouldNavigate(null);
+  };
+
+  useEffect(() => {
+    if (channel) {
+      setShouldNavigate(channel.id);
+    }
+  }, [channel]);
+
   return (
     <Box sx={{ position: "relative" }}>
       <Dialog
@@ -125,8 +158,8 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
         fullWidth
         PaperProps={{
           sx: {
-            width: "540px",
-            minHeight: "75vh",
+            width: "400px",
+            minHeight: "70vh",
             maxHeight: "90vh",
             position: "relative",
           },
@@ -137,11 +170,11 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            p: "6px 10px 6px 16px !important",
+            p: "6px 4px 6px 16px !important",
           }}
         >
           <Typography
-            sx={{ fontWeight: "600", fontSize: 17, color: "#081b3a" }}
+            sx={{ fontWeight: "600", fontSize: 16, color: "#081b3a" }}
           >
             Thêm bạn
           </Typography>
@@ -152,7 +185,8 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
         <Divider />
         <DialogContent
           sx={{
-            paddingY: 0,
+            py: 0,
+            px: 2,
             maxHeight: "60vh",
             overflow: "hidden",
             display: "flex",
@@ -174,15 +208,15 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
               pattern: "[0-9]*",
               maxLength: 10,
             }}
-            size="medium"
+            size="small"
             sx={{
               mb: 0,
               "& .MuiInputBase-root": {
-                height: 30,
-                fontSize: 18,
+                height: 26,
+                fontSize: 16,
               },
               "& .MuiInputLabel-root": {
-                fontSize: 18,
+                fontSize: 16,
                 transform: "translate(12px, 10px) scale(1)",
               },
               "& .MuiInputLabel-shrink": {
@@ -203,21 +237,35 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
             }}
             variant="standard"
           />
-
+          {recentResults.length === 0 && (
+            <Box
+              sx={{
+                textAlign: "center",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                my: 20,
+                flexDirection: "column",
+              }}
+            >
+              <GroupAddIcon sx={{ mb: 2, fontSize: 40, color: "grey.400" }} />
+              <Typography mx="auto" my="auto" variant="body1" color="grey.500">
+                Thật trống trải, kết bạn ngay
+              </Typography>
+            </Box>
+          )}
           {recentResults.length > 0 && (
             <>
               <Typography
                 variant="subtitle2"
                 mt={5}
-                sx={{ color: grey[700], fontSize: 16 }}
+                sx={{ color: grey[700], fontSize: 14 }}
               >
                 Kết quả gần nhất
               </Typography>
               <Box
                 sx={{
                   overflowY: "auto",
-                  mt: 1,
-                  ml: -2,
                   flex: 1,
                 }}
               >
@@ -230,23 +278,41 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
                       onMouseLeave={() => setIsHovered(false)}
                       secondaryAction={
                         <Box>
-                          <Button
-                            onClick={() => {
-                              handleInviteFriend(user._id);
-                              console.log(user._id);
-                              alert(user._id);
-                            }}
-                            sx={{
-                              borderColor: "#005AE0",
-                              border: 1,
-                              mr: 1,
-                            }}
-                          >
-                            Kết bạn
-                          </Button>
+                          {user?.isFriend && (
+                            <Button
+                              onClick={() => {
+                                handleFindChat(user?._id);
+                              }}
+                              sx={{
+                                borderColor: "#005AE0",
+                                border: 1,
+                                borderRadius: 8,
+                                mr: 1,
+                                p: 0,
+                              }}
+                            >
+                              Nhắn tin
+                            </Button>
+                          )}
+                          {!user?.isFriend && (
+                            <Button
+                              onClick={() => {
+                                handleInviteFriend(user?._id);
+                              }}
+                              sx={{
+                                borderColor: "#005AE0",
+                                border: 1,
+                                borderRadius: 8,
+                                mr: 1,
+                                p: 0,
+                              }}
+                            >
+                              Kết bạn
+                            </Button>
+                          )}
                           {isHovered && (
                             <IconButton
-                              onClick={() => handleRemoveUser(user.phone)}
+                              onClick={() => handleRemoveUser(user?.phone)}
                               size="small"
                             >
                               <CloseIcon fontSize="medium" />
@@ -264,19 +330,24 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
                         <ListItemAvatar
                           sx={{
                             "& .MuiAvatar-root": {
-                              width: 50,
-                              height: 50,
+                              width: 40,
+                              height: 40,
                             },
                             mr: 1,
                           }}
                         >
-                          <Avatar src={user.avatar} />
+                          <Avatar src={user?.avatar} />
                         </ListItemAvatar>
                         <ListItemText
-                          primary={`${user.firstName} ${user.lastName}`}
-                          secondary={`(+84) ${user.phone}`}
-                          primaryTypographyProps={{ fontSize: 20 }}
-                          secondaryTypographyProps={{ fontSize: 16 }}
+                          primary={`${user?.firstName} ${user?.lastName}`}
+                          secondary={`(+84) ${user?.phone
+                            ?.split("")
+                            .map((c: string, i: number) =>
+                              i === 4 || i === 7 ? ` ${c}` : c,
+                            )
+                            .join("")}`}
+                          primaryTypographyProps={{ fontSize: 16 }}
+                          secondaryTypographyProps={{ fontSize: 13 }}
                         />
                       </ListItemButton>
                     </ListItem>
@@ -320,7 +391,6 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
           </Button>
         </DialogActions>
 
-        {/* THÔNG BÁO TRUNG TÂM DIALOG */}
         <Fade in={error}>
           <Box
             sx={{
@@ -330,11 +400,13 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
               transform: "translate(-50%, -50%)",
               backgroundColor: "#2b2b2b",
               color: "#fff",
-              px: 3,
+              width: "80%",
               py: 2,
+              px: 1,
               borderRadius: 2,
               boxShadow: 4,
               zIndex: 10,
+              fontSize: 14,
               textAlign: "center",
             }}
           >
