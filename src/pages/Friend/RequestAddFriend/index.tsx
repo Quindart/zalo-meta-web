@@ -5,9 +5,14 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import useAuth from "@/hook/api/useAuth";
 import { useFriend } from "@/hook/api/useFriend";
 import { useEffect } from "react";
+import { useSnackbar } from "notistack";
 
 export default function RequestAddFriend() {
   const { me } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
+  // ("Đồng ý kết bạn thành công");
+  // ("Từ chối lời mời thành công");
+  // ("Hủy gửi yêu cầu kết bạn thành công");
   const {
     getReceviedInviteFriends,
     getSendListFriends,
@@ -22,6 +27,24 @@ export default function RequestAddFriend() {
     getReceviedInviteFriends();
     getSendListFriends();
   }, []);
+  const handleAccept = () => {
+    enqueueSnackbar({
+      variant: "success",
+      message: "Đồng ý kết bạn thành công",
+    });
+  };
+  const handleReject = () => {
+    enqueueSnackbar({
+      variant: "success",
+      message: "Từ chối lời mời thành công",
+    });
+  };
+  const handleRevokeInvite = () => {
+    enqueueSnackbar({
+      variant: "success",
+      message: "Hủy gửi yêu cầu kết bạn thành công",
+    });
+  };
 
   return (
     <Box>
@@ -51,6 +74,16 @@ export default function RequestAddFriend() {
         <Typography mt={4} mb={3} fontWeight={600}>
           Lời mời kết bạn ({receiveFriends?.length})
         </Typography>
+        {receiveFriends.length === 0 && (
+          <Typography
+            variant="body1"
+            my={4}
+            textAlign={"center"}
+            color="grey.500"
+          >
+            Chưa có lời mời kết bạn
+          </Typography>
+        )}
         <Box
           display="flex"
           flexWrap={"wrap"}
@@ -67,11 +100,11 @@ export default function RequestAddFriend() {
                 source={`request.source`}
                 message={request.email}
                 onAccept={() => {
-                  alert(`Đồng ý kết bạn với ${request.name}`);
+                  handleAccept();
                   accpetFriend(request.id);
                 }}
                 onDecline={() => {
-                  alert(`Từ chối kết bạn với ${request.name}`);
+                  handleReject();
                   rejectInviteFriend(request.id);
                 }}
               />
@@ -82,6 +115,16 @@ export default function RequestAddFriend() {
         <Typography mt={4} mb={3} fontWeight={600}>
           Lời mời đã gửi ({sendFriends.length})
         </Typography>
+        {sendFriends.length === 0 && (
+          <Typography
+            variant="body1"
+            my={4}
+            textAlign={"center"}
+            color="grey.500"
+          >
+            Bạn chưa gửi yêu cầu kết bạn nào
+          </Typography>
+        )}
         <Box
           display="flex"
           flexWrap={"wrap"}
@@ -96,7 +139,7 @@ export default function RequestAddFriend() {
                 name={request.name}
                 date={request.date}
                 onCancel={() => {
-                  alert(`Thu hồi lời mời gửi đến ${request.name}`);
+                  handleRevokeInvite();
                   revokeInviteFriend(request.id);
                 }}
               />
