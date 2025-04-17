@@ -1,3 +1,6 @@
+import { useChatContext } from "@/Context/ChatContextType";
+import { RootState } from "@/store";
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
   Drawer,
@@ -84,17 +87,15 @@ const actions = [
   { icon: <Settings />, label: "Quản lý nhóm" },
 ];
 
-const RightSideBar = ({
-  channel,
-  leaveRoom,
-  dissolveGroup,
-  me,
-}: {
-  channel: any;
-  leaveRoom: (channelId: string) => void;
-  dissolveGroup: (channelId: string) => void;
-  me: any;
-}) => {
+const RightSideBar = () => {
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  const {
+    loading,
+    channel,
+    leaveRoom,
+    dissolveGroup,
+  } = useChatContext();
   const [open, setOpen] = useState<boolean>(false);
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({},);
   const [role, setRole] = useState<string>("member");
@@ -134,162 +135,173 @@ const RightSideBar = ({
     <Drawer
       variant="permanent"
       anchor="right"
-      sx={{ width: 300, flexShrink: 0 }}
+      sx={{ flexShrink: 0 }}
     >
       {/* Header */}
-      <Box sx={{ py: 3, textAlign: "center" }}>
+      <Box sx={{ py: 2, textAlign: "center", minWidth: 355 }}>
         <Typography fontWeight={"bold"} fontSize={20} color="#081B3A">
           Thông tin hội thoại
         </Typography>
       </Box>
       <Divider />
 
-      {channel && !channel.isDeleted ? (
-        <>
-          {/* Avatar + Actions */}
-          <Box sx={{ width: 340, textAlign: "center" }}>
-            <AvatarGroup
-              max={3}
-              sx={{ justifyContent: "center", mt: 3 }}
-              onClick={() => setOpen(true)}
-            >
-              {[
-                "/static/avatar1.jpg",
-                "/static/avatar2.jpg",
-                "/static/avatar3.jpg",
-                "/static/avatar4.jpg",
-              ].map((src, index) => (
-                <Avatar key={index} src={src} />
-              ))}
-            </AvatarGroup>
+      {
+        !loading && (
+          <>
+            {channel && !channel.isDeleted ?
+              (
+                <>
+                  {/* Avatar + Actions */}
+                  <Box sx={{ width: 340, textAlign: "center" }}>
+                    <AvatarGroup
+                      max={3}
+                      sx={{ justifyContent: "center", mt: 3 }}
+                      onClick={() => setOpen(true)}
+                    >
+                      {[
+                        "/static/avatar1.jpg",
+                        "/static/avatar2.jpg",
+                        "/static/avatar3.jpg",
+                        "/static/avatar4.jpg",
+                      ].map((src, index) => (
+                        <Avatar key={index} src={src} />
+                      ))}
+                    </AvatarGroup>
 
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                my: 2,
-              }}
-            >
-              <Typography fontWeight={"bold"} fontSize={17} color="#081B3A" noWrap>
-                Nhóm Công Nghệ Mới
-              </Typography>
-              {/* <IconButton sx={{ marginLeft: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        my: 2,
+                      }}
+                    >
+                      <Typography fontWeight={"bold"} fontSize={17} color="#081B3A" noWrap>
+                        Nhóm Công Nghệ Mới
+                      </Typography>
+                      {/* <IconButton sx={{ marginLeft: 1 }}>
                       <BorderColor sx={{ color: "#081B3A" }} />
                     </IconButton> */}
-            </Box>
-
-            <Box sx={{ display: "flex", justifyContent: "center", gap: 2, my: 2 }}>
-              {actions.map(({ icon, label }, index) => (
-                <Stack key={index} alignItems="center">
-                  <IconButton
-                    sx={{
-                      bgcolor: "#e5e7eb",
-                      width: 40,
-                      height: 40,
-                      color: "#081B3A",
-                      "&:hover": { bgcolor: "#e0e0e0" },
-                    }}
-                  >
-                    {icon}
-                  </IconButton>
-                  <Typography sx={{ fontSize: "12px", mt: 1 }}>{label}</Typography>
-                </Stack>
-              ))}
-            </Box>
-          </Box>
-
-          <Divider />
-
-          {/* Menu Sections */}
-          <Box sx={{ width: "100%", bgcolor: "white" }}>
-            <List>
-              {sections.map(({ id, title, content }) => (
-                <div key={id}>
-                  <ListItemButton onClick={() => toggleSection(id)}>
-                    <ListItemText
-                      sx={{ fontSize: 16, fontWeight: "bold" }}
-                      primary={title}
-                    />
-                    {openSections[id] ? <ExpandLess /> : <ExpandMore />}
-                  </ListItemButton>
-                  <Collapse in={openSections[id]} timeout="auto" unmountOnExit>
-                    <Box sx={{ px: 3, py: 1 }}>
-                      <ListItemText secondary={content} />
                     </Box>
-                  </Collapse>
-                </div>
-              ))}
-            </List>
-          </Box>
 
-          <Divider />
-          {/* Media Preview */}
-          <Box sx={{ p: 2 }}>
-            <Typography color="#081B3A">Ảnh/Video</Typography>
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{
-                bgcolor: "#E5E7EB",
-                color: "#081b3a",
-                boxShadow: "none",
-                height: 40,
-                border: 0,
-                fontSize: 16,
-                fontWeight: 600,
-                mt: 1,
-              }}
-            >
-              Xem tất cả
-            </Button>
-          </Box>
-          <Divider />
-          <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>
-            <Typography variant="body2">
-              Chưa có File được chia sẻ trong hội thoại này
-            </Typography>
-          </Box>
-          <Divider />
-          <List sx={{ bgcolor: "white", borderRadius: 1 }}>
-            <ListItemButton
-              sx={{ color: "#C62218" }}
-            >
-              <ListItemText sx={{ ml: 2 }} primary={'Xóa lịch sử trò chuyện'} />
-            </ListItemButton>
-            {
-              role === "captain" && (
-                <ListItemButton
-                  sx={{ color: "#C62218" }}
-                  onClick={handleDisbandGroup}
-                >
-                  <ListItemText sx={{ ml: 2 }} primary={'Giải tán nhóm'} />
-                </ListItemButton>
+                    <Box sx={{ display: "flex", justifyContent: "center", gap: 2, my: 2 }}>
+                      {actions.map(({ icon, label }, index) => (
+                        <Stack key={index} alignItems="center">
+                          <IconButton
+                            sx={{
+                              bgcolor: "#e5e7eb",
+                              width: 40,
+                              height: 40,
+                              color: "#081B3A",
+                              "&:hover": { bgcolor: "#e0e0e0" },
+                            }}
+                          >
+                            {icon}
+                          </IconButton>
+                          <Typography sx={{ fontSize: "12px", mt: 1 }}>{label}</Typography>
+                        </Stack>
+                      ))}
+                    </Box>
+                  </Box>
+
+                  <Divider />
+
+                  {/* Menu Sections */}
+                  <Box sx={{ width: "100%", bgcolor: "white" }}>
+                    <List>
+                      {sections.map(({ id, title, content }) => (
+                        <div key={id}>
+                          <ListItemButton onClick={() => toggleSection(id)}>
+                            <ListItemText
+                              sx={{ fontSize: 16, fontWeight: "bold" }}
+                              primary={title}
+                            />
+                            {openSections[id] ? <ExpandLess /> : <ExpandMore />}
+                          </ListItemButton>
+                          <Collapse in={openSections[id]} timeout="auto" unmountOnExit>
+                            <Box sx={{ px: 3, py: 1 }}>
+                              <ListItemText secondary={content} />
+                            </Box>
+                          </Collapse>
+                        </div>
+                      ))}
+                    </List>
+                  </Box>
+
+                  <Divider />
+                  {/* Media Preview */}
+                  <Box sx={{ p: 2 }}>
+                    <Typography color="#081B3A">Ảnh/Video</Typography>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      sx={{
+                        bgcolor: "#E5E7EB",
+                        color: "#081b3a",
+                        boxShadow: "none",
+                        height: 40,
+                        border: 0,
+                        fontSize: 16,
+                        fontWeight: 600,
+                        mt: 1,
+                      }}
+                    >
+                      Xem tất cả
+                    </Button>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>
+                    <Typography variant="body2">
+                      Chưa có File được chia sẻ trong hội thoại này
+                    </Typography>
+                  </Box>
+                  <Divider />
+                  <List sx={{ bgcolor: "white", borderRadius: 1 }}>
+                    <ListItemButton
+                      sx={{ color: "#C62218" }}
+                    >
+                      <ListItemText sx={{ ml: 2 }} primary={'Xóa lịch sử trò chuyện'} />
+                    </ListItemButton>
+                    {
+                      role === "captain" && (
+                        <ListItemButton
+                          sx={{ color: "#C62218" }}
+                          onClick={handleDisbandGroup}
+                        >
+                          <ListItemText sx={{ ml: 2 }} primary={'Giải tán nhóm'} />
+                        </ListItemButton>
+                      )
+                    }
+                    {
+                      channel && channel.type === "group" && !channel.isDeleted && (
+                        <ListItemButton
+                          onClick={() => leaveRoom(channel.id)}
+                          sx={{ color: "#C62218" }}
+                        >
+                          <ListItemText sx={{ ml: 2 }} primary={'Rời nhóm'} />
+                        </ListItemButton>
+                      )
+                    }
+                  </List>
+                </>
+              ) :
+              (
+                <>
+                  <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>
+                    <ListItemButton
+                      sx={{ color: "#C62218" }}
+                    >
+                      <ListItemText sx={{ ml: 2 }} primary={'Xóa lịch sử trò chuyện'} />
+                    </ListItemButton>
+                  </Box>
+                </>
               )
             }
-            {
-              channel && channel.type === "group" && !channel.isDeleted && (
-                <ListItemButton
-                  onClick={() => leaveRoom(channel.id)}
-                  sx={{ color: "#C62218" }}
-                >
-                  <ListItemText sx={{ ml: 2 }} primary={'Rời nhóm'} />
-                </ListItemButton>
-              )
-            }
-          </List>
-        </>
-      ) :
-        (
-          <Box sx={{ p: 2, textAlign: "center", color: "gray", minWidth: 345 }}>
-            <ListItemButton
-              sx={{ color: "#C62218" }}
-            >
-              <ListItemText sx={{ ml: 2 }} primary={'Xóa lịch sử trò chuyện'} />
-            </ListItemButton>
-          </Box>
+          </>
         )
       }
+
+
 
       <InfoGroupDialog open={open} onClose={() => setOpen(false)} />
       {/* Dialog xác nhận giải tán nhóm */}

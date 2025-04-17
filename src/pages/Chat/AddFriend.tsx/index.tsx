@@ -116,7 +116,7 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
     getSendFriends();
   };
 
-  const handleAcceptFriend = async (userId: string) => {};
+  const handleAcceptFriend = async (userId: string) => { };
   return (
     <Box sx={{ position: "relative" }}>
       <Dialog
@@ -347,6 +347,7 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
           open={openInfoDialog}
           onClose={() => setOpenInfoDialog(false)}
           user={selectedUser}
+          parentClose={handleClose} // Pass the parent dialog close handler
         />
       )}
     </Box>

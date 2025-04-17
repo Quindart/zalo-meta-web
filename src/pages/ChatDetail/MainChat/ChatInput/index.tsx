@@ -10,6 +10,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Typography,
 } from "@mui/material";
 
 import {
@@ -33,10 +34,12 @@ const ChatInput = ({
   channelId,
   sendMessage,
   uploadFile,
+  channel,
 }: {
   channelId: any;
   sendMessage: (channelId: string, message: string) => void;
   uploadFile: (channelId: string, file: File) => void;
+  channel: any;
 }) => {
   const format: string[] = [];
   const inputRef = useRef<HTMLDivElement | null>(null);
@@ -91,7 +94,7 @@ const ChatInput = ({
       });
       setMessage("");
       handleClosePopover();
-      
+
       if (event.target) {
         event.target.value = '';
       }
@@ -113,150 +116,197 @@ const ChatInput = ({
         px: 2,
         py: 1,
         backgroundColor: "#f5f6fa",
+        minHeight:120
       }}
     >
-      {/* Hàng icon trên */}
-      <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
-        <IconButton>
-          <InsertEmoticon sx={{ color: "#666" }} />
-        </IconButton>
-        <IconButton>
-          <Image sx={{ color: "#666" }} />
-        </IconButton>
-        <IconButton onClick={handleOpenPopover}>
-          <Link sx={{ color: "#666" }} />
-        </IconButton>
-        <IconButton>
-          <ContactPage sx={{ color: "#666" }} />
-        </IconButton>
-        <IconButton>
-          <CropSquare sx={{ color: "#666" }} />
-        </IconButton>
-        <IconButton>
-          <DrawIcon sx={{ color: "#666" }} />
-        </IconButton>
-        <IconButton>
-          <BoltIcon sx={{ color: "#666" }} />
-        </IconButton>
-      </Box>
-      <Divider sx={{ borderColor: "#e0e0e0" }} />
-
-      {/* Popover giống menu Zalo */}
-      <Popover
-        open={Boolean(anchorEl)}
-        anchorEl={anchorEl}
-        onClose={handleClosePopover}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        transformOrigin={{ vertical: "bottom", horizontal: "center" }}
-        sx={{
-          "& .MuiPopover-paper": {
-            borderRadius: "4px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            width: "150px",
-            backgroundColor: "#fff",
-            padding: "8px 8px",
-          },
-        }}
-      >
-        <List sx={{ padding: "0px 0px" }}>
-          <ListItem
-            component="li"
-            onClick={handleSelectFile}
+      {
+        channel && channel.isDeleted && (
+          <Box
             sx={{
-              "&:hover": { backgroundColor: "#f0f2f5" },
-              cursor: 'pointer',
-              padding: "0px 10px",
+              p: 2,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "rgba(245, 245, 245, 0.8)",
+              borderTop: "1px solid #e0e0e0",
+              borderBottom: "1px solid #e0e0e0",
             }}
           >
-            <ListItemText
-              primary="Gửi file"
-              primaryTypographyProps={{ fontSize: 14, fontWeight: 500, }}
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#d32f2f",
+                fontWeight: 500,
+                fontSize: "0.875rem",
+                textAlign: "center",
+              }}
+            >
+              Nhóm đã bị giải tán
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "#757575",
+                mt: 0.5,
+                fontSize: "0.75rem",
+                textAlign: "center",
+              }}
+            >
+              Không thể gửi hoặc nhận tin nhắn trong nhóm này nữa.
+            </Typography>
+          </Box>
+        )
+      }
+
+      {
+        channel && !channel.isDeleted && (
+          <>
+            {/* Hàng icon trên */}
+            <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+              <IconButton>
+                <InsertEmoticon sx={{ color: "#666" }} />
+              </IconButton>
+              <IconButton>
+                <Image sx={{ color: "#666" }} />
+              </IconButton>
+              <IconButton onClick={handleOpenPopover}>
+                <Link sx={{ color: "#666" }} />
+              </IconButton>
+              <IconButton>
+                <ContactPage sx={{ color: "#666" }} />
+              </IconButton>
+              <IconButton>
+                <CropSquare sx={{ color: "#666" }} />
+              </IconButton>
+              <IconButton>
+                <DrawIcon sx={{ color: "#666" }} />
+              </IconButton>
+              <IconButton>
+                <BoltIcon sx={{ color: "#666" }} />
+              </IconButton>
+            </Box>
+            <Divider sx={{ borderColor: "#e0e0e0" }} />
+
+            {/* Popover giống menu Zalo */}
+            <Popover
+              open={Boolean(anchorEl)}
+              anchorEl={anchorEl}
+              onClose={handleClosePopover}
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+              transformOrigin={{ vertical: "bottom", horizontal: "center" }}
+              sx={{
+                "& .MuiPopover-paper": {
+                  borderRadius: "4px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  width: "150px",
+                  backgroundColor: "#fff",
+                  padding: "8px 8px",
+                },
+              }}
+            >
+              <List sx={{ padding: "0px 0px" }}>
+                <ListItem
+                  component="li"
+                  onClick={handleSelectFile}
+                  sx={{
+                    "&:hover": { backgroundColor: "#f0f2f5" },
+                    cursor: 'pointer',
+                    padding: "0px 10px",
+                  }}
+                >
+                  <ListItemText
+                    primary="Gửi file"
+                    primaryTypographyProps={{ fontSize: 14, fontWeight: 500, }}
+                  />
+                </ListItem>
+              </List>
+            </Popover>
+
+            {/* Input file ẩn */}
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.txt" // Chỉ cho phép file văn bản
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleFileChange}
             />
-          </ListItem>
-        </List>
-      </Popover>
 
-      {/* Input file ẩn */}
-      <input
-        type="file"
-        accept=".pdf,.doc,.docx,.txt" // Chỉ cho phép file văn bản
-        ref={fileInputRef}
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
+            {/* Hộp chỉnh sửa văn bản */}
+            <Popover
+              open={false} // Vô hiệu hóa tạm thời để tập trung vào giao diện Zalo
+              anchorEl={null}
+              anchorOrigin={{ vertical: "top", horizontal: "left" }}
+              transformOrigin={{ vertical: "bottom", horizontal: "left" }}
+            >
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                <ToggleButtonGroup value={format} aria-label="text formatting">
+                  <ToggleButton value="bold">
+                    <FormatBold />
+                  </ToggleButton>
+                  <ToggleButton value="italic">
+                    <FormatItalic />
+                  </ToggleButton>
+                  <ToggleButton value="underline">
+                    <FormatUnderlined />
+                  </ToggleButton>
+                  <ToggleButton value="strikethrough">
+                    <FormatStrikethrough />
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+            </Popover>
 
-      {/* Hộp chỉnh sửa văn bản */}
-      <Popover
-        open={false} // Vô hiệu hóa tạm thời để tập trung vào giao diện Zalo
-        anchorEl={null}
-        anchorOrigin={{ vertical: "top", horizontal: "left" }}
-        transformOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-          <ToggleButtonGroup value={format} aria-label="text formatting">
-            <ToggleButton value="bold">
-              <FormatBold />
-            </ToggleButton>
-            <ToggleButton value="italic">
-              <FormatItalic />
-            </ToggleButton>
-            <ToggleButton value="underline">
-              <FormatUnderlined />
-            </ToggleButton>
-            <ToggleButton value="strikethrough">
-              <FormatStrikethrough />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Popover>
-
-      {/* Ô nhập tin nhắn */}
-      <Box
-        ref={inputRef}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          width: "100%",
-          gap: 1,
-          borderRadius: "20px",
-          backgroundColor: "#fff",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
-          px: 1,
-        }}
-      >
-        <TextField
-          fullWidth
-          placeholder="Nhập tin nhắn..."
-          variant="outlined"
-          size="small"
-          multiline
-          minRows={1}
-          maxRows={5}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          sx={{
-            flex: 1,
-            fontSize: 14,
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "20px",
-              backgroundColor: "transparent",
-            },
-            "& .MuiOutlinedInput-notchedOutline": {
-              border: "none",
-            },
-          }}
-        />
-        <IconButton sx={{ padding: "6px" }}>
-          <InsertEmoticon sx={{ color: "#666" }} />
-        </IconButton>
-        <IconButton onClick={handleSubmitMessage} sx={{ padding: "6px" }}>
-          {message.trim() === "" ? (
-            <ThumbUp sx={{ color: "#00a6ed" }} /> // Màu xanh Zalo
-          ) : (
-            <Send sx={{ color: "#00a6ed" }} />
-          )}
-        </IconButton>
-      </Box>
+            {/* Ô nhập tin nhắn */}
+            <Box
+              ref={inputRef}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                gap: 1,
+                borderRadius: "20px",
+                backgroundColor: "#fff",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                px: 1,
+              }}
+            >
+              <TextField
+                fullWidth
+                placeholder="Nhập tin nhắn..."
+                variant="outlined"
+                size="small"
+                multiline
+                minRows={1}
+                maxRows={5}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                sx={{
+                  flex: 1,
+                  fontSize: 14,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "20px",
+                    backgroundColor: "transparent",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    border: "none",
+                  },
+                }}
+              />
+              <IconButton sx={{ padding: "6px" }}>
+                <InsertEmoticon sx={{ color: "#666" }} />
+              </IconButton>
+              <IconButton onClick={handleSubmitMessage} sx={{ padding: "6px" }}>
+                {message.trim() === "" ? (
+                  <ThumbUp sx={{ color: "#00a6ed" }} /> // Màu xanh Zalo
+                ) : (
+                  <Send sx={{ color: "#00a6ed" }} />
+                )}
+              </IconButton>
+            </Box>
+          </>
+        )
+      }
     </Box>
   );
 };
