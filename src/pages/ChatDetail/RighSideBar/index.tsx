@@ -91,7 +91,6 @@ const RightSideBar = () => {
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
   const {
-    loading,
     channel,
     leaveRoom,
     dissolveGroup,
@@ -131,6 +130,20 @@ const RightSideBar = () => {
     }
   };
 
+  const AvatarChannel = () => {
+    if (channel) {
+      if (channel.type === "group") {
+        return channel.avatarGroup.map((src: string, index: number) => (
+          <Avatar key={index} src={src} sx={{ width: 56, height: 56 }} />
+        ));
+      } else {
+        return (
+          <Avatar src={channel.avatar} sx={{ width: 56, height: 56 }} />
+        );
+      }
+    }
+  }
+
   return (
     <Drawer
       variant="permanent"
@@ -146,9 +159,9 @@ const RightSideBar = () => {
       <Divider />
 
       {
-        !loading && (
+        channel && (
           <>
-            {channel && !channel.isDeleted ?
+            {!channel.isDeleted ?
               (
                 <>
                   {/* Avatar + Actions */}
@@ -158,14 +171,7 @@ const RightSideBar = () => {
                       sx={{ justifyContent: "center", mt: 3 }}
                       onClick={() => setOpen(true)}
                     >
-                      {[
-                        "/static/avatar1.jpg",
-                        "/static/avatar2.jpg",
-                        "/static/avatar3.jpg",
-                        "/static/avatar4.jpg",
-                      ].map((src, index) => (
-                        <Avatar key={index} src={src} />
-                      ))}
+                      {AvatarChannel()}
                     </AvatarGroup>
 
                     <Box
@@ -177,7 +183,7 @@ const RightSideBar = () => {
                       }}
                     >
                       <Typography fontWeight={"bold"} fontSize={17} color="#081B3A" noWrap>
-                        Nhóm Công Nghệ Mới
+                        {channel.name}
                       </Typography>
                       {/* <IconButton sx={{ marginLeft: 1 }}>
                       <BorderColor sx={{ color: "#081B3A" }} />

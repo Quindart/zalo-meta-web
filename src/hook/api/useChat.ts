@@ -418,11 +418,12 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP, params);
   }, []);
 
-  const deleteMessage = useCallback((messageId: string) => {
+  const deleteMessage = useCallback((messageId: string, channelId:string) => {
     const socket = socketService.getSocket();
     const params = {
       senderId: currentUserId,
-      messageId
+      messageId,
+      channelId
     };
     socket.emit(SOCKET_EVENTS.MESSAGE.DELETE, params);
   }, [])
@@ -430,7 +431,8 @@ export const useChat = (currentUserId: string) => {
     const socket = socketService.getSocket();
     const params = {
       senderId: currentUserId,
-      messageId
+      messageId,
+      
     };
     socket.emit(SOCKET_EVENTS.MESSAGE.RECALL, params);
   }, [])
