@@ -127,8 +127,6 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
     enqueueSnackbar({ variant: "success", message: "Đã gửi lời mời kết bạn" });
   };
 
-  const handleAcceptFriend = async (userId: string) => { };
-  //! Navigate to chat
   const navigate = useNavigate();
   const { findOrCreateChat, channel } = useChat(me.id);
   const [shouldNavigate, setShouldNavigate] = useState<string | null>(null);

@@ -6,6 +6,7 @@ import MessageChat from "@/components/Message";
 import MessageSystem from "@/components/MessageSystem";
 import FileCard from "@/components/FileCard";
 import ImageMessage from "@/components/ImageMessage";
+import VideoMessage from "@/components/VideoMessage";
 
 const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; meId: string }) => {
   if (mess.messageType === "system") {
@@ -36,6 +37,19 @@ const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; m
         />
       );
     }
+  } else if (mess.messageType === "video") {
+    return (
+      <VideoMessage
+        key={mess.id || index}
+        name={mess.file.filename}
+        size={mess.file.size}
+        path={mess.file.path}
+        extension={mess.file.extension}
+        isMe={mess.sender.id === meId}
+        sender={mess.sender}
+        createdAt={mess.createdAt}
+      />
+    );
   } else {
     return <MessageChat {...mess} isMe={mess.sender.id === meId} />;
   }

@@ -41,7 +41,7 @@ const ChatInput = ({
   const inputRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
-  
+
   // State management
   const [message, setMessage] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -95,7 +95,7 @@ const ChatInput = ({
       variant: "success",
       message: `Đang gửi file: ${file.name}`,
     });
-    
+
     handleClosePopover();
 
     // Reset input để có thể chọn lại cùng một file
@@ -111,18 +111,24 @@ const ChatInput = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
+    const isVideo = file.type.startsWith('video/');
+    const isImage = file.type.startsWith('image/');
+    const maxSize = isVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024; 
+
+    if (file.size > maxSize) {
       enqueueSnackbar({
         variant: "error",
-        message: "Hình ảnh quá lớn (tối đa 10MB)",
+        message: isVideo
+          ? "Video quá lớn (tối đa 10MB)"
+          : "Hình ảnh quá lớn (tối đa 5MB)",
       });
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
+    if (!isImage && !isVideo) {
       enqueueSnackbar({
         variant: "error",
-        message: "Vui lòng chọn một tệp hình ảnh hợp lệ",
+        message: "Vui lòng chọn một tệp hình ảnh hoặc video hợp lệ",
       });
       return;
     }
@@ -282,7 +288,7 @@ const ChatInput = ({
       />
       <input
         type="file"
-        accept="image/*"
+        accept="image/*,video/*"
         ref={imageInputRef}
         style={{ display: "none" }}
         onChange={handleImageChange}
@@ -358,8 +364,8 @@ const ChatInput = ({
         minHeight: 120
       }}
     >
-      {channel && channel.isDeleted 
-        ? renderDeletedChannelWarning() 
+      {channel && channel.isDeleted
+        ? renderDeletedChannelWarning()
         : renderActiveChatInput()
       }
     </Box>
