@@ -14,6 +14,8 @@ const SOCKET_EVENTS = {
     RECALL_RESPONSE: "message:recallResponse",
     DELETE: "message:delete",
     DELETE_RESPONSE: "message:deleteResponse",
+    DELETE_HISTORY: "message:deleteHistory",
+    DELETE_HISTORY_RESPONSE: "message:deleteHistoryResponse",
   },
   CHANNEL: {
     FIND_BY_ID: "channel:findById",
@@ -206,6 +208,7 @@ export const useChat = (currentUserId: string) => {
     }
     const createGroupResponse = (response: ResponseType) => {
       if (response.success) {
+        console.log("Group created successfully:", response.data);
         setListChannel((prev) => {
           const channelExists = prev.some(
             (channel) => channel.id === response.data.id
@@ -303,6 +306,22 @@ export const useChat = (currentUserId: string) => {
       }
     }
 
+    const deleteAllMessagesResponse = (response: ResponseType) => {
+      if (response.success) {
+        const channelId = response.data.channelId;
+        //remove channel from listChannel
+        setListChannel((prev) => prev.filter(channel => channel.id !== channelId));
+        setMessages([]);
+        setLoading(false);
+      }
+      else {
+        console.error("Failed to delete all messages:", response.message);
+        setLoading(false);
+      }
+    }
+
+
+
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
@@ -313,6 +332,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
+    socket.on(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
 
 
     return () => {
@@ -326,7 +346,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
-
+      socket.off(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
     };
   }, []);
 
@@ -418,7 +438,7 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP, params);
   }, []);
 
-  const deleteMessage = useCallback((messageId: string, channelId:string) => {
+  const deleteMessage = useCallback((messageId: string, channelId: string) => {
     const socket = socketService.getSocket();
     const params = {
       senderId: currentUserId,
@@ -427,15 +447,27 @@ export const useChat = (currentUserId: string) => {
     };
     socket.emit(SOCKET_EVENTS.MESSAGE.DELETE, params);
   }, [])
+
   const recallMessage = useCallback((messageId: string) => {
     const socket = socketService.getSocket();
     const params = {
       senderId: currentUserId,
       messageId,
-      
+
     };
     socket.emit(SOCKET_EVENTS.MESSAGE.RECALL, params);
   }, [])
+
+  const deleteAllMessages = useCallback((channelId: string) => {
+    const socket = socketService.getSocket();
+    const params = {
+      senderId: currentUserId,
+      channelId
+    };
+    socket.emit(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY, params);
+  }, [])
+
+
   return {
     findOrCreateChat,
     joinRoom,
@@ -447,6 +479,7 @@ export const useChat = (currentUserId: string) => {
     leaveRoom,
     listChannel,
     dissolveGroup,
+    deleteAllMessages,
     channel,
     messages,
     loading,

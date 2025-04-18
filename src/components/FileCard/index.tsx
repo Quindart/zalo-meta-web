@@ -3,6 +3,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
+import { formatFileSize } from "@/utils";
 
 // Mapping đuôi file với màu sắc
 const fileColors: Record<string, { bg: string; color: string }> = {
@@ -19,7 +20,7 @@ const fileColors: Record<string, { bg: string; color: string }> = {
 
 interface FileCardProps {
   name: string;
-  size: string;
+  size: number;
   extension: string;
   path: string;
   isMe: boolean;
@@ -34,12 +35,12 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
 
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening the preview when clicking download
-    
+
     if (!path) {
       console.error("Download path is missing");
       return;
     }
-    
+
     try {
       new URL(path);
       fetch(path)
@@ -48,13 +49,13 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
           const blobUrl = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = blobUrl;
-          link.download = `${name}.${extension}`; 
+          link.download = `${name}.${extension}`;
           document.body.appendChild(link);
-          
+
           link.click();
-          
+
           document.body.removeChild(link);
-          window.URL.revokeObjectURL(blobUrl); 
+          window.URL.revokeObjectURL(blobUrl);
         })
         .catch(error => {
           console.error("Error downloading file:", error);
@@ -145,10 +146,10 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
 
     if (extension === 'pdf') {
       return (
-        <iframe 
-          src={`${previewUrl}#toolbar=0&navpanes=0`} 
-          width="100%" 
-          height="500px" 
+        <iframe
+          src={`${previewUrl}#toolbar=0&navpanes=0`}
+          width="100%"
+          height="500px"
           style={{ border: 'none' }}
           title="PDF Viewer"
         />
@@ -181,10 +182,10 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
 
   return (
     <>
-      <Box 
+      <Box
         onClick={openFilePreview}
-        display={"flex"} 
-        gap={1} 
+        display={"flex"}
+        gap={1}
         alignSelf={isMe ? "flex-end" : "flex-start"}
         sx={{
           display: "flex",
@@ -236,12 +237,12 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
             <Typography sx={{ ml: 0.5 }}>.{extension}</Typography>
           </Typography>
           <Typography variant="caption" fontWeight={500} color="text.secondary">
-            {size}
+            {formatFileSize(size)}
           </Typography>
         </Box>
 
-        <IconButton 
-          size="small" 
+        <IconButton
+          size="small"
           sx={{ bgcolor: "grey.100" }}
           onClick={handleDownload}
           title="Tải xuống"
