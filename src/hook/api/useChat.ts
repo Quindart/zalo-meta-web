@@ -324,6 +324,22 @@ export const useChat = (currentUserId: string) => {
       }
     }
 
+    const deleteAllMessagesResponse = (response: ResponseType) => {
+      if (response.success) {
+        const channelId = response.data.channelId;
+        //remove channel from listChannel
+        setListChannel((prev) => prev.filter(channel => channel.id !== channelId));
+        setMessages([]);
+        setLoading(false);
+      }
+      else {
+        console.error("Failed to delete all messages:", response.message);
+        setLoading(false);
+      }
+    }
+
+
+
     //emoji
     const interactEmojiResponse = (response: ResponseType) => {
       setLoading(false);
@@ -354,19 +370,6 @@ export const useChat = (currentUserId: string) => {
         setError(response.message || "Không thể xóa emoji");
       }
     };
-    const deleteAllMessagesResponse = (response: ResponseType) => {
-      if (response.success) {
-        const channelId = response.data.channelId;
-        //remove channel from listChannel
-        setListChannel((prev) => prev.filter(channel => channel.id !== channelId));
-        setMessages([]);
-        setLoading(false);
-      }
-      else {
-        console.error("Failed to delete all messages:", response.message);
-        setLoading(false);
-      }
-    }
 
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
