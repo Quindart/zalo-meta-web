@@ -37,7 +37,7 @@ type MessPropsType = {
 function MessageChat(props: Partial<MessPropsType>) {
   const { deleteMessage, recallMessage } = useChatContext();
   const [openShare, setOpenShare] = useState(false);
-  const { content, sender, timestamp, emojis, isMe = true, id } = props;
+  const { content, sender, timestamp, emojis, isMe = true, id, channelId } = props;
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -264,7 +264,7 @@ function MessageChat(props: Partial<MessPropsType>) {
         >
           <MenuItem
             onClick={() => {
-              deleteMessage(id as string);
+              deleteMessage(id as string, channelId as string);
               handleMenuClose();
             }}
             sx={{ color: "error.main" }}

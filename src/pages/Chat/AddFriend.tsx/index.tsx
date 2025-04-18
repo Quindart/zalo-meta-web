@@ -127,7 +127,6 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
     enqueueSnackbar({ variant: "success", message: "Đã gửi lời mời kết bạn" });
   };
 
-  //! Navigate to chat
   const navigate = useNavigate();
   const { findOrCreateChat, channel } = useChat(me.id);
   const [shouldNavigate, setShouldNavigate] = useState<string | null>(null);
@@ -419,6 +418,7 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
           open={openInfoDialog}
           onClose={() => setOpenInfoDialog(false)}
           user={selectedUser}
+          parentClose={handleClose} // Pass the parent dialog close handler
         />
       )}
     </Box>

@@ -22,11 +22,17 @@ import ReportIcon from "@mui/icons-material/Report";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { grey } from "@mui/material/colors";
+import { useChat } from "@/hook/api/useChat";
+import { RootState } from "@/store";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 interface InfoDialogProps {
   open: boolean;
   onClose: () => void;
   user: {
+    _id?: string;
     avatar?: string;
     firstName?: string;
     lastName?: string;
@@ -34,14 +40,52 @@ interface InfoDialogProps {
     gender?: string;
     birthday?: string;
   } | null;
+  parentClose?: () => void; // Added parentClose prop
 }
 
-const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose, user }) => {
+const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose, user, parentClose }) => {
   const fullName = `${user?.lastName ?? ""} ${user?.firstName ?? ""}`.trim();
   const birthday = user?.birthday ?? "Không rõ";
   const phoneMasked = user?.phone
     ? user.phone.replace(/.(?=.{4})/g, "•")
     : "•".repeat(10);
+
+  const navigate = useNavigate();
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  const { findOrCreateChat, channel } = useChat(me.id);
+  const [shouldNavigate, setShouldNavigate] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (channel && shouldNavigate === channel.id) {
+      // Close both dialogs before navigation
+      onClose();
+      if (parentClose) parentClose();
+      
+      // Navigate after a short delay to allow dialogs to close
+      setTimeout(() => {
+        navigate(`/chats/${channel.id}`);
+        setShouldNavigate(null);
+      }, 100);
+    }
+  }, [channel, navigate, shouldNavigate, onClose, parentClose]);
+
+  const handleFindChat = (receiverId: string) => {
+    if (!receiverId) return;
+    findOrCreateChat(receiverId);
+    
+    // If we already have a channel, we can close immediately
+    if (channel) {
+      onClose();
+      if (parentClose) parentClose();
+    }
+  };
+
+  useEffect(() => {
+    if (channel) {
+      setShouldNavigate(channel.id);
+    }
+  }, [channel]);
 
   return (
     <Dialog
@@ -139,6 +183,9 @@ const InfoDialog: React.FC<InfoDialogProps> = ({ open, onClose, user }) => {
             </IconButton>
           </Box>
           <Button
+            onClick={() => {
+              handleFindChat(user?._id || "");
+            }}
             variant="contained"
             sx={{
               backgroundColor: "#E6F0FF",
