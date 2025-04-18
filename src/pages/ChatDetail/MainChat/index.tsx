@@ -10,6 +10,9 @@ import ImageMessage from "@/components/ImageMessage";
 import VideoMessage from "@/components/VideoMessage";
 
 const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; meId: string }) => {
+  const useChatContext = useChat(meId);
+  const interactEmoji = useChatContext.interactEmoji;
+  const removeMyEmoji = useChatContext.removeMyEmoji;
   if (mess.messageType === "system") {
     return <MessageSystem {...mess} />;
   } else if (mess.messageType === "file") {
@@ -39,7 +42,7 @@ const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; m
       );
     }
   } else if (mess.messageType === "video") {
-    return ( 
+    return (
       <VideoMessage
         key={mess.id || index}
         name={mess.file.filename}
@@ -52,7 +55,7 @@ const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; m
       />
     );
   } else {
-    return <MessageChat {...mess} isMe={mess.sender.id === meId} />;
+    return <MessageChat interactEmoji={interactEmoji} removeMyEmoji={removeMyEmoji} {...mess} isMe={mess.sender.id === meId} />;
   }
 });
 
@@ -78,6 +81,7 @@ const RenderChatInput = memo(({ channel, channelId, sendMessage, uploadFile }: {
     </Box>
   )
 });
+
 function MainChat({
   channel,
   messages,
@@ -105,28 +109,12 @@ function MainChat({
       });
     }
   };
-  const useChatContext = useChat(me.id);
+
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-  const RenderMessage = ({ mess, index }: { mess: any; index: number }) => {
-    if (mess.messageType === "system") {
-      return <MessageSystem key={mess.id || index} {...mess} />;
-    } else if (mess.messageType === "file") {
-      return (
-        <FileCard
-          name={mess.file.filename}
-          size={mess.file.size}
-          path={mess.file.path}
-          extension={mess.file.extension}
-          isMe={mess.sender.id === me.id}
-        />
-      );
-    } else {
-      return <MessageChat channelId interactEmoji={useChatContext.interactEmoji} removeMyEmoji={useChatContext.removeMyEmoji} {...mess} isMe={mess.sender.id === me.id} />;
-    }
-  };
-  }, [messages.length]);
+
   return (
     <Box
       sx={{
@@ -163,53 +151,30 @@ function MainChat({
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        {
+        {channel && !channel.isDeleted ? (
           <Box
             sx={{
               mx: 1,
               my: 1,
               display: "flex",
               flexDirection: "column",
-              gap: 4,
+              gap: 2,
             }}
           >
             {messages && Array.isArray(messages) && messages.length > 0 ? (
               messages
-                .filter((mess) => mess.isDeletedById !== meId)
-                .map((mess: any, index: number) =>
-                  RenderMessage({ mess, index }),
-                )
+                .map((mess: any, index: number) => (
+                  <RenderMessage key={mess.id || index} mess={mess} index={index} meId={meId} />
+                ))
             ) : (
               <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
                 Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
               </Box>
             )}
           </Box>
-        }
+        ) : null}
       </Box>
 
-      {channel && !channel.isDeleted ? (
-        <Box
-          sx={{
-            mx: 1,
-            my: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
-          {messages && Array.isArray(messages) && messages.length > 0 ? (
-            messages
-              .map((mess: any, index: number) => (
-                <RenderMessage key={mess.id || index} mess={mess} index={index} meId={meId} />
-              ))
-          ) : (
-            <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
-              Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
-            </Box>
-          )}
-        </Box>
-      </Box>
       <RenderChatInput
         channel={channel}
         channelId={channelId}

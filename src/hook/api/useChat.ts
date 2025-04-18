@@ -354,7 +354,6 @@ export const useChat = (currentUserId: string) => {
         setError(response.message || "Không thể xóa emoji");
       }
     };
-=======
     const deleteAllMessagesResponse = (response: ResponseType) => {
       if (response.success) {
         const channelId = response.data.channelId;
