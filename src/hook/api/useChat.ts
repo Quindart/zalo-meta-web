@@ -50,6 +50,14 @@ const SOCKET_EVENTS = {
     LIST_FRIEND: "friend:list",
     LIST_FRIEND_RESPONSE: "friend:listResponse",
   },
+  EMOJI: {
+    LOAD_EMOJIS_OF_MESSAGE: "emoji:loadEmojis",
+    INTERACT_EMOJI: "emoji:interactEmoji",
+    REMOVE_MY_EMOJI: "emoji:removeMyEmoji",
+    LOAD_EMOJIS_OF_MESSAGE_RESPONSE: "emoji:loadEmojisResponse",
+    INTERACT_EMOJI_RESPONSE: "emoji:interactEmojiResponse",
+    REMOVE_MY_EMOJI_RESPONSE: "emoji:removeMyEmojiResponse"
+  },
 };
 
 interface ResponseType {
@@ -57,7 +65,15 @@ interface ResponseType {
   message: string;
   data: any;
 }
-
+interface Emoji {
+  emoji: string;
+  userId: string;
+  messageId: string,
+  quantity: number;
+  createAt: string;
+  updateAt: string;
+  deleteAt?: string;
+}
 interface MessageType {
   id?: string;
   _id?: string;
@@ -66,6 +82,7 @@ interface MessageType {
   content: string;
   timestamp: string;
   status: string;
+  emojis?: Emoji[]
   sender?: {
     id: string;
     name: string;
@@ -103,12 +120,13 @@ interface ChannelType {
 }
 
 export const useChat = (currentUserId: string) => {
+  const [noMessageToLoad, setNoMessageToLoad] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [channel, setChannel] = useState<any>(null);
   const [listChannel, setListChannel] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const currentChannelRef = useRef<string | null>(null);
-
+  const [error, setError] = useState<string | null>(null);
   const socketService = SocketService.getInstance(currentUserId);
 
   useEffect(() => {
@@ -322,6 +340,37 @@ export const useChat = (currentUserId: string) => {
 
 
 
+    //emoji
+    const interactEmojiResponse = (response: ResponseType) => {
+      setLoading(false);
+      if (response.success && response.data) {
+        const updatedMessage: MessageType = response.data;
+        setMessages(prev => prev.map(msg =>
+          msg.id === updatedMessage._id || msg._id === updatedMessage._id
+            ? { ...msg, emojis: updatedMessage.emojis || [] }
+            : msg
+        ));
+      } else {
+        setError(response.message || "Không thể bày tỏ cảm xúc");
+      }
+    };
+    const removeMyEmojiResponse = (response: ResponseType) => {
+      setLoading(false);
+      if (response.success) {
+        setMessages(prev => prev.map(msg => {
+          if (msg.id === response.data?._id || msg._id === response.data?._id) {
+            return {
+              ...msg,
+              emojis: msg.emojis?.filter(emoji => emoji.userId !== currentUserId) || []
+            };
+          }
+          return msg;
+        }));
+      } else {
+        setError(response.message || "Không thể xóa emoji");
+      }
+    };
+
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
@@ -332,6 +381,8 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
+    socket.on(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
+    socket.on(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI_RESPONSE, removeMyEmojiResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
 
 
@@ -346,6 +397,8 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
+      socket.off(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
+      socket.off(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI_RESPONSE, removeMyEmojiResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
     };
   }, []);
@@ -457,6 +510,22 @@ export const useChat = (currentUserId: string) => {
     };
     socket.emit(SOCKET_EVENTS.MESSAGE.RECALL, params);
   }, [])
+  //emoji
+  const interactEmoji = useCallback((messageId: string, emoji: string, userId: string, channelId: string) => {
+    setLoading(true);
+    setError(null);
+    const socket = socketService.getSocket();
+    const params = { messageId, emoji, userId, channelId };
+    socket.emit(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI, params);
+  }, [])
+
+  const removeMyEmoji = useCallback((messageId: string, userId: string, channelId: string) => {
+    setLoading(true);
+    setError(null);
+    const socket = socketService.getSocket();
+    const params = { messageId, userId, channelId };
+    socket.emit(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI, params);
+  }, [])
 
   const deleteAllMessages = useCallback((channelId: string) => {
     const socket = socketService.getSocket();
@@ -466,7 +535,6 @@ export const useChat = (currentUserId: string) => {
     };
     socket.emit(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY, params);
   }, [])
-
 
   return {
     findOrCreateChat,
@@ -483,6 +551,10 @@ export const useChat = (currentUserId: string) => {
     channel,
     messages,
     loading,
-    uploadFile
+    uploadFile,
+    interactEmoji,
+    removeMyEmoji,
+    error,
+    noMessageToLoad
   };
 };

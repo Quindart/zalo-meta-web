@@ -5,10 +5,14 @@ import ChatInput from "./ChatInput";
 import MessageChat from "@/components/Message";
 import MessageSystem from "@/components/MessageSystem";
 import FileCard from "@/components/FileCard";
+import { useChat } from '@/hook/api/useChat';
 import ImageMessage from "@/components/ImageMessage";
 import VideoMessage from "@/components/VideoMessage";
 
 const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; meId: string }) => {
+  const useChatContext = useChat(meId);
+  const interactEmoji = useChatContext.interactEmoji;
+  const removeMyEmoji = useChatContext.removeMyEmoji;
   if (mess.messageType === "system") {
     return <MessageSystem {...mess} />;
   } else if (mess.messageType === "file") {
@@ -38,7 +42,7 @@ const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; m
       );
     }
   } else if (mess.messageType === "video") {
-    return ( 
+    return (
       <VideoMessage
         key={mess.id || index}
         name={mess.file.filename}
@@ -51,7 +55,7 @@ const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; m
       />
     );
   } else {
-    return <MessageChat {...mess} isMe={mess.sender.id === meId} />;
+    return <MessageChat interactEmoji={interactEmoji} removeMyEmoji={removeMyEmoji} {...mess} isMe={mess.sender.id === meId} />;
   }
 });
 
@@ -106,9 +110,10 @@ function MainChat({
     }
   };
 
+
   useEffect(() => {
     scrollToBottom();
-  }, [messages.length]);
+  }, [messages]);
 
   return (
     <Box
@@ -146,27 +151,30 @@ function MainChat({
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        <Box
-          sx={{
-            mx: 1,
-            my: 1,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
-          {messages && Array.isArray(messages) && messages.length > 0 ? (
-            messages
-              .map((mess: any, index: number) => (
-                <RenderMessage key={mess.id || index} mess={mess} index={index} meId={meId} />
-              ))
-          ) : (
-            <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
-              Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
-            </Box>
-          )}
-        </Box>
+        {channel && !channel.isDeleted ? (
+          <Box
+            sx={{
+              mx: 1,
+              my: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {messages && Array.isArray(messages) && messages.length > 0 ? (
+              messages
+                .map((mess: any, index: number) => (
+                  <RenderMessage key={mess.id || index} mess={mess} index={index} meId={meId} />
+                ))
+            ) : (
+              <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
+                Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
+              </Box>
+            )}
+          </Box>
+        ) : null}
       </Box>
+
       <RenderChatInput
         channel={channel}
         channelId={channelId}
