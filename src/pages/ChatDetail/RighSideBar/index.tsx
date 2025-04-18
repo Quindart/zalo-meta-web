@@ -94,12 +94,14 @@ const RightSideBar = () => {
     channel,
     leaveRoom,
     dissolveGroup,
+    deleteAllMessages,
   } = useChatContext();
   const [open, setOpen] = useState<boolean>(false);
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({},);
   const [role, setRole] = useState<string>("member");
   const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
   const navigate = useNavigate();
+  const [clearHistoryDialogOpen, setClearHistoryDialogOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (channel && channel.members) {
@@ -143,6 +145,21 @@ const RightSideBar = () => {
       }
     }
   }
+
+  const handleClearHistory = () => {
+    setClearHistoryDialogOpen(true);
+  };
+
+  const confirmClearHistory = async () => {
+    try {
+      if (channel) {
+        deleteAllMessages(channel.id);
+        setClearHistoryDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Error clearing chat history:", error);
+    }
+  };
 
   return (
     <Drawer
@@ -264,12 +281,13 @@ const RightSideBar = () => {
                   <Divider />
                   <List sx={{ bgcolor: "white", borderRadius: 1 }}>
                     <ListItemButton
+                      onClick={handleClearHistory}
                       sx={{ color: "#C62218" }}
                     >
                       <ListItemText sx={{ ml: 2 }} primary={'Xóa lịch sử trò chuyện'} />
                     </ListItemButton>
                     {
-                      role === "captain" && (
+                      channel && channel.type === "group" && !channel.isDeleted && role === "captain" && (
                         <ListItemButton
                           sx={{ color: "#C62218" }}
                           onClick={handleDisbandGroup}
@@ -295,6 +313,7 @@ const RightSideBar = () => {
                 <>
                   <Box sx={{ p: 2, textAlign: "center", color: "gray" }}>
                     <ListItemButton
+                     onClick={handleClearHistory}
                       sx={{ color: "#C62218" }}
                     >
                       <ListItemText sx={{ ml: 2 }} primary={'Xóa lịch sử trò chuyện'} />
@@ -374,6 +393,74 @@ const RightSideBar = () => {
             }}
           >
             Giải tán nhóm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog xác nhận xóa lịch sử trò chuyện */}
+      <Dialog
+        open={clearHistoryDialogOpen}
+        onClose={() => setClearHistoryDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            width: { xs: '90%', sm: 400 },
+            maxWidth: 400
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          textAlign: 'center',
+          fontWeight: 600,
+          fontSize: 18,
+          pt: 3
+        }}>
+          Xóa lịch sử trò chuyện
+        </DialogTitle>
+        <DialogContent sx={{ px: 3 }}>
+          <DialogContentText sx={{
+            textAlign: 'center',
+            fontSize: 15,
+            color: '#343a40'
+          }}>
+            Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện? Hành động này không thể hoàn tác.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{
+          justifyContent: 'center',
+          pb: 3,
+          px: 2,
+          gap: 1
+        }}>
+          <Button
+            onClick={() => setClearHistoryDialogOpen(false)}
+            variant="outlined"
+            fullWidth
+            sx={{
+              borderRadius: 1.5,
+              textTransform: 'none',
+              py: 1,
+              border: '1px solid #e0e0e0',
+              color: '#616161'
+            }}
+          >
+            Hủy
+          </Button>
+          <Button
+            onClick={confirmClearHistory}
+            variant="contained"
+            fullWidth
+            sx={{
+              borderRadius: 1.5,
+              textTransform: 'none',
+              py: 1,
+              bgcolor: '#e53935',
+              '&:hover': {
+                bgcolor: '#d32f2f'
+              }
+            }}
+          >
+            Xóa
           </Button>
         </DialogActions>
       </Dialog>

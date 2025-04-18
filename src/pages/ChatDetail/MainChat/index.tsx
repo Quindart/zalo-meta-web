@@ -38,7 +38,7 @@ const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; m
       );
     }
   } else if (mess.messageType === "video") {
-    return (
+    return ( 
       <VideoMessage
         key={mess.id || index}
         name={mess.file.filename}
@@ -157,7 +157,6 @@ function MainChat({
         >
           {messages && Array.isArray(messages) && messages.length > 0 ? (
             messages
-              .filter((mess) => mess.isDeletedById !== meId)
               .map((mess: any, index: number) => (
                 <RenderMessage key={mess.id || index} mess={mess} index={index} meId={meId} />
               ))
