@@ -8,9 +8,10 @@ interface ChatContextType {
   channel: any;
   loading: boolean;
   joinRoom: (channelId: string) => void;
+  deleteAllMessages: (channelId: string) => void;
   messages: any[];
   sendMessage: (channelId: string, content: string) => void;
-  deleteMessage: (messageId: string) => void;
+  deleteMessage: (messageId: string, channelId: string) => void;
   recallMessage: (messageId: string) => void;
   loadChannel: (userId: string) => void;
   listChannel: any[];

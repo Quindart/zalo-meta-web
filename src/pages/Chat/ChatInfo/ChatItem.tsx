@@ -17,6 +17,7 @@ interface ChatItemProps {
 const ChatItem: React.FC<ChatItemProps> = memo(({ item }) => {
   const navigate = useNavigate();
   const getTimeDisplay = (time: Date) => {
+    if (!time) return "";
     const now = new Date();
     time = new Date(time);
     const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);

@@ -13,11 +13,8 @@ function ChatDetailTemplate() {
     messages,
     sendMessage,
     joinRoom,
-    leaveRoom,
     uploadFile,
-    dissolveGroup,
   } = useChatContext();
-  console.log("💲💲💲 ~ ChatDetailTemplate ~ messages:", messages);
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
   const params = useParams();
@@ -27,9 +24,10 @@ function ChatDetailTemplate() {
     if (channelId) {
       joinRoom(channelId);
     }
-  }, [channelId]);
+  }, [channelId, joinRoom]);
+
   return (
-    <Box width={"100%"}>
+    <Box width="100%" height="100vh">
       <MainChat
         channel={channel}
         messages={messages}
@@ -38,12 +36,7 @@ function ChatDetailTemplate() {
         channelId={channelId}
         uploadFile={uploadFile}
       />
-      <RightSideBar
-        channel={channel}
-        leaveRoom={leaveRoom}
-        dissolveGroup={dissolveGroup}
-        me={me}
-      />
+      <RightSideBar />
     </Box>
   );
 }

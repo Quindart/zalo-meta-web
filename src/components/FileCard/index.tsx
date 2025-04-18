@@ -3,6 +3,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
+import { formatFileSize } from "@/utils";
 
 // Mapping đuôi file với màu sắc
 const fileColors: Record<string, { bg: string; color: string }> = {
@@ -19,7 +20,7 @@ const fileColors: Record<string, { bg: string; color: string }> = {
 
 interface FileCardProps {
   name: string;
-  size: string;
+  size: number;
   extension: string;
   path: string;
   isMe: boolean;
@@ -236,7 +237,7 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
             <Typography sx={{ ml: 0.5 }}>.{extension}</Typography>
           </Typography>
           <Typography variant="caption" fontWeight={500} color="text.secondary">
-            {size}
+            {formatFileSize(size)}
           </Typography>
         </Box>
 

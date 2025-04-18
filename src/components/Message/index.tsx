@@ -303,7 +303,7 @@ function MessageChat(props: Partial<MessPropsType>) {
         >
           <MenuItem
             onClick={() => {
-              deleteMessage(id as string);
+              deleteMessage(id as string, channelId as string);
               handleMenuClose();
             }}
             sx={{ color: "error.main" }}
