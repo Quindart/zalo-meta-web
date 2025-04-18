@@ -34,7 +34,7 @@ type MessPropsType = {
   fileName?: string;
   id?: string;
   interactEmoji: (messageId: string, emoji: string, userId: string, channelId: string) => void;
-  removeMyEmoji: (messageId: string, userId: string) => void;
+  removeMyEmoji: (messageId: string, userId: string, channelId: string) => void;
 };
 
 function MessageChat(props: Partial<MessPropsType>) {
@@ -236,7 +236,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           }}
         >
           <Box px={"4px"} py={"2px"} display="flex" gap={"4px"}>
-            {["❤️", "👍", "😂", "😮", "😢", "😡"].map((emoji) => (
+            {["❤️", "👍", "😂", "😮", "😢", "😡", "❌"].map((emoji) => (
               <Typography
                 key={emoji}
                 fontSize={14}
@@ -249,6 +249,9 @@ function MessageChat(props: Partial<MessPropsType>) {
                 onClick={(event) => {
                   event.stopPropagation();
                   handleEmojiClick(emoji);
+                  if (emoji === "❌" && removeMyEmoji && id && sender?.id) {
+                    removeMyEmoji(id as string, sender.id, channelId as string);
+                  }
                 }}
               >
                 {emoji}
