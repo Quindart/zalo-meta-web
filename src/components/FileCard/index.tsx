@@ -149,7 +149,7 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
         <iframe
           src={`${previewUrl}#toolbar=0&navpanes=0`}
           width="100%"
-          height="500px"
+          height="200px"
           style={{ border: 'none' }}
           title="PDF Viewer"
         />

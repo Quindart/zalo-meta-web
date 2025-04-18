@@ -5,31 +5,46 @@ import ChatInput from "./ChatInput";
 import MessageChat from "@/components/Message";
 import MessageSystem from "@/components/MessageSystem";
 import FileCard from "@/components/FileCard";
-import { useChat } from '@/hook/api/useChat';
+import { useChat } from "@/hook/api/useChat";
 import ImageMessage from "@/components/ImageMessage";
 import VideoMessage from "@/components/VideoMessage";
 
-const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; meId: string }) => {
-  const useChatContext = useChat(meId);
-  const interactEmoji = useChatContext.interactEmoji;
-  const removeMyEmoji = useChatContext.removeMyEmoji;
-  if (mess.messageType === "system") {
-    return <MessageSystem {...mess} />;
-  } else if (mess.messageType === "file") {
-    return (
-      <FileCard
-        key={mess.id || index}
-        name={mess.file.filename}
-        size={mess.file.size}
-        path={mess.file.path}
-        extension={mess.file.extension}
-        isMe={mess.sender.id === meId}
-      />
-    );
-  } else if (mess.messageType === "image") {
-    if (mess.file) {
+const RenderMessage = memo(
+  ({ mess, index, meId }: { mess: any; index: number; meId: string }) => {
+    const useChatContext = useChat(meId);
+    const interactEmoji = useChatContext.interactEmoji;
+    const removeMyEmoji = useChatContext.removeMyEmoji;
+    if (mess.messageType === "system") {
+      return <MessageSystem {...mess} />;
+    } else if (mess.messageType === "file") {
       return (
-        <ImageMessage
+        <FileCard
+          key={mess.id || index}
+          name={mess.file.filename}
+          size={mess.file.size}
+          path={mess.file.path}
+          extension={mess.file.extension}
+          isMe={mess.sender.id === meId}
+        />
+      );
+    } else if (mess.messageType === "image") {
+      if (mess.file) {
+        return (
+          <ImageMessage
+            key={mess.id || index}
+            name={mess.file.filename}
+            size={mess.file.size}
+            path={mess.file.path}
+            extension={mess.file.extension}
+            isMe={mess.sender.id === meId}
+            sender={mess.sender}
+            createdAt={mess.createdAt}
+          />
+        );
+      }
+    } else if (mess.messageType === "video") {
+      return (
+        <VideoMessage
           key={mess.id || index}
           name={mess.file.filename}
           size={mess.file.size}
@@ -40,47 +55,53 @@ const RenderMessage = memo(({ mess, index, meId }: { mess: any; index: number; m
           createdAt={mess.createdAt}
         />
       );
+    } else {
+      return (
+        <MessageChat
+          interactEmoji={interactEmoji}
+          removeMyEmoji={removeMyEmoji}
+          {...mess}
+          isMe={mess.sender.id === meId}
+        />
+      );
     }
-  } else if (mess.messageType === "video") {
-    return (
-      <VideoMessage
-        key={mess.id || index}
-        name={mess.file.filename}
-        size={mess.file.size}
-        path={mess.file.path}
-        extension={mess.file.extension}
-        isMe={mess.sender.id === meId}
-        sender={mess.sender}
-        createdAt={mess.createdAt}
-      />
-    );
-  } else {
-    return <MessageChat interactEmoji={interactEmoji} removeMyEmoji={removeMyEmoji} {...mess} isMe={mess.sender.id === meId} />;
-  }
-});
+  },
+);
 
-const RenderChatInput = memo(({ channel, channelId, sendMessage, uploadFile }: { channel: any; channelId: string | undefined, sendMessage: any; uploadFile: any; }) => {
-  return (
-    <Box
-      sx={{
-        position: "sticky",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        bgcolor: "white",
-        border: "1px solid #ccc",
-        zIndex: 10,
-      }}
-    >
-      <ChatInput
-        channel={channel}
-        channelId={channelId}
-        sendMessage={sendMessage}
-        uploadFile={uploadFile}
-      />
-    </Box>
-  )
-});
+const RenderChatInput = memo(
+  ({
+    channel,
+    channelId,
+    sendMessage,
+    uploadFile,
+  }: {
+    channel: any;
+    channelId: string | undefined;
+    sendMessage: any;
+    uploadFile: any;
+  }) => {
+    return (
+      <Box
+        sx={{
+          position: "sticky",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          bgcolor: "white",
+          border: "1px solid #ccc",
+          zIndex: 10,
+        }}
+      >
+        <ChatInput
+          channel={channel}
+          channelId={channelId}
+          sendMessage={sendMessage}
+          uploadFile={uploadFile}
+        />
+      </Box>
+    );
+  },
+);
 
 function MainChat({
   channel,
@@ -104,12 +125,12 @@ function MainChat({
     if (chatContainerRef.current) {
       window.requestAnimationFrame(() => {
         if (chatContainerRef.current) {
-          chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+          chatContainerRef.current.scrollTop =
+            chatContainerRef.current.scrollHeight;
         }
       });
     }
   };
-
 
   useEffect(() => {
     scrollToBottom();
@@ -118,7 +139,7 @@ function MainChat({
   return (
     <Box
       sx={{
-        maxWidth: "calc(100% - 415px)",
+        maxWidth: "calc(100% - 430px)",
         height: "100vh",
         bgcolor: "grey.300",
         display: "flex",
@@ -162,10 +183,14 @@ function MainChat({
             }}
           >
             {messages && Array.isArray(messages) && messages.length > 0 ? (
-              messages
-                .map((mess: any, index: number) => (
-                  <RenderMessage key={mess.id || index} mess={mess} index={index} meId={meId} />
-                ))
+              messages.map((mess: any, index: number) => (
+                <RenderMessage
+                  key={mess.id || index}
+                  mess={mess}
+                  index={index}
+                  meId={meId}
+                />
+              ))
             ) : (
               <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
                 Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
