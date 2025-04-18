@@ -93,9 +93,144 @@ function ResetPasswordTemplate() {
   console.log("check otp: ", otp);
 
   return (
-   <div>
-    <h1>hello</h1>
-   </div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: 'center',
+        padding: 3,
+        maxWidth: 400,
+        margin: '0 auto',
+      }}
+    >
+      {/* OTP Section */}
+      <Typography variant="h5" sx={{ mb: 3, fontWeight: 500 }}>
+        {isOtpVerified ? 'Đặt mật khẩu mới' : 'Nhập mã OTP'}
+      </Typography>
+
+      {!isOtpVerified && (
+        <>
+          <MuiOtpInput
+            value={otp}
+            onChange={handleOtpChange}
+            length={6}
+            sx={{
+              width: '100%',
+              '& .MuiOtpInput-TextField': {
+                '& .MuiOutlinedInput-root': {
+                  height: '50px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  '&:hover': {
+                    border: '1px solid #666',
+                  },
+                  '&.Mui-focused': {
+                    border: '1px solid #169bf4',
+                  }
+                }
+              }
+            }}
+          />
+          <Button
+            onClick={() => handleVerifyOtp()}
+            size="large"
+            fullWidth
+            sx={{
+              mt: 3,
+              backgroundColor: "#169bf4",
+              fontSize: 14,
+              '&:hover': {
+                backgroundColor: "#0d8ae3",
+              }
+            }}
+            variant="contained"
+          >
+            Xác thực OTP
+          </Button>
+        </>
+      )}
+
+      {/* Password Section - Only shown after OTP verification */}
+      {isOtpVerified && (
+        <FormGroup sx={{ width: '100%', mt: 2 }}>
+          <FormControl sx={{ mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                border: "1px solid #ccc",
+                borderRadius: '4px',
+                padding: '8px 12px',
+                mb: 2
+              }}
+            >
+              <InputAdornment position="start">
+                <LockOutlinedIcon sx={{ color: '#666' }} />
+              </InputAdornment>
+              <Input
+                fullWidth
+                type="password"
+                placeholder="Mật khẩu mới"
+                value={newPass}
+                onChange={handlePasswordChange}
+                disableUnderline
+              />
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                border: "1px solid #ccc",
+                borderRadius: '4px',
+                padding: '8px 12px'
+              }}
+            >
+              <InputAdornment position="start">
+                <LockOutlinedIcon sx={{ color: '#666' }} />
+              </InputAdornment>
+              <Input
+                fullWidth
+                type="password"
+                placeholder="Nhập lại mật khẩu"
+                value={newPassConfirm}
+                onChange={handlePasswordConfirmChange}
+                disableUnderline
+              />
+            </Box>
+          </FormControl>
+
+          <Button
+            onClick={handleResetPassword}
+            size="large"
+            fullWidth
+            disabled={isSubmitting}
+            sx={{
+              mt: 3,
+              backgroundColor: "#169bf4",
+              fontSize: 14,
+              '&:hover': {
+                backgroundColor: "#0d8ae3",
+              }
+            }}
+            variant="contained"
+          >
+            {isSubmitting ? 'Đang xử lý...' : 'Đặt lại mật khẩu'}
+          </Button>
+        </FormGroup>
+      )}
+
+      {/* Error message */}
+      {errorMessage && (
+        <Typography
+          color="error"
+          sx={{ mt: 2, textAlign: 'center' }}
+        >
+          {errorMessage}
+        </Typography>
+      )}
+    </Box>
   );
 }
 
