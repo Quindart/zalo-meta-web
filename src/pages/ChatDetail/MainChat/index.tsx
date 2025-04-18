@@ -1,10 +1,107 @@
-import { Box, Typography } from "@mui/material";
+import { memo, useRef, useEffect } from "react";
+import { Box } from "@mui/material";
 import InfoUser from "./InfoUser/InfoUser";
 import ChatInput from "./ChatInput";
 import MessageChat from "@/components/Message";
 import MessageSystem from "@/components/MessageSystem";
-import { useRef, useEffect } from "react";
 import FileCard from "@/components/FileCard";
+import { useChat } from "@/hook/api/useChat";
+import ImageMessage from "@/components/ImageMessage";
+import VideoMessage from "@/components/VideoMessage";
+
+const RenderMessage = memo(
+  ({ mess, index, meId }: { mess: any; index: number; meId: string }) => {
+    const useChatContext = useChat(meId);
+    const interactEmoji = useChatContext.interactEmoji;
+    const removeMyEmoji = useChatContext.removeMyEmoji;
+    if (mess.messageType === "system") {
+      return <MessageSystem {...mess} />;
+    } else if (mess.messageType === "file") {
+      return (
+        <FileCard
+          key={mess.id || index}
+          name={mess.file.filename}
+          size={mess.file.size}
+          path={mess.file.path}
+          extension={mess.file.extension}
+          isMe={mess.sender.id === meId}
+        />
+      );
+    } else if (mess.messageType === "image") {
+      if (mess.file) {
+        return (
+          <ImageMessage
+            key={mess.id || index}
+            name={mess.file.filename}
+            size={mess.file.size}
+            path={mess.file.path}
+            extension={mess.file.extension}
+            isMe={mess.sender.id === meId}
+            sender={mess.sender}
+            createdAt={mess.createdAt}
+          />
+        );
+      }
+    } else if (mess.messageType === "video") {
+      return (
+        <VideoMessage
+          key={mess.id || index}
+          name={mess.file.filename}
+          size={mess.file.size}
+          path={mess.file.path}
+          extension={mess.file.extension}
+          isMe={mess.sender.id === meId}
+          sender={mess.sender}
+          createdAt={mess.createdAt}
+        />
+      );
+    } else {
+      return (
+        <MessageChat
+          interactEmoji={interactEmoji}
+          removeMyEmoji={removeMyEmoji}
+          {...mess}
+          isMe={mess.sender.id === meId}
+        />
+      );
+    }
+  },
+);
+
+const RenderChatInput = memo(
+  ({
+    channel,
+    channelId,
+    sendMessage,
+    uploadFile,
+  }: {
+    channel: any;
+    channelId: string | undefined;
+    sendMessage: any;
+    uploadFile: any;
+  }) => {
+    return (
+      <Box
+        sx={{
+          position: "sticky",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          bgcolor: "white",
+          border: "1px solid #ccc",
+          zIndex: 10,
+        }}
+      >
+        <ChatInput
+          channel={channel}
+          channelId={channelId}
+          sendMessage={sendMessage}
+          uploadFile={uploadFile}
+        />
+      </Box>
+    );
+  },
+);
 
 function MainChat({
   channel,
@@ -38,28 +135,10 @@ function MainChat({
     scrollToBottom();
   }, [messages]);
 
-  const RenderMessage = ({ mess, index }: { mess: any; index: number }) => {
-    if (mess.messageType === "system") {
-      return <MessageSystem key={mess.id || index} {...mess} />;
-    } else if (mess.messageType === "file") {
-      return (
-        <FileCard
-          name={mess.file.filename}
-          size={mess.file.size}
-          path={mess.file.path}
-          extension={mess.file.extension}
-          isMe={mess.sender.id === me.id}
-        />
-      );
-    } else {
-      return <MessageChat {...mess} isMe={mess.sender.id === me.id} />;
-    }
-  };
-
   return (
     <Box
       sx={{
-        maxWidth: "calc(100% - 415px)",
+        maxWidth: "calc(100% - 430px)",
         height: "100vh",
         bgcolor: "grey.300",
         display: "flex",
@@ -92,7 +171,7 @@ function MainChat({
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        {
+        {channel && !channel.isDeleted ? (
           <Box
             sx={{
               mx: 1,
@@ -103,77 +182,31 @@ function MainChat({
             }}
           >
             {messages && Array.isArray(messages) && messages.length > 0 ? (
-              messages
-                .filter((mess) => mess.isDeletedById !== meId)
-                .map((mess: any, index: number) =>
-                  RenderMessage({ mess, index }),
-                )
+              messages.map((mess: any, index: number) => (
+                <RenderMessage
+                  key={mess.id || index}
+                  mess={mess}
+                  index={index}
+                  meId={meId}
+                />
+              ))
             ) : (
               <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
                 Chưa có tin nhắn. Hãy bắt đầu cuộc trò chuyện!
               </Box>
             )}
           </Box>
-        }
+        ) : null}
       </Box>
 
-      {channel && !channel.isDeleted ? (
-        <Box
-          sx={{
-            position: "sticky",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            bgcolor: "white",
-            border: "1px solid #ccc",
-            zIndex: 10,
-          }}
-        >
-          <ChatInput
-            channelId={channelId}
-            sendMessage={sendMessage}
-            uploadFile={uploadFile}
-          />
-        </Box>
-      ) : (
-        <Box
-          sx={{
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            bgcolor: "rgba(245, 245, 245, 0.8)",
-            borderTop: "1px solid #e0e0e0",
-            borderBottom: "1px solid #e0e0e0",
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{
-              color: "#d32f2f",
-              fontWeight: 500,
-              fontSize: "0.875rem",
-              textAlign: "center",
-            }}
-          >
-            Nhóm đã bị giải tán
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: "#757575",
-              mt: 0.5,
-              fontSize: "0.75rem",
-              textAlign: "center",
-            }}
-          >
-            Không thể gửi hoặc nhận tin nhắn trong nhóm này nữa.
-          </Typography>
-        </Box>
-      )}
+      <RenderChatInput
+        channel={channel}
+        channelId={channelId}
+        sendMessage={sendMessage}
+        uploadFile={uploadFile}
+      />
     </Box>
   );
 }
 
-export default MainChat;
+export default memo(MainChat);
