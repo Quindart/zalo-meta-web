@@ -108,40 +108,45 @@ const ChatInput = ({
    * Handles image selection through the dialog
    */
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-    const isVideo = file.type.startsWith('video/');
-    const isImage = file.type.startsWith('image/');
-    const maxSize = isVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024; 
+    Array.from(files).forEach(file => {
+      if (!file) return;
 
-    if (file.size > maxSize) {
-      enqueueSnackbar({
-        variant: "error",
-        message: isVideo
-          ? "Video quá lớn (tối đa 10MB)"
-          : "Hình ảnh quá lớn (tối đa 5MB)",
-      });
-      return;
-    }
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+      const maxSize = isVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
 
-    if (!isImage && !isVideo) {
-      enqueueSnackbar({
-        variant: "error",
-        message: "Vui lòng chọn một tệp hình ảnh hoặc video hợp lệ",
-      });
-      return;
-    }
+      if (file.size > maxSize) {
+        enqueueSnackbar({
+          variant: "error",
+          message: isVideo
+            ? "Video quá lớn (tối đa 10MB)"
+            : "Hình ảnh quá lớn (tối đa 5MB)",
+        });
+        return;
+      }
 
-    if (!channelId) {
-      enqueueSnackbar({
-        variant: "error",
-        message: "Không thể gửi hình ảnh do thiếu thông tin người nhận",
-      });
-      return;
-    }
+      if (!isImage && !isVideo) {
+        enqueueSnackbar({
+          variant: "error",
+          message: "Vui lòng chọn một tệp hình ảnh hoặc video hợp lệ",
+        });
+        return;
+      }
 
-    uploadFile(channelId, file);
+      if (!channelId) {
+        enqueueSnackbar({
+          variant: "error",
+          message: "Không thể gửi hình ảnh do thiếu thông tin người nhận",
+        });
+        return;
+      }
+
+      uploadFile(channelId, file);
+    });
+
     enqueueSnackbar({
       variant: "success",
       message: "Đang gửi hình ảnh...",
@@ -292,6 +297,7 @@ const ChatInput = ({
         ref={imageInputRef}
         style={{ display: "none" }}
         onChange={handleImageChange}
+        multiple
       />
 
       {/* Message input */}

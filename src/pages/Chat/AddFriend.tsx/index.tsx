@@ -73,7 +73,7 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
       return;
     }
     try {
-      const response = await axiosConfig.get("/api/v1/users/search-friends", {
+      const response = await axiosConfig.get("/api/v1/users/search", {
         params: {
           type: "phone",
           keywords: cleanPhone,
