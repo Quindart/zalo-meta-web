@@ -5,7 +5,7 @@ import MessageChat from "@/components/Message";
 import MessageSystem from "@/components/MessageSystem";
 import { useRef, useEffect } from "react";
 import FileCard from "@/components/FileCard";
-
+import { useChat } from '@/hook/api/useChat';
 function MainChat({
   channel,
   messages,
@@ -34,11 +34,10 @@ function MainChat({
       });
     }
   };
-
+  const useChatContext = useChat(me.id);
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
   const RenderMessage = ({ mess, index }: { mess: any; index: number }) => {
     if (mess.messageType === "system") {
       return <MessageSystem key={mess.id || index} {...mess} />;
@@ -53,7 +52,7 @@ function MainChat({
         />
       );
     } else {
-      return <MessageChat {...mess} isMe={mess.sender.id === me.id} />;
+      return <MessageChat channelId interactEmoji={useChatContext.interactEmoji} removeMyEmoji={useChatContext.removeMyEmoji} {...mess} isMe={mess.sender.id === me.id} />;
     }
   };
 
@@ -100,7 +99,7 @@ function MainChat({
               my: 1,
               display: "flex",
               flexDirection: "column",
-              gap: 2,
+              gap: 4,
             }}
           >
             {messages && Array.isArray(messages) && messages.length > 0 ? (

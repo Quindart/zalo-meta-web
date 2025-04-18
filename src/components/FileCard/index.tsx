@@ -34,12 +34,12 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
 
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening the preview when clicking download
-    
+
     if (!path) {
       console.error("Download path is missing");
       return;
     }
-    
+
     try {
       new URL(path);
       fetch(path)
@@ -48,13 +48,13 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
           const blobUrl = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = blobUrl;
-          link.download = `${name}.${extension}`; 
+          link.download = `${name}.${extension}`;
           document.body.appendChild(link);
-          
+
           link.click();
-          
+
           document.body.removeChild(link);
-          window.URL.revokeObjectURL(blobUrl); 
+          window.URL.revokeObjectURL(blobUrl);
         })
         .catch(error => {
           console.error("Error downloading file:", error);
@@ -145,10 +145,10 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
 
     if (extension === 'pdf') {
       return (
-        <iframe 
-          src={`${previewUrl}#toolbar=0&navpanes=0`} 
-          width="100%" 
-          height="500px" 
+        <iframe
+          src={`${previewUrl}#toolbar=0&navpanes=0`}
+          width="100%"
+          height="500px"
           style={{ border: 'none' }}
           title="PDF Viewer"
         />
@@ -181,10 +181,10 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
 
   return (
     <>
-      <Box 
+      <Box
         onClick={openFilePreview}
-        display={"flex"} 
-        gap={1} 
+        display={"flex"}
+        gap={1}
         alignSelf={isMe ? "flex-end" : "flex-start"}
         sx={{
           display: "flex",
@@ -240,8 +240,8 @@ export default function FileCard({ name, size, extension, path, isMe }: FileCard
           </Typography>
         </Box>
 
-        <IconButton 
-          size="small" 
+        <IconButton
+          size="small"
           sx={{ bgcolor: "grey.100" }}
           onClick={handleDownload}
           title="Tải xuống"
