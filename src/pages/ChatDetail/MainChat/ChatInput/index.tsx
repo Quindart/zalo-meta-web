@@ -71,51 +71,74 @@ const ChatInput = ({
    * Handles file selection through the dialog
    */
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
-    if (file.size > 5 * 1024 * 1024) {
+    // Giới hạn số lượng file được chọn
+    if (files.length > 4) {
       enqueueSnackbar({
         variant: "error",
-        message: "File quá lớn (tối đa 5MB)",
+        message: "Chỉ có thể gửi tối đa 4 file cùng một lúc",
       });
+      if (event.target) {
+        event.target.value = "";
+      }
       return;
     }
 
-    if (!channelId) {
-      enqueueSnackbar({
-        variant: "error",
-        message: "Không thể gửi file do thiếu thông tin người nhận",
-      });
-      return;
-    }
+    Array.from(files).forEach((file) => {
+      if (!file) return;
 
-    uploadFile(channelId, file);
+      if (file.size > 5 * 1024 * 1024) {
+        enqueueSnackbar({
+          variant: "error",
+          message: `File "${file.name}" quá lớn (tối đa 5MB)`,
+        });
+        return;
+      }
+
+      if (!channelId) {
+        enqueueSnackbar({
+          variant: "error",
+          message: "Không thể gửi file do thiếu thông tin người nhận",
+        });
+        return;
+      }
+
+      uploadFile(channelId, file);
+    });
+
+    // Hiển thị thông báo tóm tắt
     enqueueSnackbar({
       variant: "success",
-      message: `Đang gửi file: ${file.name}`,
+      message: `Đang gửi ${files.length} file...`,
     });
 
     handleClosePopover();
 
     // Reset input để có thể chọn lại cùng một file
     if (event.target) {
-      event.target.value = '';
+      event.target.value = "";
     }
   };
-
   /**
    * Handles image selection through the dialog
    */
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-
-    Array.from(files).forEach(file => {
+    if (files.length > 4) {
+      enqueueSnackbar({
+        variant: "error",
+        message: "Chỉ có thể gửi tối đa 4 hình ảnh cùng một lúc",
+      });
+      return;
+    }
+    Array.from(files).forEach((file) => {
       if (!file) return;
 
-      const isVideo = file.type.startsWith('video/');
-      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith("video/");
+      const isImage = file.type.startsWith("image/");
       const maxSize = isVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
 
       if (file.size > maxSize) {
@@ -153,7 +176,7 @@ const ChatInput = ({
     });
 
     if (event.target) {
-      event.target.value = '';
+      event.target.value = "";
     }
   };
 
@@ -271,13 +294,13 @@ const ChatInput = ({
             onClick={handleSelectFile}
             sx={{
               "&:hover": { backgroundColor: "#f0f2f5" },
-              cursor: 'pointer',
+              cursor: "pointer",
               padding: "0px 10px",
             }}
           >
             <ListItemText
               primary="Gửi file"
-              primaryTypographyProps={{ fontSize: 14, fontWeight: 500, }}
+              primaryTypographyProps={{ fontSize: 14, fontWeight: 500 }}
             />
           </ListItem>
         </List>
@@ -290,6 +313,7 @@ const ChatInput = ({
         ref={fileInputRef}
         style={{ display: "none" }}
         onChange={handleFileChange}
+        multiple
       />
       <input
         type="file"
@@ -325,7 +349,7 @@ const ChatInput = ({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               handleSubmitMessage();
             }
@@ -367,13 +391,12 @@ const ChatInput = ({
         px: 2,
         py: 1,
         backgroundColor: "#f5f6fa",
-        minHeight: 120
+        minHeight: 120,
       }}
     >
       {channel && channel.isDeleted
         ? renderDeletedChannelWarning()
-        : renderActiveChatInput()
-      }
+        : renderActiveChatInput()}
     </Box>
   );
 };

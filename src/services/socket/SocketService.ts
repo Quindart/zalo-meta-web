@@ -1,7 +1,9 @@
 // services/socket/SocketService.ts
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_SERVER_URL = "http://localhost:5000";
+const SOCKET_SERVER_URL = import.meta.env.VITE_API_URL;
+// const SOCKET_SERVER_URL = "https://192.168.17.5:5000";
+
 
 class SocketService {
   public socket: Socket | null = null;

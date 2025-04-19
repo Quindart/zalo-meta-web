@@ -3,6 +3,9 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 
 let isRefreshing = false;
 
+const API_SERVER_URL = import.meta.env.VITE_API_URL;
+// const API_SERVER_URL = "https://192.168.17.5:5000";
+
 let failedQueue: {
   resolve: (value: unknown) => void;
   reject: (reason?: any) => void;
@@ -16,7 +19,7 @@ const processQueue = (error: any, token = null) => {
       prom.resolve(token);
     }
   });
-  
+
   failedQueue = [];
 };
 
@@ -26,13 +29,13 @@ const refreshAccessToken = async () => {
     if (!refreshToken) {
       throw new Error("No refresh token available");
     }
-    
-    const response = await axios.post("http://localhost:5000/api/v1/auth/refresh-token", {
+
+    const response = await axios.post(`${API_SERVER_URL}/api/v1/auth/refresh-token`, {
       refreshToken
     });
-    
+
     const { accessToken, refreshToken: newRefreshToken } = response.data.tokens;
-    
+
     setValueInLocalStorage("accessToken", JSON.stringify(accessToken));
     if (newRefreshToken) {
       setValueInLocalStorage("refreshToken", JSON.stringify(newRefreshToken));
@@ -45,7 +48,7 @@ const refreshAccessToken = async () => {
 };
 
 const axiosConfig = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: `${API_SERVER_URL}`,
   timeout: 60000,
   headers: {
     "Content-Type": "application/json",
@@ -75,11 +78,11 @@ axiosConfig.interceptors.response.use(
     const originalRequest = error.config;
     const isChangePasswordApi = error.config?.url?.includes("/me/change-password");
     if (error.response?.status === 401 && originalRequest && !(originalRequest as any)._retry) {
-      if(isChangePasswordApi){
+      if (isChangePasswordApi) {
         return Promise.reject(error);
       }
       if (isRefreshing) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
         })
           .then(token => {
@@ -94,7 +97,7 @@ axiosConfig.interceptors.response.use(
       isRefreshing = true;
       try {
         const newToken = await refreshAccessToken();
-        
+
         if (!newToken) {
           setValueInLocalStorage("accessToken", "");
           setValueInLocalStorage("refreshToken", "");

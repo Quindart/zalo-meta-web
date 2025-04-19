@@ -38,50 +38,47 @@ type ShareDialogProps = {
   open: boolean;
   onClose: () => void;
   messageToShare: string;
-  messageId:string
+  messageId: string;
 };
 import axiosConfig from "@/services/axiosConfig";
 
 const getFriends = async () => {
   try {
     const response = await axiosConfig.get("/api/v1/friends");
-    return response
+    return response;
   } catch (error) {
     console.error("Lỗi khi lấy danh sách bạn bè:", error);
   }
-  return null
+  return null;
 };
-
-
 
 const ShareDialog: React.FC<ShareDialogProps> = ({
   open,
   onClose,
   messageToShare,
-  messageId
+  messageId,
 }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [note, setNote] = useState("");
   const [tab, setTab] = useState(0);
-  const {me} = useAuth()
-  const { forwardMessage}=useChat(me.id)
+  const { me } = useAuth();
+  const { forwardMessage } = useChat(me.id);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const { listChannel} = useChatContext();
+  const { listChannel } = useChatContext();
 
   useEffect(() => {
     const fetchFriends = async () => {
       const res = await getFriends();
-      console.log("hhhhh" + res?.data.friends)
+      console.log("hhhhh" + res?.data.friends);
       if (res?.data.friends) {
-        setContacts(res?.data.friends); 
+        setContacts(res?.data.friends);
       }
     };
     if (open) {
       fetchFriends();
     }
   }, [open]);
-  
 
   const handleToggle = (id: string) => {
     setSelectedIds((prev) =>
@@ -93,8 +90,9 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
     console.log("Chia sẻ với:", selectedIds);
     console.log("id nguoi gui:", me.id);
     console.log("Nội dung ghi chú:", note);
-    forwardMessage(`${messageId}`, selectedIds[0])
+    forwardMessage(`${messageId}`, selectedIds[0]);
     onClose();
+    console.log("💲💲💲 ~ handleShare ~ messageId:", messageId);
   };
 
   const filteredContacts = contacts.filter((contact) =>

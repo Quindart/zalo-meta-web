@@ -356,6 +356,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           open={openShare}
           onClose={() => setOpenShare(false)}
           messageToShare={content ?? ""}
+          messageId={id}
         />
       </Box>
     </Box>
