@@ -112,7 +112,7 @@ function MessageChat(props: Partial<MessPropsType>) {
 
   return (
     <Box display={"flex"} gap={1} alignSelf={isMe ? "flex-end" : "flex-start"}>
-      {!isMe && (
+      {!isMe && sender &&(
         <Box>
           <Avatar src={sender?.avatar} />
         </Box>
@@ -259,38 +259,18 @@ function MessageChat(props: Partial<MessPropsType>) {
             ))}
           </Box>
         </Popover>
-
-        {emojis && emojis.length > 0 && (
-          <Box
-            position="absolute"
-            px={'2px'}
-            sx={{
-              left: isMe ? "" : -40,
-              right: isMe ? 30 : "auto",
-              backgroundColor: "rgba(255, 255, 255, 0.6)",
-            }}
-            borderRadius={4}
-            bgcolor="white"
-            display="flex"
-            bottom={-12}
-            gap={0.5}
-            alignItems="center"
-            boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
-          >
-            {emojis.filter((e, index) => index <= 2).map((e, index) => (
-              <Typography key={index} fontSize={12} color="initial">
-                {e.emoji}
-              </Typography>
-            ))}
-            {emojis.length > 3 && (
-              <Typography sx={{ display: 'flex' }} fontSize={12} color="grey.600">
-                <span>+</span>
-                {emojis.length - 3}
-              </Typography>
-            )}
-          </Box>
-        )}
-
+        <Typography
+          position={"absolute"}
+          px={1}
+          borderRadius={4}
+          bgcolor={"white"}
+          right={0}
+          fontSize={12}
+          color="initial"
+          boxShadow={"1px 1px 1px 1pxrgb(192, 193, 194)"}
+        >
+          {Array.isArray(emojis) ? emojis.join(" ") : emojis}
+        </Typography>
         <Menu
           anchorEl={menuAnchor}
           open={Boolean(menuAnchor)}
@@ -335,6 +315,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           open={openShare}
           onClose={() => setOpenShare(false)}
           messageToShare={content ?? ""}
+          messageId={id}
         />
       </Box>
     </Box>

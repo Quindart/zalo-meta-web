@@ -16,6 +16,7 @@ const SOCKET_EVENTS = {
     DELETE_RESPONSE: "message:deleteResponse",
     DELETE_HISTORY: "message:deleteHistory",
     DELETE_HISTORY_RESPONSE: "message:deleteHistoryResponse",
+    FORWARD: "message:forward"
   },
   CHANNEL: {
     FIND_BY_ID: "channel:findById",
@@ -370,6 +371,43 @@ export const useChat = (currentUserId: string) => {
         setError(response.message || "Không thể xóa emoji");
       }
     };
+    const forwardMessageHandler = (message: MessageType) => {
+      console.log("📥 Forwarded message received:", message);
+    
+      // Check if the channel exists in listChannel
+      const existingChannel = listChannel.find((channel) => channel.id === message.channelId);
+    
+      if (!existingChannel) {
+        // Channel does not exist, so we need to add it to the listChannel
+        console.log("Channel not found in listChannel, adding new channel");
+    
+        // You can create a new channel object here based on the message's data
+        const newChannel: ChannelType = {
+          id: message.channelId,
+          name: message.channelId,  // You can use message.channelId or some other logic to set the name
+          type: "direct",  // Assuming it's a direct channel for now, adjust as needed
+          members: [],  // Populate members if available in the message
+          lastMessage: message,
+          message: message.content,
+          time: message.timestamp,
+          isRead: false,
+          avatar: "",  // You can use avatar info if available
+          isDeleted: false,
+        };
+    
+        // Add the new channel to the list
+        setListChannel((prev) => [...prev, newChannel]);
+    
+        // Load the messages for this new channel (if needed)
+        loadChannel(currentUserId);
+      }
+    
+      // Update the current channel with the new forwarded message
+      updateChannelWithMessage(message);
+    };
+    
+    
+    
 
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -384,6 +422,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
     socket.on(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI_RESPONSE, removeMyEmojiResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
+    socket.on(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
 
 
     return () => {
@@ -400,6 +439,8 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
       socket.off(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI_RESPONSE, removeMyEmojiResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
+      socket.off(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
+
     };
   }, []);
 
@@ -536,6 +577,20 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY, params);
   }, [])
 
+  const forwardMessage = useCallback((messageId: string, channelId: string) => {
+    const socket = socketService.getSocket();
+    // Gửi sự kiện forwardMessage đến server
+    const params = {
+      senderId: currentUserId,
+      messageId, // ID của tin nhắn cần chuyển tiếp
+      channelId, // ID của phòng đích
+    };
+  
+    setLoading(true);
+    socket.emit(SOCKET_EVENTS.MESSAGE.FORWARD, params);
+  
+  }, [currentUserId]);
+
   return {
     findOrCreateChat,
     joinRoom,
@@ -555,6 +610,7 @@ export const useChat = (currentUserId: string) => {
     interactEmoji,
     removeMyEmoji,
     error,
-    noMessageToLoad
+    noMessageToLoad,
+    forwardMessage
   };
 };
