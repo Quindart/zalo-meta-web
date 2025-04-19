@@ -155,6 +155,7 @@ const RightSideBar = () => {
       if (channel) {
         deleteAllMessages(channel.id);
         setClearHistoryDialogOpen(false);
+        navigate('/chats');
       }
     } catch (error) {
       console.error("Error clearing chat history:", error);
