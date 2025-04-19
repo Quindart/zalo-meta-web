@@ -1,6 +1,6 @@
 import App from "@/App";
 import AuthLayout from "@/components/Shared/Layout/AuthLayout";
-import AuthLayoutResetPassword from "@/components/Shared/Layout/AuthLayoutResetPassWord"
+import AuthLayoutResetPassword from "@/components/Shared/Layout/AuthLayoutResetPassWord";
 import Layout from "@/components/Shared/Layout/Layout";
 import LoginTemplate from "@/pages/auth/Login";
 import LoginQRTemplate from "@/pages/auth/QR";
@@ -17,6 +17,7 @@ import ComponentPage from "@/pages/ComponentPage";
 import { ChatProvider, useChatContext } from "@/Context/ChatContextType";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
+import CallVideoTemplate from "@/pages/CallVideo";
 
 const ChatWrapper = () => {
   const userStore = useSelector((state: RootState) => state.userSlice);
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
     Component: App,
     children: [
       {
+        path: "videos",
+        Component: CallVideoTemplate,
+      },
+      {
         path: "/",
         Component: Layout,
 
@@ -89,6 +94,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+
   {
     Component: AuthLayout,
     children: [

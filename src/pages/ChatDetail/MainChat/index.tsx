@@ -120,7 +120,6 @@ function MainChat({
 }) {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const meId = me.id;
-
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       window.requestAnimationFrame(() => {

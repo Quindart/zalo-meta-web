@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import removeConsole from "vite-plugin-remove-console";
 import imagemin from "vite-plugin-imagemin";
+import mkcert from 'vite-plugin-mkcert';
 
 export default defineConfig({
   plugins: [
@@ -16,6 +17,7 @@ export default defineConfig({
         quality: 75,
       },
     }),
+    mkcert()
   ],
   resolve: {
     alias: [{ find: "@", replacement: path.resolve(__dirname, "src") }],
@@ -26,6 +28,7 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+    https: true
   },
   preview: {
     port: 5173,

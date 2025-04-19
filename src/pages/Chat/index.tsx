@@ -10,7 +10,7 @@ import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import PopupGroup from "@/components/PopupGroup";
 import { useChatContext } from '@/Context/ChatContextType';
-import AddFriendDialog from "./AddFriend.tsx";
+import AddFriendDialog from "./AddFriend.tsx";  
 import CreateGroupDialog from "./CreateGroupDialog/index.tsx";
 
 const MY_CLOUD = {
