@@ -74,7 +74,7 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
       const res = await getFriends();
       console.log("hhhhh" + res?.data.friends)
       if (res?.data.friends) {
-        setContacts(listChannel); 
+        setContacts(res?.data.friends); 
       }
     };
     if (open) {
@@ -91,6 +91,7 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
 
   const handleShare = () => {
     console.log("Chia sẻ với:", selectedIds);
+    console.log("id nguoi gui:", me.id);
     console.log("Nội dung ghi chú:", note);
     forwardMessage(`${messageId}`, selectedIds[0])
     onClose();

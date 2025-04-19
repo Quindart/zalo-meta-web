@@ -82,7 +82,7 @@ function MessageChat(props: Partial<MessPropsType>) {
   const open = Boolean(anchorEl);
   return (
     <Box display={"flex"} gap={1} alignSelf={isMe ? "flex-end" : "flex-start"}>
-      {!isMe && (
+      {!isMe && sender &&(
         <Box>
           <Avatar src={sender?.avatar} />
         </Box>
@@ -247,7 +247,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           color="initial"
           boxShadow={"1px 1px 1px 1pxrgb(192, 193, 194)"}
         >
-          {emojis}
+          {Array.isArray(emojis) ? emojis.join(" ") : emojis}
         </Typography>
         <Menu
           anchorEl={menuAnchor}
@@ -293,6 +293,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           open={openShare}
           onClose={() => setOpenShare(false)}
           messageToShare={content ?? ""}
+          messageId={id}
         />
       </Box>{" "}
     </Box>

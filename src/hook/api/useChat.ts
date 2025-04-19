@@ -307,8 +307,38 @@ export const useChat = (currentUserId: string) => {
     const forwardMessageHandler = (message: MessageType) => {
       console.log("📥 Forwarded message received:", message);
     
+      // Check if the channel exists in listChannel
+      const existingChannel = listChannel.find((channel) => channel.id === message.channelId);
+    
+      if (!existingChannel) {
+        // Channel does not exist, so we need to add it to the listChannel
+        console.log("Channel not found in listChannel, adding new channel");
+    
+        // You can create a new channel object here based on the message's data
+        const newChannel: ChannelType = {
+          id: message.channelId,
+          name: message.channelId,  // You can use message.channelId or some other logic to set the name
+          type: "direct",  // Assuming it's a direct channel for now, adjust as needed
+          members: [],  // Populate members if available in the message
+          lastMessage: message,
+          message: message.content,
+          time: message.timestamp,
+          isRead: false,
+          avatar: "",  // You can use avatar info if available
+          isDeleted: false,
+        };
+    
+        // Add the new channel to the list
+        setListChannel((prev) => [...prev, newChannel]);
+    
+        // Load the messages for this new channel (if needed)
+        loadChannel(currentUserId);
+      }
+    
+      // Update the current channel with the new forwarded message
       updateChannelWithMessage(message);
     };
+    
     
     
 
