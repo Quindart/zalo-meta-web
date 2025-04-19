@@ -14,6 +14,7 @@ const SOCKET_EVENTS = {
     RECALL_RESPONSE: "message:recallResponse",
     DELETE: "message:delete",
     DELETE_RESPONSE: "message:deleteResponse",
+    FORWARD: "message:forward"
   },
   CHANNEL: {
     FIND_BY_ID: "channel:findById",
@@ -303,6 +304,14 @@ export const useChat = (currentUserId: string) => {
       }
     }
 
+    const forwardMessageHandler = (message: MessageType) => {
+      console.log("📥 Forwarded message received:", message);
+    
+      updateChannelWithMessage(message);
+    };
+    
+    
+
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
@@ -313,6 +322,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
+    socket.on(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
 
 
     return () => {
@@ -326,6 +336,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
+      socket.off(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
 
     };
   }, []);
@@ -434,6 +445,21 @@ export const useChat = (currentUserId: string) => {
     };
     socket.emit(SOCKET_EVENTS.MESSAGE.RECALL, params);
   }, [])
+
+  const forwardMessage = useCallback((messageId: string, channelId: string) => {
+    const socket = socketService.getSocket();
+    // Gửi sự kiện forwardMessage đến server
+    const params = {
+      senderId: currentUserId,
+      messageId, // ID của tin nhắn cần chuyển tiếp
+      channelId, // ID của phòng đích
+    };
+  
+    setLoading(true);
+    socket.emit(SOCKET_EVENTS.MESSAGE.FORWARD, params);
+  
+  }, [currentUserId]);
+
   return {
     findOrCreateChat,
     joinRoom,
@@ -448,6 +474,7 @@ export const useChat = (currentUserId: string) => {
     channel,
     messages,
     loading,
-    uploadFile
+    uploadFile,
+    forwardMessage
   };
 };

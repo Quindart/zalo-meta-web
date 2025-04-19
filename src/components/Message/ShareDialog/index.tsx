@@ -22,42 +22,66 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
+import { useChat } from "@/hook/api/useChat";
+import useAuth from "@/hook/api/useAuth";
+import { useEffect } from "react";
+import { useChatContext } from "@/Context/ChatContextType";
+
 type Contact = {
   id: string;
   name: string;
-  avatar: string;
+  avatar?: string; // ✅ Cho phép undefined
+  email: string;
+  phone: string;
 };
-
 type ShareDialogProps = {
   open: boolean;
   onClose: () => void;
   messageToShare: string;
+  messageId:string
+};
+import axiosConfig from "@/services/axiosConfig";
+
+const getFriends = async () => {
+  try {
+    const response = await axiosConfig.get("/api/v1/friends");
+    return response
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách bạn bè:", error);
+  }
+  return null
 };
 
-const fakeContacts: Contact[] = [
-  { id: "1", name: "Cloud của tôi", avatar: "https://i.pravatar.cc/40?img=1" },
-  {
-    id: "2",
-    name: "Nhóm 11 🌸 Công Nghệ Mới",
-    avatar: "https://i.pravatar.cc/40?img=2",
-  },
-  { id: "3", name: "Lê Minh Quang", avatar: "https://i.pravatar.cc/40?img=3" },
-  {
-    id: "4",
-    name: "Làm đồ án vui vui",
-    avatar: "https://i.pravatar.cc/40?img=4",
-  },
-];
+
 
 const ShareDialog: React.FC<ShareDialogProps> = ({
   open,
   onClose,
   messageToShare,
+  messageId
 }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [note, setNote] = useState("");
   const [tab, setTab] = useState(0);
+  const {me} = useAuth()
+  const { forwardMessage}=useChat(me.id)
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const { listChannel} = useChatContext();
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      const res = await getFriends();
+      console.log("hhhhh" + res?.data.friends)
+      if (res?.data.friends) {
+        setContacts(listChannel); 
+      }
+    };
+    if (open) {
+      fetchFriends();
+    }
+  }, [open]);
+  
 
   const handleToggle = (id: string) => {
     setSelectedIds((prev) =>
@@ -68,10 +92,11 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
   const handleShare = () => {
     console.log("Chia sẻ với:", selectedIds);
     console.log("Nội dung ghi chú:", note);
+    forwardMessage(`${messageId}`, selectedIds[0])
     onClose();
   };
 
-  const filteredContacts = fakeContacts.filter((contact) =>
+  const filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   return (
