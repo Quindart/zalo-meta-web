@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import AddMember from "./AddMember";
 interface GroupMembersPageProps {
     onBack: () => void;
 }
@@ -30,6 +31,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
     const userStore = useSelector((state: RootState) => state.userSlice);
     const { me } = userStore;
     const { listFriends, getListFriends } = useFriend(me.id);
+    const [openAddMember, setOpenAddMember] = useState(false);
 
     useEffect(() => {
         if (me?.id) {
@@ -80,6 +82,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
         if (b.id === me.id) return 1;
         return 0;
     });
+    
 
     return (
         <Drawer variant="permanent" anchor="right" sx={{ flexShrink: 0 }}>
@@ -109,6 +112,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                                 backgroundColor: "#c6cad2"
                             }
                         }}
+                        onClick={()=>{setOpenAddMember(true)}}
                     >
                         <PersonAddAltIcon sx={{ mr:1}}/>
                         Thêm thành viên
@@ -197,6 +201,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                     })}
                 </List>
             </Box>
+            <AddMember  open={openAddMember} onClose={() => setOpenAddMember(false)}/> 
 
         </Drawer>
     );
