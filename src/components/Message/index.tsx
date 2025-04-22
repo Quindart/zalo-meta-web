@@ -1,7 +1,7 @@
 import { getHourAndMinute } from "@/utils/formatTime";
 import { MoreHoriz } from "@mui/icons-material";
 import { Avatar, Box, IconButton, Popover, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ReplyIcon from "@mui/icons-material/Reply";
 import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";

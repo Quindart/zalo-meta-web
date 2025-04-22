@@ -10,7 +10,8 @@ import ImageMessage from "@/components/ImageMessage";
 import VideoMessage from "@/components/VideoMessage";
 
 const RenderMessage = memo(
-  ({ mess, index, meId }: { mess: any; index: number; meId: string }) => {
+  ({ mess, meId }: { mess: any; meId: string }) => {
+    console.log(mess);
     const useChatContext = useChat(meId);
     const interactEmoji = useChatContext.interactEmoji;
     const removeMyEmoji = useChatContext.removeMyEmoji;
@@ -19,11 +20,9 @@ const RenderMessage = memo(
     } else if (mess.messageType === "file") {
       return (
         <FileCard
-          key={mess.id || index}
-          name={mess.file.filename}
-          size={mess.file.size}
-          path={mess.file.path}
-          extension={mess.file.extension}
+          interactEmoji={interactEmoji}
+          removeMyEmoji={removeMyEmoji}
+          {...mess}
           isMe={mess.sender.id === meId}
         />
       );
@@ -31,28 +30,20 @@ const RenderMessage = memo(
       if (mess.file) {
         return (
           <ImageMessage
-            key={mess.id || index}
-            name={mess.file.filename}
-            size={mess.file.size}
-            path={mess.file.path}
-            extension={mess.file.extension}
+            interactEmoji={interactEmoji}
+            removeMyEmoji={removeMyEmoji}
+            {...mess}
             isMe={mess.sender.id === meId}
-            sender={mess.sender}
-            createdAt={mess.createdAt}
           />
         );
       }
     } else if (mess.messageType === "video") {
       return (
         <VideoMessage
-          key={mess.id || index}
-          name={mess.file.filename}
-          size={mess.file.size}
-          path={mess.file.path}
-          extension={mess.file.extension}
+          interactEmoji={interactEmoji}
+          removeMyEmoji={removeMyEmoji}
+          {...mess}
           isMe={mess.sender.id === meId}
-          sender={mess.sender}
-          createdAt={mess.createdAt}
         />
       );
     } else {
@@ -184,9 +175,8 @@ function MainChat({
             {messages && Array.isArray(messages) && messages.length > 0 ? (
               messages.map((mess: any, index: number) => (
                 <RenderMessage
-                  key={mess.id || index}
+                  key={index}
                   mess={mess}
-                  index={index}
                   meId={meId}
                 />
               ))

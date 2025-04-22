@@ -121,7 +121,6 @@ interface ChannelType {
 }
 
 export const useChat = (currentUserId: string) => {
-  const [noMessageToLoad, setNoMessageToLoad] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [channel, setChannel] = useState<any>(null);
   const [listChannel, setListChannel] = useState<any[]>([]);
@@ -315,7 +314,7 @@ export const useChat = (currentUserId: string) => {
         const messageId = response.data.messageId;
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true } : msg
+            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true, messageType:"text" } : msg
           )
         );
         setLoading(false);
@@ -362,7 +361,7 @@ export const useChat = (currentUserId: string) => {
           if (msg.id === response.data?._id || msg._id === response.data?._id) {
             return {
               ...msg,
-              emojis: msg.emojis?.filter(emoji => emoji.userId !== currentUserId) || []
+              emojis: msg.emojis?.filter((emoji:any) => emoji.userId !== currentUserId) || []
             };
           }
           return msg;
@@ -610,7 +609,6 @@ export const useChat = (currentUserId: string) => {
     interactEmoji,
     removeMyEmoji,
     error,
-    noMessageToLoad,
     forwardMessage
   };
 };
