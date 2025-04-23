@@ -279,7 +279,14 @@ const RightSideBar = () => {
                     </ListItemButton>
                   )}
                   {channel && channel.type === "group" && !channel.isDeleted && (
-                    <ListItemButton onClick={() => leaveRoom(channel.id)} sx={{ color: "#C62218" }}>
+                   <ListItemButton
+                   onClick={() => {
+                    navigate(`/chats`);
+                    leaveRoom(channel.id);
+                     
+                   }}
+                   sx={{ color: "#C62218" }}
+                 >
                       <ListItemText sx={{ ml: 2 }} primary={'Rời nhóm'} />
                     </ListItemButton>
                   )}

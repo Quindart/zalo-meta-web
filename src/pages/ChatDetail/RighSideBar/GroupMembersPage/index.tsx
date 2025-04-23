@@ -22,6 +22,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import AddMember from "./AddMember";
 import { Menu, MenuItem } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 interface GroupMembersPageProps {
     onBack: () => void;
 }
@@ -35,7 +36,8 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
     const [openAddMember, setOpenAddMember] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [selectedUser, setSelectedUser] = useState<any>(null);
-
+    const {leaveRoom} = useChatContext();
+    const navigate = useNavigate();
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, user: any) => {
         setAnchorEl(event.currentTarget);
@@ -205,10 +207,11 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                                                         </MenuItem>
                                                     )}
                                                     {isMe && (
-                                                        <MenuItem onClick={() => {
-                                                            console.log("Rời khỏi nhóm");
-                                                            handleMenuClose();
-                                                        }}>
+                                                        <MenuItem  onClick={() => {
+                                                            navigate(`/chats`);
+                                                            leaveRoom(channel.id);
+                                                            
+                                                          }}>
                                                             Rời nhóm
                                                         </MenuItem>
                                                     )}
