@@ -21,6 +21,8 @@ import { RootState } from "@/store";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import AddMember from "./AddMember";
+import { Menu, MenuItem } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 interface GroupMembersPageProps {
     onBack: () => void;
 }
@@ -32,6 +34,22 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
     const { me } = userStore;
     const { listFriends, getListFriends } = useFriend(me.id);
     const [openAddMember, setOpenAddMember] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const {leaveRoom} = useChatContext();
+    const navigate = useNavigate();
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, user: any) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedUser(user);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+        setSelectedUser(null);
+    };
+
+    const myRole = channel?.members?.find((m: any) => m.userId === me.id)?.role;
 
     useEffect(() => {
         if (me?.id) {
@@ -82,7 +100,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
         if (b.id === me.id) return 1;
         return 0;
     });
-    
+
 
     return (
         <Drawer variant="permanent" anchor="right" sx={{ flexShrink: 0 }}>
@@ -101,26 +119,26 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                 <Divider />
                 {/* Danh sách thành viên */}
                 <Box textAlign={"center"} mt={2}>
-                    <Button 
+                    <Button
                         sx={{
                             color: "#000",
                             fontSize: 17,
                             width: "90%",
                             fontWeight: "600",
-                            backgroundColor :"#e5e7eb",
-                            "&:hover" :{
+                            backgroundColor: "#e5e7eb",
+                            "&:hover": {
                                 backgroundColor: "#c6cad2"
                             }
                         }}
-                        onClick={()=>{setOpenAddMember(true)}}
+                        onClick={() => { setOpenAddMember(true) }}
                     >
-                        <PersonAddAltIcon sx={{ mr:1}}/>
+                        <PersonAddAltIcon sx={{ mr: 1 }} />
                         Thêm thành viên
                     </Button>
                 </Box>
 
                 <Box mt={2} ml={2}>
-                    <Typography sx={{color:"#000", fontSize: 16, fontWeight: "600"}}>
+                    <Typography sx={{ color: "#000", fontSize: 16, fontWeight: "600" }}>
                         Danh sách thành viên ({channel.members.length})
                     </Typography>
                 </Box>
@@ -130,28 +148,78 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                         const member = channel.members.find((m: any) => m.userId === user.id);
                         const isFriend = listFriends.some((friend: any) => friend.id === user.id);
                         const isMe = user.id === me.id;
-
+                        const isAllowedToAct = (myRole === "captain" && !isMe) ||
+                            (myRole === "vicecaptain" && !isMe && myRole !== "captain") ||
+                            isMe;
                         return (
                             <ListItem
                                 key={user.id || index}
                                 secondaryAction={
                                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                         {/* Nút ... chỉ hiển thị khi hover */}
-                                        <IconButton
-                                            sx={{
-                                                opacity: 0,
-                                                transition: "opacity 0.3s",
-                                                borderRadius: 2,
-                                                "&.MuiIconButton-root:hover": {
-                                                    opacity: 1,
-                                                    backgroundColor: "#e5e7eb"
-                                                },
-                                                color: "#000"
-                                            }}
-                                            onClick={() => console.log("More actions for", user._id)}
-                                        >
-                                            <MoreHorizIcon />
-                                        </IconButton>
+                                        {isAllowedToAct && (
+                                            <>
+                                                <IconButton
+                                                    onClick={(e) => handleMenuOpen(e, user)}
+                                                    sx={{
+                                                        opacity: 0,
+                                                        transition: "opacity 0.3s",
+                                                        borderRadius: 2,
+                                                        "&.MuiIconButton-root:hover": {
+                                                            opacity: 1,
+                                                            backgroundColor: "#e5e7eb"
+                                                        },
+                                                        color: "#000"
+                                                    }}
+                                                >
+                                                    <MoreHorizIcon />
+                                                </IconButton>
+                                                {/* Menu riêng cho từng user */}
+                                                <Menu
+                                                    anchorEl={anchorEl}
+                                                    open={Boolean(anchorEl) && selectedUser?.id === user.id}
+                                                    onClose={handleMenuClose}
+                                                >
+                                                    {myRole === "captain" && !isMe && (
+                                                        <>
+                                                            {myRole !== "vicecaptain" && (
+                                                                <MenuItem onClick={() => {
+                                                                    console.log("Thêm phó nhóm cho", user.id);
+                                                                    handleMenuClose();
+                                                                }}>
+                                                                    Thêm phó nhóm
+                                                                </MenuItem>
+                                                            )}
+                                                            <MenuItem onClick={() => {
+                                                                console.log("Xóa khỏi nhóm", user.id);
+                                                                handleMenuClose();
+                                                            }}>
+                                                                Xóa khỏi nhóm
+                                                            </MenuItem>
+                                                        </>
+                                                    )}
+                                                    {myRole === "vicecaptain" && !isMe && myRole !== "captain" && (
+                                                        <MenuItem onClick={() => {
+                                                            console.log("Xóa khỏi nhóm", user.id);
+                                                            handleMenuClose();
+                                                        }}>
+                                                            Xóa khỏi nhóm
+                                                        </MenuItem>
+                                                    )}
+                                                    {isMe && (
+                                                        <MenuItem  onClick={() => {
+                                                            navigate(`/chats`);
+                                                            leaveRoom(channel.id);
+                                                            
+                                                          }}>
+                                                            Rời nhóm
+                                                        </MenuItem>
+                                                    )}
+                                                </Menu>
+                                            </>
+                                        )}
+
+                                        
 
                                         {/* Nút Kết bạn nếu không phải bạn bè và không phải chính mình */}
                                         {!isFriend && user.id !== me.id && (
@@ -184,7 +252,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                                 <Avatar src={user.avatar} />
                                 <ListItemText
                                     primary={isMe ? "Bạn" : `${user.lastName} ${user.firstName}`}
-                                    secondary={member?.role === "captain" ? "Trưởng nhóm" : "Thành viên"}
+                                    secondary={member?.role === "captain" ? "Trưởng nhóm" : member?.role === "vicecaptain" ? "Phó nhóm" : "Thành viên"}
                                     sx={{ marginLeft: 2 }}
                                     primaryTypographyProps={{
                                         fontSize: 16,
@@ -201,8 +269,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                     })}
                 </List>
             </Box>
-            <AddMember  open={openAddMember} onClose={() => setOpenAddMember(false)}/> 
-
+            <AddMember open={openAddMember} onClose={() => setOpenAddMember(false)} />
         </Drawer>
     );
 };
