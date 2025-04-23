@@ -33,7 +33,8 @@ const SOCKET_EVENTS = {
     LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
     DISSOLVE_GROUP: "channel:dissolveGroup",
     DISSOLVE_GROUP_RESPONSE: "channel:dissolveGroupResponse",
-
+    ADD_MEMBER: "channel:addMember",
+    ADD_MEMBER_RESPONSE: "channel:addMemberResponse",
   },
   FILE: {
     UPLOAD: "file:upload",
@@ -404,6 +405,23 @@ export const useChat = (currentUserId: string) => {
       // Update the current channel with the new forwarded message
       updateChannelWithMessage(message);
     };
+
+    const addMemberResponse = (response: ResponseType) => {
+      setLoading(false);
+      if (response.success) {
+        // response.data chính là channel đã format (có trường members mới)
+        console.log("Thêm thành viên thành công:", response.data);
+        setChannel(response.data);           // Cập nhật channel hiện tại nếu đang view chi tiết
+        setListChannel(prev => {
+          // Cập nhật listChannel nếu cần: replace channel cũ bằng channel mới
+          return prev.map(ch => 
+            ch.id === response.data.id ? response.data : ch
+          );
+        });
+      } else {
+        console.error("Thêm thành viên thất bại:", response.message);
+      }
+    };
     
     
     
@@ -422,7 +440,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI_RESPONSE, removeMyEmojiResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
-
+    socket.on(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
 
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -439,7 +457,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI_RESPONSE, removeMyEmojiResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
-
+      socket.off(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
     };
   }, []);
 
@@ -590,6 +608,12 @@ export const useChat = (currentUserId: string) => {
   
   }, [currentUserId]);
 
+  const addMember = useCallback((channelId: string, userId: string) => {
+    setLoading(true);
+    const socket = socketService.getSocket();
+    socket.emit(SOCKET_EVENTS.CHANNEL.ADD_MEMBER, { channelId, userId });
+  }, []);
+
   return {
     findOrCreateChat,
     joinRoom,
@@ -609,6 +633,7 @@ export const useChat = (currentUserId: string) => {
     interactEmoji,
     removeMyEmoji,
     error,
-    forwardMessage
+    forwardMessage,
+    addMember
   };
 };

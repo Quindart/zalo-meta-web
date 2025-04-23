@@ -19,6 +19,7 @@ interface ChatContextType {
   leaveRoom: (channelId: string) => void;
   uploadFile: (channelId: string, file: File) => void;
   dissolveGroup: (channelId: string) => void;
+  addMember: (channelId: string, userId: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
