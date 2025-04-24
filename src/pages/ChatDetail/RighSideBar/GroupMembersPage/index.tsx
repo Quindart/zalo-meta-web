@@ -29,8 +29,7 @@ interface GroupMembersPageProps {
 }
 
 const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
-  const { channel, assignRole } = useChatContext();
-  console.log("💲💲💲 ~ channel:", channel);
+  const { channel, assignRole, removeMember } = useChatContext();
   const [users, setUsers] = useState<any[]>([]);
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
@@ -50,6 +49,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
     setAnchorEl(null);
     setSelectedUser(null);
   };
+
   const handleAssignRole = (
     targetUserId: string,
     newRole: "captain" | "member" | "sub_captain",
@@ -57,6 +57,14 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
     assignRole({ channelId: channel.id, newRole, targetUserId, userId: me.id });
     handleMenuClose();
   };
+
+
+  const handleRemoveMember = (userId: string) => {
+    removeMember(channel.id, me.id, userId);
+    
+    handleMenuClose();
+  };
+
   const myRole = channel?.members?.find((m: any) => m.userId === me.id)?.role;
 
   useEffect(() => {
@@ -97,12 +105,22 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
   });
 
   return (
-    <Drawer variant="permanent" anchor="right" sx={{ flexShrink: 0 }}>
+    <Drawer
+      variant="permanent"
+      anchor="right"
+      sx={{
+        flexShrink: 0,
+        ".MuiPaper-root": {
+          width: 372,
+        },
+      }}
+    >
       <Box>
         {/* Header */}
         <Box
           sx={{
             py: 2,
+            px: 2,
             textAlign: "center",
             minWidth: 355,
             display: "flex",
@@ -110,7 +128,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
             alignItems: "center",
           }}
         >
-          <IconButton onClick={onBack} size="small" sx={{ width: "5%" }}>
+          <IconButton onClick={onBack} size="small">
             <ArrowBackIosNewIcon fontSize="small" />
           </IconButton>
           <Box sx={{ width: "95%" }}>
@@ -225,8 +243,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                               </MenuItem>
                               <MenuItem
                                 onClick={() => {
-                                  console.log("Xóa khỏi nhóm", user.id);
-                                  handleMenuClose();
+                                  handleRemoveMember(user.id);
                                 }}
                               >
                                 Xóa khỏi nhóm
@@ -238,8 +255,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                             user.role !== ROLE_TYPES.CAPTAIN && (
                               <MenuItem
                                 onClick={() => {
-                                  console.log("Xóa khỏi nhóm", user.id);
-                                  handleMenuClose();
+                                  handleRemoveMember(user.id);
                                 }}
                               >
                                 Xóa khỏi nhóm

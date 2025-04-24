@@ -21,6 +21,7 @@ interface ChatContextType {
   uploadFile: (channelId: string, file: File) => void;
   dissolveGroup: (channelId: string) => void;
   addMember: (channelId: string, userId: string) => void;
+  removeMember: (channelId: string, senderId: string, userId: string) => void;
   assignRole: (data: AssignRoleParams) => void;
 }
 

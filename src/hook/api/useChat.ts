@@ -1,6 +1,7 @@
 import SocketService from "@/services/socket/SocketService";
 import { AssignRoleParams } from "@/types";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SOCKET_EVENTS = {
   MESSAGE: {
@@ -38,6 +39,8 @@ const SOCKET_EVENTS = {
     ADD_MEMBER_RESPONSE: "channel:addMemberResponse",
     ASSIGN_ROLE: "channel:assignRole",
     ROLE_UPDATED: "channel:roleUpdated",
+    REMOVE_MEMBER: 'channel:removeMember',
+    REMOVE_MEMBER_RESPONSE: 'channel:removeMemberResponse',
   },
   FILE: {
     UPLOAD: "file:upload",
@@ -134,6 +137,8 @@ export const useChat = (currentUserId: string) => {
   const currentChannelRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const socketService = SocketService.getInstance(currentUserId);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const socket = socketService.getSocket();
@@ -428,8 +433,22 @@ export const useChat = (currentUserId: string) => {
         console.error("Phân quyền thành viên thất bại:", response.message);
       }
     }
+    const removeMemberResponse = (response: ResponseType) => {
+      setLoading(false);
+      console.log("💲💲💲 ~ removeMemberResponse ~ response.data:", response)
 
+      if (response.success) {
+        setChannel(response.data);
 
+        setListChannel(prev => {
+          return prev.map(ch =>
+            ch.id === response.data.id ? response.data : ch
+          );
+        });
+      } else {
+        console.error(response.message);
+      }
+    }
 
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -447,6 +466,8 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
     socket.on(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.ROLE_UPDATED, assignRoleUpdatedResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER_RESPONSE, removeMemberResponse);
+
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
@@ -464,6 +485,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
       socket.off(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.ROLE_UPDATED, assignRoleUpdatedResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER_RESPONSE, removeMemberResponse);
 
     };
   }, []);
@@ -621,11 +643,18 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.CHANNEL.ADD_MEMBER, { channelId, userId });
   }, []);
 
+  const removeMember = useCallback((channelId: string, senderId: string, userId: string) => {
+    setLoading(true);
+    const socket = socketService.getSocket();
+    socket.emit(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER, { channelId, senderId, userId });
+    setLoading(false);
+    navigate(`/chats/${channelId}`)
+  }, []);
+
+
 
   const assignRole = useCallback(({ channelId, userId, targetUserId, newRole }: AssignRoleParams) => {
     const socket = socketService.getSocket();
-    console.log("💲💲💲 ~ assignRole ~ channelId, userId, targetUserId, newRole:", channelId, userId, targetUserId, newRole)
-
     socket.emit(SOCKET_EVENTS.CHANNEL.ASSIGN_ROLE, { channelId, userId, targetUserId, newRole });
   }, [])
   return {
@@ -649,6 +678,7 @@ export const useChat = (currentUserId: string) => {
     error,
     forwardMessage,
     addMember,
-    assignRole
+    assignRole,
+    removeMember
   };
 };
