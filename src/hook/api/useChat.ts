@@ -1,5 +1,6 @@
 import SocketService from "@/services/socket/SocketService";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const SOCKET_EVENTS = {
   MESSAGE: {
@@ -33,6 +34,7 @@ const SOCKET_EVENTS = {
     LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
     DISSOLVE_GROUP: "channel:dissolveGroup",
     DISSOLVE_GROUP_RESPONSE: "channel:dissolveGroupResponse",
+    DISSOLVE_GROUP_RESPONSE_MEMBER: "channel:dissolveGroupResponseMember",
     ADD_MEMBER: "channel:addMember",
     ADD_MEMBER_RESPONSE: "channel:addMemberResponse",
   },
@@ -129,6 +131,7 @@ export const useChat = (currentUserId: string) => {
   const currentChannelRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const socketService = SocketService.getInstance(currentUserId);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const socket = socketService.getSocket();
@@ -265,8 +268,23 @@ export const useChat = (currentUserId: string) => {
         setChannel(null);
         setMessages([]);
         setLoading(false);
-        console.log("Group dissolved successfully:", response.data);
         setListChannel((prev) => prev.filter(channel => channel.id !== response.data.id));
+        navigate('/chats');
+      }
+      else {
+        console.error("Failed to dissolve group:", response.message);
+        setLoading(false);
+      }
+    }
+    const dissolveGroupResponseMember = (response: ResponseType) => {
+      if (response.success) {
+        if (response.data.channelId === currentChannelRef.current) {
+          setChannel(null);
+          setMessages([]);
+          navigate('/chats');
+        } else {
+          updateChannelWithMessage(response.data.message);
+        }
       }
       else {
         console.error("Failed to dissolve group:", response.message);
@@ -315,7 +333,7 @@ export const useChat = (currentUserId: string) => {
         const messageId = response.data.messageId;
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true, messageType:"text" } : msg
+            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true, messageType: "text" } : msg
           )
         );
         setLoading(false);
@@ -373,14 +391,14 @@ export const useChat = (currentUserId: string) => {
     };
     const forwardMessageHandler = (message: MessageType) => {
       console.log("📥 Forwarded message received:", message);
-    
+
       // Check if the channel exists in listChannel
       const existingChannel = listChannel.find((channel) => channel.id === message.channelId);
-    
+
       if (!existingChannel) {
         // Channel does not exist, so we need to add it to the listChannel
         console.log("Channel not found in listChannel, adding new channel");
-    
+
         // You can create a new channel object here based on the message's data
         const newChannel: ChannelType = {
           id: message.channelId,
@@ -394,14 +412,14 @@ export const useChat = (currentUserId: string) => {
           avatar: "",  // You can use avatar info if available
           isDeleted: false,
         };
-    
+
         // Add the new channel to the list
         setListChannel((prev) => [...prev, newChannel]);
-    
+
         // Load the messages for this new channel (if needed)
         loadChannel(currentUserId);
       }
-    
+
       // Update the current channel with the new forwarded message
       updateChannelWithMessage(message);
     };
@@ -414,7 +432,7 @@ export const useChat = (currentUserId: string) => {
         setChannel(response.data);           // Cập nhật channel hiện tại nếu đang view chi tiết
         setListChannel(prev => {
           // Cập nhật listChannel nếu cần: replace channel cũ bằng channel mới
-          return prev.map(ch => 
+          return prev.map(ch =>
             ch.id === response.data.id ? response.data : ch
           );
         });
@@ -422,9 +440,9 @@ export const useChat = (currentUserId: string) => {
         console.error("Thêm thành viên thất bại:", response.message);
       }
     };
-    
-    
-    
+
+
+
 
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -434,6 +452,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
     socket.on(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE_MEMBER, dissolveGroupResponseMember);
     socket.on(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
     socket.on(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
@@ -451,6 +470,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
       socket.off(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE_MEMBER, dissolveGroupResponseMember);
       socket.off(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
       socket.off(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
@@ -602,10 +622,10 @@ export const useChat = (currentUserId: string) => {
       messageId, // ID của tin nhắn cần chuyển tiếp
       channelId, // ID của phòng đích
     };
-  
+
     setLoading(true);
     socket.emit(SOCKET_EVENTS.MESSAGE.FORWARD, params);
-  
+
   }, [currentUserId]);
 
   const addMember = useCallback((channelId: string, userId: string) => {
