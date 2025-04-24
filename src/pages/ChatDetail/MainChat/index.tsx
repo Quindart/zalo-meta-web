@@ -9,46 +9,26 @@ import { useChat } from "@/hook/api/useChat";
 import ImageMessage from "@/components/ImageMessage";
 import VideoMessage from "@/components/VideoMessage";
 
-const RenderMessage = memo(
-  ({ mess, meId }: { mess: any; meId: string }) => {
-    console.log(mess);
-    const useChatContext = useChat(meId);
-    const interactEmoji = useChatContext.interactEmoji;
-    const removeMyEmoji = useChatContext.removeMyEmoji;
-    if (mess.messageType === "system") {
-      return <MessageSystem {...mess} />;
-    } else if (mess.messageType === "file") {
+const RenderMessage = memo(({ mess, meId }: { mess: any; meId: string }) => {
+  console.log(mess);
+  const useChatContext = useChat(meId);
+  const interactEmoji = useChatContext.interactEmoji;
+  const removeMyEmoji = useChatContext.removeMyEmoji;
+  if (mess.messageType === "system") {
+    return <MessageSystem {...mess} />;
+  } else if (mess.messageType === "file") {
+    return (
+      <FileCard
+        interactEmoji={interactEmoji}
+        removeMyEmoji={removeMyEmoji}
+        {...mess}
+        isMe={mess.sender.id === meId}
+      />
+    );
+  } else if (mess.messageType === "image") {
+    if (mess.file) {
       return (
-        <FileCard
-          interactEmoji={interactEmoji}
-          removeMyEmoji={removeMyEmoji}
-          {...mess}
-          isMe={mess.sender.id === meId}
-        />
-      );
-    } else if (mess.messageType === "image") {
-      if (mess.file) {
-        return (
-          <ImageMessage
-            interactEmoji={interactEmoji}
-            removeMyEmoji={removeMyEmoji}
-            {...mess}
-            isMe={mess.sender.id === meId}
-          />
-        );
-      }
-    } else if (mess.messageType === "video") {
-      return (
-        <VideoMessage
-          interactEmoji={interactEmoji}
-          removeMyEmoji={removeMyEmoji}
-          {...mess}
-          isMe={mess.sender.id === meId}
-        />
-      );
-    } else {
-      return (
-        <MessageChat
+        <ImageMessage
           interactEmoji={interactEmoji}
           removeMyEmoji={removeMyEmoji}
           {...mess}
@@ -56,8 +36,26 @@ const RenderMessage = memo(
         />
       );
     }
-  },
-);
+  } else if (mess.messageType === "video") {
+    return (
+      <VideoMessage
+        interactEmoji={interactEmoji}
+        removeMyEmoji={removeMyEmoji}
+        {...mess}
+        isMe={mess.sender.id === meId}
+      />
+    );
+  } else {
+    return (
+      <MessageChat
+        interactEmoji={interactEmoji}
+        removeMyEmoji={removeMyEmoji}
+        {...mess}
+        isMe={mess.sender.id === meId}
+      />
+    );
+  }
+});
 
 const RenderChatInput = memo(
   ({
@@ -174,11 +172,7 @@ function MainChat({
           >
             {messages && Array.isArray(messages) && messages.length > 0 ? (
               messages.map((mess: any, index: number) => (
-                <RenderMessage
-                  key={index}
-                  mess={mess}
-                  meId={meId}
-                />
+                <RenderMessage key={index} mess={mess} meId={meId} />
               ))
             ) : (
               <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
