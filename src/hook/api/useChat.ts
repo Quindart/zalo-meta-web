@@ -1,4 +1,5 @@
 import SocketService from "@/services/socket/SocketService";
+import { AssignRoleParams } from "@/types";
 import { useEffect, useState, useCallback, useRef } from "react";
 
 const SOCKET_EVENTS = {
@@ -35,6 +36,8 @@ const SOCKET_EVENTS = {
     DISSOLVE_GROUP_RESPONSE: "channel:dissolveGroupResponse",
     ADD_MEMBER: "channel:addMember",
     ADD_MEMBER_RESPONSE: "channel:addMemberResponse",
+    ASSIGN_ROLE: "channel:assignRole",
+    ROLE_UPDATED: "channel:roleUpdated",
   },
   FILE: {
     UPLOAD: "file:upload",
@@ -61,6 +64,8 @@ const SOCKET_EVENTS = {
     REMOVE_MY_EMOJI_RESPONSE: "emoji:removeMyEmojiResponse"
   },
 };
+
+
 
 interface ResponseType {
   success: boolean;
@@ -135,11 +140,8 @@ export const useChat = (currentUserId: string) => {
     if (!socket.connected) {
       socket.connect();
     }
-    console.log("Socket connected:", socket.connected);
-
     const findOrCreateResponse = (response: ResponseType) => {
       if (response.success) {
-        console.log("Channel received:", response.data);
         setChannel(response.data);
         setLoading(false);
         currentChannelRef.current = response.data.id;
@@ -179,7 +181,6 @@ export const useChat = (currentUserId: string) => {
       });
     };
     const receivedMessage = (message: any) => {
-      console.log("Received message:", message);
       const members = message.members;
       const isMember = members.some((member: any) => member.userId === currentUserId);
       if (!isMember) {
@@ -227,7 +228,6 @@ export const useChat = (currentUserId: string) => {
     }
     const createGroupResponse = (response: ResponseType) => {
       if (response.success) {
-        console.log("Group created successfully:", response.data);
         setListChannel((prev) => {
           const channelExists = prev.some(
             (channel) => channel.id === response.data.id
@@ -252,7 +252,6 @@ export const useChat = (currentUserId: string) => {
         setChannel(null);
         setMessages([]);
         setLoading(false);
-        console.log("Left room successfully:", response.data);
         setListChannel((prev) => prev.filter(channel => channel.id !== response.data.id));
       }
       else {
@@ -315,7 +314,7 @@ export const useChat = (currentUserId: string) => {
         const messageId = response.data.messageId;
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true, messageType:"text" } : msg
+            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true, messageType: "text" } : msg
           )
         );
         setLoading(false);
@@ -339,8 +338,6 @@ export const useChat = (currentUserId: string) => {
       }
     }
 
-
-
     //emoji
     const interactEmojiResponse = (response: ResponseType) => {
       setLoading(false);
@@ -362,7 +359,7 @@ export const useChat = (currentUserId: string) => {
           if (msg.id === response.data?._id || msg._id === response.data?._id) {
             return {
               ...msg,
-              emojis: msg.emojis?.filter((emoji:any) => emoji.userId !== currentUserId) || []
+              emojis: msg.emojis?.filter((emoji: any) => emoji.userId !== currentUserId) || []
             };
           }
           return msg;
@@ -372,15 +369,12 @@ export const useChat = (currentUserId: string) => {
       }
     };
     const forwardMessageHandler = (message: MessageType) => {
-      console.log("📥 Forwarded message received:", message);
-    
+
       // Check if the channel exists in listChannel
       const existingChannel = listChannel.find((channel) => channel.id === message.channelId);
-    
+
       if (!existingChannel) {
         // Channel does not exist, so we need to add it to the listChannel
-        console.log("Channel not found in listChannel, adding new channel");
-    
         // You can create a new channel object here based on the message's data
         const newChannel: ChannelType = {
           id: message.channelId,
@@ -394,14 +388,14 @@ export const useChat = (currentUserId: string) => {
           avatar: "",  // You can use avatar info if available
           isDeleted: false,
         };
-    
+
         // Add the new channel to the list
         setListChannel((prev) => [...prev, newChannel]);
-    
+
         // Load the messages for this new channel (if needed)
         loadChannel(currentUserId);
       }
-    
+
       // Update the current channel with the new forwarded message
       updateChannelWithMessage(message);
     };
@@ -410,11 +404,10 @@ export const useChat = (currentUserId: string) => {
       setLoading(false);
       if (response.success) {
         // response.data chính là channel đã format (có trường members mới)
-        console.log("Thêm thành viên thành công:", response.data);
         setChannel(response.data);           // Cập nhật channel hiện tại nếu đang view chi tiết
         setListChannel(prev => {
           // Cập nhật listChannel nếu cần: replace channel cũ bằng channel mới
-          return prev.map(ch => 
+          return prev.map(ch =>
             ch.id === response.data.id ? response.data : ch
           );
         });
@@ -422,9 +415,21 @@ export const useChat = (currentUserId: string) => {
         console.error("Thêm thành viên thất bại:", response.message);
       }
     };
-    
-    
-    
+
+    const assignRoleUpdatedResponse = (response: ResponseType) => {
+      if (response.success) {
+        setChannel(response.data);
+        setListChannel(prev => {
+          return prev.map(ch =>
+            ch.id === response.data.id ? response.data : ch
+          );
+        });
+      } else {
+        console.error("Phân quyền thành viên thất bại:", response.message);
+      }
+    }
+
+
 
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -441,7 +446,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
     socket.on(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
-
+    socket.on(SOCKET_EVENTS.CHANNEL.ROLE_UPDATED, assignRoleUpdatedResponse);
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
@@ -458,6 +463,8 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
       socket.off(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.ROLE_UPDATED, assignRoleUpdatedResponse);
+
     };
   }, []);
 
@@ -521,7 +528,6 @@ export const useChat = (currentUserId: string) => {
     const socket = socketService.getSocket();
     setLoading(true);
     const reader = new FileReader();
-    console.log("Uploading file:", file);
     reader.onload = () => {
       const fileData = reader.result as ArrayBuffer;
       const fileMessage = {
@@ -585,6 +591,7 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI, params);
   }, [])
 
+
   const deleteAllMessages = useCallback((channelId: string) => {
     const socket = socketService.getSocket();
     const params = {
@@ -602,10 +609,10 @@ export const useChat = (currentUserId: string) => {
       messageId, // ID của tin nhắn cần chuyển tiếp
       channelId, // ID của phòng đích
     };
-  
+
     setLoading(true);
     socket.emit(SOCKET_EVENTS.MESSAGE.FORWARD, params);
-  
+
   }, [currentUserId]);
 
   const addMember = useCallback((channelId: string, userId: string) => {
@@ -614,6 +621,13 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.CHANNEL.ADD_MEMBER, { channelId, userId });
   }, []);
 
+
+  const assignRole = useCallback(({ channelId, userId, targetUserId, newRole }: AssignRoleParams) => {
+    const socket = socketService.getSocket();
+    console.log("💲💲💲 ~ assignRole ~ channelId, userId, targetUserId, newRole:", channelId, userId, targetUserId, newRole)
+
+    socket.emit(SOCKET_EVENTS.CHANNEL.ASSIGN_ROLE, { channelId, userId, targetUserId, newRole });
+  }, [])
   return {
     findOrCreateChat,
     joinRoom,
@@ -634,6 +648,7 @@ export const useChat = (currentUserId: string) => {
     removeMyEmoji,
     error,
     forwardMessage,
-    addMember
+    addMember,
+    assignRole
   };
 };
