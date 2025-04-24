@@ -41,7 +41,6 @@ export const useFriend = (currentUserId: string) => {
 
     const dispatch = useDispatch();
     const [listFriends, setListFriends] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
 
     const socketService = SocketService.getInstance(currentUserId).getSocket();
 
@@ -52,7 +51,6 @@ export const useFriend = (currentUserId: string) => {
         const listFriendsResponse = (response: ResponseType) => {
             if (response.success) {
                 setListFriends(response.data);
-                setLoading(false);
             } else {
                 console.error("Failed to load friend list:", response.message);
             }
@@ -118,7 +116,6 @@ export const useFriend = (currentUserId: string) => {
 
 
     const getListFriends = useCallback(() => {
-        setLoading(true);
         const params = {
             userId: currentUserId,
         }

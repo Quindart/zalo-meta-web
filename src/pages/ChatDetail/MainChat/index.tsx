@@ -66,8 +66,7 @@ const RenderMessage = memo(
         />
       );
     }
-  },
-);
+});
 
 const RenderChatInput = memo(
   ({
@@ -189,11 +188,7 @@ function MainChat({
           >
             {messages && Array.isArray(messages) && messages.length > 0 ? (
               messages.map((mess: any, index: number) => (
-                <RenderMessage
-                  key={index}
-                  mess={mess}
-                  meId={meId}
-                />
+                <RenderMessage key={index} mess={mess} meId={meId} />
               ))
             ) : (
               <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>

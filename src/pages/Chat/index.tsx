@@ -9,8 +9,8 @@ import { useEffect, useMemo, useState } from "react";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import PopupGroup from "@/components/PopupGroup";
-import { useChatContext } from '@/Context/ChatContextType';
-import AddFriendDialog from "./AddFriend.tsx";  
+import { useChatContext } from "@/Context/ChatContextType";
+import AddFriendDialog from "./AddFriend.tsx";
 import CreateGroupDialog from "./CreateGroupDialog/index.tsx";
 
 const MY_CLOUD = {
@@ -30,7 +30,7 @@ function ChatTemplate() {
   const [showPopup, setShowPopup] = useState(false);
   const params = useParams();
   const currentChannelId = params.id;
-  const { listChannel, loadChannel, messages, createGroup} = useChatContext();
+  const { listChannel, loadChannel, messages, createGroup } = useChatContext();
 
   const [openAddFriend, setOpenAddFriend] = useState(false);
   const [openCreateGroup, setOpenCreateGroup] = useState(false);
@@ -49,12 +49,12 @@ function ChatTemplate() {
         message: item.message,
         isRead: item.isRead !== undefined ? item.isRead : false,
         isChoose: currentChannelId === item.id,
-      })).sort((a, b) => {
+      }))
+      .sort((a, b) => {
         const dateA = new Date(a.time).getTime();
         const dateB = new Date(b.time).getTime();
-        return dateB - dateA; 
-      }
-    );
+        return dateB - dateA;
+      });
   }, [listChannel, currentChannelId]);
 
   return (
@@ -64,10 +64,11 @@ function ChatTemplate() {
         spacing={1}
         sx={{
           width: 360,
-          height: "calc(100vh - 70px)",
+          height: "calc(100vh)",
           bgcolor: "white",
           position: "fixed",
           zIndex: 1000,
+          overflowY: "auto",
           borderRight: "0.5px solid #E0E8EF",
         }}
       >
@@ -124,9 +125,15 @@ function ChatTemplate() {
       <Box marginLeft={"300px"} flex={1} width={"100%"}>
         <Outlet />
       </Box>
-      <AddFriendDialog open={openAddFriend} onClose={() => setOpenAddFriend(false)} />
-      <CreateGroupDialog open={openCreateGroup} onClose={() => setOpenCreateGroup(false)} createGroup={createGroup} />
-
+      <AddFriendDialog
+        open={openAddFriend}
+        onClose={() => setOpenAddFriend(false)}
+      />
+      <CreateGroupDialog
+        open={openCreateGroup}
+        onClose={() => setOpenCreateGroup(false)}
+        createGroup={createGroup}
+      />
     </Box>
   );
 }
