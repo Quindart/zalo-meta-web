@@ -1,7 +1,8 @@
 import SocketService from "@/services/socket/SocketService";
 import { AssignRoleParams } from "@/types";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+
 
 const SOCKET_EVENTS = {
   MESSAGE: {
@@ -35,6 +36,7 @@ const SOCKET_EVENTS = {
     LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
     DISSOLVE_GROUP: "channel:dissolveGroup",
     DISSOLVE_GROUP_RESPONSE: "channel:dissolveGroupResponse",
+    DISSOLVE_GROUP_RESPONSE_MEMBER: "channel:dissolveGroupResponseMember",
     ADD_MEMBER: "channel:addMember",
     ADD_MEMBER_RESPONSE: "channel:addMemberResponse",
     ASSIGN_ROLE: "channel:assignRole",
@@ -137,6 +139,7 @@ export const useChat = (currentUserId: string) => {
   const currentChannelRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const socketService = SocketService.getInstance(currentUserId);
+  const navigate = useNavigate();
 
   const navigate = useNavigate()
 
@@ -269,8 +272,23 @@ export const useChat = (currentUserId: string) => {
         setChannel(null);
         setMessages([]);
         setLoading(false);
-        console.log("Group dissolved successfully:", response.data);
         setListChannel((prev) => prev.filter(channel => channel.id !== response.data.id));
+        navigate('/chats');
+      }
+      else {
+        console.error("Failed to dissolve group:", response.message);
+        setLoading(false);
+      }
+    }
+    const dissolveGroupResponseMember = (response: ResponseType) => {
+      if (response.success) {
+        if (response.data.channelId === currentChannelRef.current) {
+          setChannel(null);
+          setMessages([]);
+          navigate('/chats');
+        } else {
+          updateChannelWithMessage(response.data.message);
+        }
       }
       else {
         console.error("Failed to dissolve group:", response.message);
@@ -375,6 +393,7 @@ export const useChat = (currentUserId: string) => {
     };
     const forwardMessageHandler = (message: MessageType) => {
 
+
       // Check if the channel exists in listChannel
       const existingChannel = listChannel.find((channel) => channel.id === message.channelId);
 
@@ -449,7 +468,6 @@ export const useChat = (currentUserId: string) => {
         console.error(response.message);
       }
     }
-
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
@@ -458,6 +476,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
     socket.on(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE_MEMBER, dissolveGroupResponseMember);
     socket.on(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
     socket.on(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
@@ -477,6 +496,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
       socket.off(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE_MEMBER, dissolveGroupResponseMember);
       socket.off(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
       socket.off(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
