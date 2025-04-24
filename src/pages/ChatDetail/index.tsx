@@ -14,6 +14,7 @@ function ChatDetailTemplate() {
     sendMessage,
     joinRoom,
     uploadFile,
+    uploadImageGroup,
   } = useChatContext();
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
@@ -35,6 +36,7 @@ function ChatDetailTemplate() {
         me={me}
         channelId={channelId}
         uploadFile={uploadFile}
+        uploadImageGroup={uploadImageGroup}
       />
       <RightSideBar />
     </Box>

@@ -14,6 +14,7 @@ interface ChatContextType {
   deleteMessage: (messageId: string, channelId: string) => void;
   recallMessage: (messageId: string) => void;
   loadChannel: (userId: string) => void;
+  uploadImageGroup: (channelId: string, file: File[]) => void;
   listChannel: any[];
   createGroup: (name: string, members: string[]) => void;
   leaveRoom: (channelId: string) => void;

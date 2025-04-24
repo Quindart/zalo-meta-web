@@ -8,10 +8,10 @@ import FileCard from "@/components/FileCard";
 import { useChat } from "@/hook/api/useChat";
 import ImageMessage from "@/components/ImageMessage";
 import VideoMessage from "@/components/VideoMessage";
+import ImageGroupMessage from "@/components/ImageGroupMessage";
 
 const RenderMessage = memo(
   ({ mess, meId }: { mess: any; meId: string }) => {
-    console.log(mess);
     const useChatContext = useChat(meId);
     const interactEmoji = useChatContext.interactEmoji;
     const removeMyEmoji = useChatContext.removeMyEmoji;
@@ -37,6 +37,16 @@ const RenderMessage = memo(
           />
         );
       }
+    } else if (mess.messageType === "imageGroup") {
+        return (
+          <ImageGroupMessage
+            images={mess.imagesGroup}
+            interactEmoji={interactEmoji}
+            removeMyEmoji={removeMyEmoji}
+            {...mess}
+            isMe={mess.sender.id === meId}
+          />
+        );
     } else if (mess.messageType === "video") {
       return (
         <VideoMessage
@@ -65,11 +75,13 @@ const RenderChatInput = memo(
     channelId,
     sendMessage,
     uploadFile,
+    uploadImageGroup,
   }: {
     channel: any;
     channelId: string | undefined;
     sendMessage: any;
     uploadFile: any;
+    uploadImageGroup: any;
   }) => {
     return (
       <Box
@@ -88,6 +100,7 @@ const RenderChatInput = memo(
           channelId={channelId}
           sendMessage={sendMessage}
           uploadFile={uploadFile}
+          uploadImageGroup={uploadImageGroup}
         />
       </Box>
     );
@@ -101,6 +114,7 @@ function MainChat({
   me,
   channelId,
   uploadFile,
+  uploadImageGroup,
 }: {
   channel: any;
   messages: any;
@@ -108,6 +122,7 @@ function MainChat({
   me: any;
   channelId: string | undefined;
   uploadFile: (channelId: string, file: File) => void;
+  uploadImageGroup: (channelId: string, file: File[]) => void;
 }) {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const meId = me.id;
@@ -194,6 +209,7 @@ function MainChat({
         channelId={channelId}
         sendMessage={sendMessage}
         uploadFile={uploadFile}
+        uploadImageGroup={uploadImageGroup}
       />
     </Box>
   );
