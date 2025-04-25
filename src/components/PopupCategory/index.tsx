@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Menu, MenuItem, Button, ListItemIcon, ListItemText, Checkbox, Box } from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
+import { useState } from "react";
+import { Menu, MenuItem, ListItemIcon, ListItemText, Checkbox, Box } from "@mui/material";
+// import { ExpandMore } from "@mui/icons-material";
 
 const categories = [
   { label: "Tin Người thân quen", color: "bg-teal-400" },
@@ -14,9 +14,9 @@ const PopupCategory = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selected, setSelected] = useState<string[]>([]);
 
-  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+  //   setAnchorEl(event.currentTarget);
+  // };
 
   const handleClose = () => {
     setAnchorEl(null);

@@ -37,3 +37,6 @@ nav{
   color: #f1f1f1!important;
 }
 
+.MuiTab-root {
+  text-transform: capitalize!important;
+}

@@ -17,6 +17,8 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { useEffect, useState } from "react";
 import EditProfileDialog from "./EditProfileDialog"
 import axiosConfig from "@/services/axiosConfig";
+import PasswordIcon from '@mui/icons-material/Password';
+import ChangePasswordDialog from "./ChangePasswordDialog";
 interface ProfileDialogProps {
   open: boolean;
   onClose: () => void;
@@ -26,6 +28,7 @@ export default function ProfileDialog({ open, onClose }: ProfileDialogProps) {
   const { me, handleGetMe } = useAuth();
   const [loading, setLoading] = useState(false)
   const [openEdit, setOpenEdit] = useState(false);
+  const [openChangePWS, setChangePWS] = useState(false);
   function formatVietnameseDate(dateString: string): string {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
@@ -178,11 +181,41 @@ export default function ProfileDialog({ open, onClose }: ProfileDialogProps) {
           >
             Cập nhật
           </Button>
+          <Divider />
+          {/* change passwork button */}
+          <Button
+            fullWidth
+            variant="outlined"
+            sx={{
+              border: "none",
+              textTransform: "none",
+              color: "#000",
+              fontSize: 18,
+              fontWeight: "500",
+              my: 1,
+              '&:hover': {
+                backgroundColor: '#f0f0f0'
+              }
+            }}
+            startIcon={<PasswordIcon/>}
+            onClick={() => setChangePWS(true)}
+          >
+            Thay đổi mật khẩu
+          </Button>
         </Box>
         <EditProfileDialog
           open={openEdit}
           onClose={() => setOpenEdit(false)}
-        />  </>}
+        />  
+        <ChangePasswordDialog
+          open={openChangePWS}
+          onClose={() => setChangePWS(false)}
+        /> 
+        
+        </>
+        
+        
+        }
       </DialogContent>
     </Dialog>
   );

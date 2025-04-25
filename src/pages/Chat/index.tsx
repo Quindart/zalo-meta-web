@@ -1,14 +1,17 @@
 import PopupCategory from "@/components/PopupCategory";
 import CustomSearchBar from "@/components/SearchBar";
 import { Box, IconButton, Stack } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import ChatItem from "./ChatInfo/ChatItem";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { useEffect, useMemo, useState } from "react";
-import SocketService from "@/services/socket/SocketService";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import PopupGroup from "@/components/PopupGroup";
+import { useChatContext } from "@/Context/ChatContextType";
+import AddFriendDialog from "./AddFriend.tsx";
+import CreateGroupDialog from "./CreateGroupDialog/index.tsx";
 
 const MY_CLOUD = {
   id: 1,
@@ -21,79 +24,38 @@ const MY_CLOUD = {
   isChoose: true,
 };
 
-const socketService = new SocketService();
-const SOCKET_EVENTS = {
-  MESSAGE: {
-    RECEIVED: "message:received",
-  },
-  CHANNEL: {
-    LOAD_CHANNEL: "channel:load",
-    LOAD_CHANNEL_RESPONSE: "channel:loadResponse",
-  },
-};
-
-interface ResponseType {
-  success: boolean;
-  message: string;
-  data: any;
-}
-
 function ChatTemplate() {
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
-  const [listChannel, setListChannel] = useState<any[]>([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const params = useParams();
+  const currentChannelId = params.id;
+  const { listChannel, loadChannel, messages, createGroup } = useChatContext();
+
+  const [openAddFriend, setOpenAddFriend] = useState(false);
+  const [openCreateGroup, setOpenCreateGroup] = useState(false);
 
   useEffect(() => {
-    const socket = socketService.getSocket();
-    if (!socket.connected) {
-      socket.connect();
-    }
-    return () => {
-      socket.off(SOCKET_EVENTS.MESSAGE.RECEIVED);
-      socket.off(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE);
-    };
-  }, []);
-
-  useEffect(() => {
-    const socket = socketService.getSocket();
-    socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, () => {
-      reloadChannels();
-    });
-  }, []);
-
-  useEffect(() => {
-    reloadChannels();
-  }, []);
-
-  const reloadChannels = () => {
-    const socket = socketService.getSocket();
-    const params = { currentUserId: me.id };
-    socket.emit(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL, params);
-    socket.on(
-      SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL_RESPONSE,
-      (response: ResponseType) => {
-        console.log("response", response);
-        if (response.success) {
-          setListChannel(response.data);
-        } else {
-          console.error("Error loading channels:", response.message);
-        }
-      },
-    );
-  };
+    loadChannel(me.id);
+  }, [me, messages]);
 
   const infoChat = useMemo(() => {
-    console.log("listChannel", listChannel);
-    return listChannel.map((item) => ({
-      id: item.id,
-      name: item.name,
-      avatar: item.avatar,
-      time: item.time, // Use the updated time
-      message: item.message, // Use the updated message
-      isRead: false,
-      isChoose: false,
-    }));
-  }, [listChannel]);
+    return listChannel
+      .map((item) => ({
+        id: item.id,
+        name: item.name,
+        avatar: item.avatar,
+        time: item.time,
+        message: item.message,
+        isRead: item.isRead !== undefined ? item.isRead : false,
+        isChoose: currentChannelId === item.id,
+      }))
+      .sort((a, b) => {
+        const dateA = new Date(a.time).getTime();
+        const dateB = new Date(b.time).getTime();
+        return dateB - dateA;
+      });
+  }, [listChannel, currentChannelId]);
 
   return (
     <Box display={"flex"}>
@@ -102,10 +64,11 @@ function ChatTemplate() {
         spacing={1}
         sx={{
           width: 360,
-          height: "calc(100vh - 70px)",
+          height: "calc(100vh)",
           bgcolor: "white",
           position: "fixed",
           zIndex: 1000,
+          overflowY: "auto",
           borderRight: "0.5px solid #E0E8EF",
         }}
       >
@@ -123,7 +86,7 @@ function ChatTemplate() {
             <IconButton
               color="default"
               sx={{ borderRadius: 2 }}
-              onClick={() => console.log("Edit")}
+              onClick={() => setOpenAddFriend(true)}
             >
               <PersonAddAltIcon
                 sx={{
@@ -132,18 +95,23 @@ function ChatTemplate() {
                 }}
               />
             </IconButton>
-            <IconButton
-              color="default"
-              sx={{ borderRadius: 2 }}
-              onClick={() => console.log("Delete")}
-            >
-              <GroupAddIcon
-                sx={{
-                  width: 25,
-                  height: 25,
-                }}
-              />
-            </IconButton>
+            <Box sx={{ position: "relative" }}>
+              <IconButton
+                color="default"
+                sx={{ borderRadius: 2 }}
+                onClick={() => setOpenCreateGroup(true)}
+              >
+                <GroupAddIcon
+                  sx={{
+                    width: 25,
+                    height: 25,
+                  }}
+                />
+              </IconButton>
+              {showPopup && (
+                <PopupGroup setShow={setShowPopup} createGroup={createGroup} />
+              )}
+            </Box>
           </Box>
         </Box>
         <Box sx={{ alignContent: "end" }}>
@@ -151,12 +119,21 @@ function ChatTemplate() {
         </Box>
         <ChatItem item={MY_CLOUD} />
         {infoChat.map((item, index) => (
-          <ChatItem key={index} item={item} />
+          <ChatItem key={item.id || index} item={item} />
         ))}
       </Stack>
       <Box marginLeft={"300px"} flex={1} width={"100%"}>
         <Outlet />
       </Box>
+      <AddFriendDialog
+        open={openAddFriend}
+        onClose={() => setOpenAddFriend(false)}
+      />
+      <CreateGroupDialog
+        open={openCreateGroup}
+        onClose={() => setOpenCreateGroup(false)}
+        createGroup={createGroup}
+      />
     </Box>
   );
 }

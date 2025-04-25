@@ -2,7 +2,22 @@ import { getHourAndMinute } from "@/utils/formatTime";
 import { MoreHoriz } from "@mui/icons-material";
 import { Avatar, Box, IconButton, Popover, Typography } from "@mui/material";
 import { useState } from "react";
-
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import ReplyIcon from "@mui/icons-material/Reply";
+import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import ShareDialog from "./ShareDialog";
+import FileCard from "../FileCard";
+import React from "react";
+import {
+  Tooltip,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+import { useChatContext } from "@/Context/ChatContextType";
 type MessPropsType = {
   content: string;
   sender: {
@@ -13,28 +28,103 @@ type MessPropsType = {
   channelId: string;
   status: string;
   timestamp: string;
-  emojis: string[];
+  emojis: any[];
   isMe: boolean;
+  fileUrl?: string;
+  fileName?: string;
+  id?: string;
+  interactEmoji: (
+    messageId: string,
+    emoji: string,
+    userId: string,
+    channelId: string,
+  ) => void;
+  removeMyEmoji: (messageId: string, userId: string, channelId: string) => void;
 };
+
 function MessageChat(props: Partial<MessPropsType>) {
-  const { content, sender, timestamp, emojis, isMe = true } = props;
+  const { deleteMessage, recallMessage } = useChatContext();
+  const [openShare, setOpenShare] = useState(false);
+  const {
+    content,
+    sender,
+    timestamp,
+    emojis,
+    isMe = true,
+    id,
+    interactEmoji,
+    removeMyEmoji,
+    channelId,
+  } = props;
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation(); // Prevent click from bubbling
     setAnchorEl(event.currentTarget);
   };
-  const [emoList, setEmolist] = useState<Record<string, number>>({
-    "😂": 0,
-    "😍": 0,
-    "👍": 0,
-    "🔥": 0,
-    "🎉": 0,
-  });
+  // const [emoList, setEmolist] = useState<Record<string, number>>({
+  //   "❤️": 0,
+  //   "👍": 0,
+  //   "😂": 0,
+  //   "😮": 0,
+  //   "😢": 0,
+  //   "😡": 0,
+  // });
+
   const handleClose = () => {
     setAnchorEl(null);
   };
 
+  const handleEmojiClick = (emoji: string) => {
+    console.log("Check channelId", channelId);
+
+    if (interactEmoji && sender?.id && id && channelId) {
+      interactEmoji(id, emoji, sender.id, channelId);
+    }
+    // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
+    handleClose();
+  };
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const emoji = event.dataTransfer.getData("text/plain");
+    if (emoji && interactEmoji && id && sender?.id && channelId) {
+      interactEmoji(id, emoji, sender.id, channelId);
+      // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
+    }
+  };
+
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setMenuAnchor(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
+  let parsedContent = null;
+  let isFile = false;
+  let isImage = false;
+
+  if (content) {
+    try {
+      const parsed = JSON.parse(content);
+      if (parsed?.type === "file") {
+        parsedContent = parsed;
+        isFile = true;
+      } else if (parsed?.type === "image") {
+        parsedContent = parsed;
+        isImage = true;
+      }
+    } catch {
+      // Not JSON, keep as text
+    }
+  }
+
   const open = Boolean(anchorEl);
+
   return (
     <Box display={"flex"} gap={1} alignSelf={isMe ? "flex-end" : "flex-start"}>
       {!isMe && (
@@ -43,6 +133,9 @@ function MessageChat(props: Partial<MessPropsType>) {
         </Box>
       )}
       <Box
+        display="flex"
+        flexDirection="column"
+        gap={1}
         maxWidth={500}
         px={2}
         py={1}
@@ -53,17 +146,53 @@ function MessageChat(props: Partial<MessPropsType>) {
         bgcolor={isMe ? "#DBEBFF" : "grey.50"}
         sx={{
           "&:hover": {
-            boxShadow: "2px 2px 2px  #E8F3FF",
+            boxShadow: "2px 2px 2px #E8F3FF",
             transition: "all 0.2s ease-in",
-            ".emoji-btn": {
-              opacity: 1,
-            },
+            ".emoji-btn": { opacity: 1 },
+            ".more-btn": { opacity: 1 },
           },
           position: "relative",
         }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={handleDrop}
       >
-        <Typography fontSize={15}>{content}</Typography>
-        <Typography fontSize={14} color="grey.600">
+        {isFile ? (
+          <FileCard
+            file={{
+              filename: parsedContent.name,
+              size: parsedContent.size,
+              path: parsedContent.path,
+              extension: parsedContent.extension
+            }}
+            emojis={emojis || []}
+            id={id || ''}
+            content={content || ''}
+            channelId={channelId || ''}
+            status={'sent'}
+            timestamp={timestamp || ''}
+            isMe={isMe}
+            interactEmoji={interactEmoji}
+            removeMyEmoji={removeMyEmoji}
+            sender={sender || { id: '', name: '', avatar: '' }}
+          />
+        ) : isImage ? (
+          <Box
+            component="img"
+            src={parsedContent.url}
+            alt={parsedContent.name || "image"}
+            sx={{
+              width: 220,
+              borderRadius: 2,
+              objectFit: "cover",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              "&:hover": { opacity: 0.9 },
+            }}
+          />
+        ) : (
+          <Typography fontSize={15}>{content}</Typography>
+        )}
+        <Typography fontSize={14} color="grey.600" mb={1}>
           {getHourAndMinute(`${timestamp}`)}
         </Typography>
         <IconButton
@@ -72,27 +201,70 @@ function MessageChat(props: Partial<MessPropsType>) {
           onClick={handleOpen}
           sx={{
             position: "absolute",
-            left: -4,
+            right: -4,
             opacity: 0,
             bottom: -12,
             transition: "opacity 0.2s ease-in",
+            backgroundColor: "#fff",
+            "&:hover": { backgroundColor: "#f7f7f7" },
           }}
         >
-          <MoreHoriz fontSize="small" />
+          <ThumbUpOffAltIcon fontSize="small" />
         </IconButton>
 
-        {/* Popup chứa danh sách emoji */}
+        <Box
+          className="more-btn"
+          sx={{
+            position: "absolute",
+            [isMe ? "left" : "right"]: -36,
+            top: "30%",
+            transform: isMe ? "translateX(-60%)" : "translateX(60%)",
+            opacity: 0,
+            transition: "opacity 0.2s ease-in",
+          }}
+        >
+          <Tooltip title="chia sẻ">
+            <IconButton
+              size="small"
+              onClick={() => setOpenShare(true)}
+              sx={{
+                marginRight: 1,
+                backgroundColor: "#fff",
+                "&:hover": { backgroundColor: "#f7f7f7" },
+              }}
+            >
+              <ReplyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          {isMe && (
+            <Tooltip title="Thêm">
+              <IconButton
+                size="small"
+                onClick={handleMenuOpen}
+                sx={{
+                  backgroundColor: "#fff",
+                  "&:hover": { backgroundColor: "#f7f7f7" },
+                }}
+              >
+                <MoreHoriz fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+
         <Popover
           open={open}
           anchorEl={anchorEl}
           onClose={handleClose}
+          disableAutoFocus
+          disableEnforceFocus
           anchorOrigin={{
             vertical: "bottom",
             horizontal: "left",
           }}
         >
           <Box px={"4px"} py={"2px"} display="flex" gap={"4px"}>
-            {["😂", "😍", "👍", "🔥", "🎉"].map((emoji) => (
+            {["❤️", "👍", "😂", "😮", "😢", "😡", "❌"].map((emoji) => (
               <Typography
                 key={emoji}
                 fontSize={14}
@@ -100,11 +272,14 @@ function MessageChat(props: Partial<MessPropsType>) {
                   cursor: "pointer",
                   "&:hover": { transform: "scale(1.2)" },
                 }}
-                onClick={() => {
-                  const index = emoList[`${emoji}`];
-                  emoList[index] += 1;
-                  setEmolist(emoList);
-                  handleClose();
+                draggable
+                onDragStart={(e) => e.dataTransfer.setData("text/plain", emoji)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleEmojiClick(emoji);
+                  if (emoji === "❌" && removeMyEmoji && id && sender?.id) {
+                    removeMyEmoji(id as string, sender.id, channelId as string);
+                  }
                 }}
               >
                 {emoji}
@@ -112,21 +287,93 @@ function MessageChat(props: Partial<MessPropsType>) {
             ))}
           </Box>
         </Popover>
-        <Typography
-          position={"absolute"}
-          px={1}
-          borderRadius={4}
-          bgcolor={"white"}
-          right={0}
-          fontSize={12}
-          color="initial"
-          boxShadow={"1px 1px 1px 1pxrgb(192, 193, 194)"}
+
+        {emojis && emojis.length > 0 && (
+          <Box
+            position="absolute"
+            px={"2px"}
+            sx={{
+              left: isMe ? "" : -40,
+              right: isMe ? 30 : "auto",
+              backgroundColor: "rgba(255, 255, 255, 0.6)",
+            }}
+            borderRadius={4}
+            bgcolor="white"
+            display="flex"
+            bottom={-12}
+            gap={0.5}
+            alignItems="center"
+            boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
+          >
+            {emojis
+              .filter((index) => index <= 2)
+              .map((e, index) => (
+                <Typography key={index} fontSize={12} color="initial">
+                  {e.emoji}
+                </Typography>
+              ))}
+            {emojis.length > 3 && (
+              <Typography
+                sx={{ display: "flex" }}
+                fontSize={12}
+                color="grey.600"
+              >
+                <span>+</span>
+                {emojis.length - 3}
+              </Typography>
+            )}
+          </Box>
+        )}
+
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: isMe ? "right" : "left",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: isMe ? "right" : "left",
+          }}
         >
-          {emojis}
-        </Typography>
-      </Box>{" "}
+          <MenuItem
+            onClick={() => {
+              deleteMessage(id as string, channelId as string);
+              handleMenuClose();
+            }}
+            sx={{ color: "error.main" }}
+          >
+            <ListItemIcon>
+              <SettingsBackupRestoreIcon fontSize="small" color="error" />
+            </ListItemIcon>
+            <ListItemText>Thu hồi</ListItemText>
+          </MenuItem>
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              recallMessage(id as string);
+              handleMenuClose();
+            }}
+            sx={{ color: "error.main" }}
+          >
+            <ListItemIcon>
+              <DeleteOutlineIcon fontSize="small" color="error" />
+            </ListItemIcon>
+            <ListItemText>Xoá chỉ ở phía tôi</ListItemText>
+          </MenuItem>
+        </Menu>
+
+        <ShareDialog
+          open={openShare}
+          onClose={() => setOpenShare(false)}
+          messageToShare={content ?? ""}
+          messageId={id || ''}
+        />
+      </Box>
     </Box>
   );
 }
 
-export default MessageChat;
+export default React.memo(MessageChat);

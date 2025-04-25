@@ -2,12 +2,14 @@ import { Navigation } from "@toolpad/core/AppProvider";
 import RecentActorsRoundedIcon from "@mui/icons-material/RecentActorsRounded";
 import { Chip } from "@mui/material";
 import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
 export const APP_ROUTES = {
   DASHBOARD: "/",
   FILE_UPLOADED: "/files",
   PC: "/pc",
   CHAT: "/chat",
   FRIEND: "/friends",
+  COMPONENTS: "/components",
   USER: {
     MANAGEMENT: "/users",
     DETAIL: "/users/:userId",
@@ -22,7 +24,7 @@ export const APP_ROUTES = {
     MANAGEMENT: "/authorizations",
     UPDATE_ROLE: "/authorizations/change",
   },
-  RESET_PASSWORD: '/auth/reset-password',
+  RESET_PASSWORD: "/auth/reset-password",
   FORGOT_PASSWORD: "/auth/forgot-password",
   SUCCESS_MESSAGE: "/auth/success",
   NOT_FOUND: "/404",
@@ -40,6 +42,11 @@ export const NAVIGATION: Navigation = [
     segment: "friends",
     title: "Danh sách bạn bè",
     icon: <RecentActorsRoundedIcon />,
+  },
+  {
+    segment: "components",
+    title: "Components",
+    icon: <Inventory2Icon />,
   },
 ];
 

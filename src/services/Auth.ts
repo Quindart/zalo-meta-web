@@ -46,12 +46,11 @@ export const getMe = async () => {
 
     // Token sẽ tự động được thêm vào header bởi axiosConfig interceptors
     const response = await axiosConfig.get("/api/v1/me?queries=firstName,lastName,email,avatar,id,phone,dateOfBirth");
-    console.log("Response from API:", response);
 
-    return { success: true, data: response };
+    return { success: true, data: response, message: "User data fetched successfully" };
   } catch (error) {
     console.error("Error fetching user data:", error);
-    return { success: false, message: "Failed to fetch user data" };
+    return { success: false, message: "Failed to fetch user data", data: null };
   }
 };
 

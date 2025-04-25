@@ -1,6 +1,6 @@
 import App from "@/App";
 import AuthLayout from "@/components/Shared/Layout/AuthLayout";
-import AuthLayoutResetPassword from "@/components/Shared/Layout/AuthLayoutResetPassWord"
+import AuthLayoutResetPassword from "@/components/Shared/Layout/AuthLayoutResetPassWord";
 import Layout from "@/components/Shared/Layout/Layout";
 import LoginTemplate from "@/pages/auth/Login";
 import LoginQRTemplate from "@/pages/auth/QR";
@@ -13,10 +13,52 @@ import FriendTemplate from "@/pages/Friend";
 import PCLandingTemplate from "@/pages/pc";
 import { createBrowserRouter } from "react-router-dom";
 import ResetPasswordTemplate from "@/pages/auth/ResetPassword";
+import ComponentPage from "@/pages/ComponentPage";
+import { ChatProvider } from "@/Context/ChatContextType";
+import { RootState } from "@/store";
+import { useSelector } from "react-redux";
+import CallVideoTemplate from "@/pages/CallVideo";
+
+const ChatWrapper = () => {
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  return (
+    <ChatProvider userId={me?.id}>
+      <ChatTemplate />
+    </ChatProvider>
+  );
+};
+
+const ChatDetailWrapper = () => {
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  return (
+    <ChatProvider userId={me?.id}>
+      <ChatDetailTemplate />
+    </ChatProvider>
+  );
+};
+
+const RightSideBarWrapper = () => {
+  const userStore = useSelector((state: RootState) => state.userSlice);
+  const { me } = userStore;
+  // const { channel, leaveRoom, dissolveGroup, deleteAllMessages } = useChatContext();
+  return (
+    <ChatProvider userId={me?.id}>
+      {/* <RightSideBar channel={channel} leaveRoom={leaveRoom} me={me} dissolveGroup={dissolveGroup} deleteAllMessages={deleteAllMessages} /> */}
+      <RightSideBar />
+    </ChatProvider>
+  );
+};
+
 const router = createBrowserRouter([
   {
     Component: App,
     children: [
+      {
+        path: "videos",
+        Component: CallVideoTemplate,
+      },
       {
         path: "/",
         Component: Layout,
@@ -29,26 +71,31 @@ const router = createBrowserRouter([
           },
           {
             path: "chats",
-            Component: ChatTemplate,
+            Component: ChatWrapper,
             children: [
               {
                 path: ":id",
-                Component: ChatDetailTemplate,
+                Component: ChatDetailWrapper,
               },
             ],
           },
           {
             path: "friends",
             Component: FriendTemplate,
-          }
+          },
+          {
+            path: "components",
+            Component: ComponentPage,
+          },
         ],
       },
       {
-        path: 'right-sidebar',
-        Component: RightSideBar
-      }
+        path: "right-sidebar",
+        Component: RightSideBarWrapper,
+      },
     ],
   },
+
   {
     Component: AuthLayout,
     children: [
@@ -63,7 +110,6 @@ const router = createBrowserRouter([
             path: "login",
             Component: LoginTemplate,
           },
-
         ],
       },
     ],
@@ -80,7 +126,7 @@ const router = createBrowserRouter([
         path: "reset-password",
         Component: ResetPasswordTemplate,
       },
-    ]
+    ],
   },
   {
     Component: PCLandingTemplate,
