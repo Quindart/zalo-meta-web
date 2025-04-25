@@ -30,11 +30,13 @@ const ChatInput = ({
   channelId,
   sendMessage,
   uploadFile,
+  uploadImageGroup,
   channel,
 }: {
   channelId: string | undefined;
   sendMessage: (channelId: string, message: string) => void;
   uploadFile: (channelId: string, file: File) => void;
+  uploadImageGroup: (channelId: string, files: File[]) => void;
   channel: any;
 }) => {
   // Refs for input elements
@@ -127,6 +129,7 @@ const ChatInput = ({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
+
     if (files.length > 4) {
       enqueueSnackbar({
         variant: "error",
@@ -134,9 +137,12 @@ const ChatInput = ({
       });
       return;
     }
-    Array.from(files).forEach((file) => {
-      if (!file) return;
 
+    // Convert FileList to array
+    const fileArray = Array.from(files);
+
+    // Filter for valid files
+    const validFiles = fileArray.filter(file => {
       const isVideo = file.type.startsWith("video/");
       const isImage = file.type.startsWith("image/");
       const maxSize = isVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
@@ -148,7 +154,7 @@ const ChatInput = ({
             ? "Video quá lớn (tối đa 10MB)"
             : "Hình ảnh quá lớn (tối đa 5MB)",
         });
-        return;
+        return false;
       }
 
       if (!isImage && !isVideo) {
@@ -156,23 +162,41 @@ const ChatInput = ({
           variant: "error",
           message: "Vui lòng chọn một tệp hình ảnh hoặc video hợp lệ",
         });
-        return;
+        return false;
       }
 
-      if (!channelId) {
-        enqueueSnackbar({
-          variant: "error",
-          message: "Không thể gửi hình ảnh do thiếu thông tin người nhận",
-        });
-        return;
-      }
+      return true;
+    });
 
+    if (validFiles.length === 0) return;
+
+    if (!channelId) {
+      enqueueSnackbar({
+        variant: "error",
+        message: "Không thể gửi hình ảnh do thiếu thông tin người nhận",
+      });
+      return;
+    }
+
+    // Separate images and videos
+    const images = validFiles.filter(file => file.type.startsWith("image/"));
+    const videos = validFiles.filter(file => file.type.startsWith("video/"));
+
+    // Handle videos individually
+    videos.forEach(file => {
       uploadFile(channelId, file);
     });
 
+    // Handle images as a group if there are multiple
+    if (images.length === 1) {
+      uploadFile(channelId, images[0]);
+    } else if (images.length > 1) {
+      uploadImageGroup(channelId, images);
+    }
+
     enqueueSnackbar({
       variant: "success",
-      message: "Đang gửi hình ảnh...",
+      message: "Đang gửi media...",
     });
 
     if (event.target) {
