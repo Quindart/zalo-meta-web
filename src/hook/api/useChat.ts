@@ -47,6 +47,8 @@ const SOCKET_EVENTS = {
   FILE: {
     UPLOAD: "file:upload",
     UPLOAD_RESPONSE: "file:uploadResponse",
+    UPLOAD_GROUP: "file:uploadGroup",
+    UPLOAD_GROUP_RESPONSE: "file:uploadGroupResponse"
   },
   FRIEND: {
     ADD_FRIEND: "friend:add",
@@ -139,8 +141,6 @@ export const useChat = (currentUserId: string) => {
   const currentChannelRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const socketService = SocketService.getInstance(currentUserId);
-
-  const navigate = useNavigate()
 
   useEffect(() => {
     const socket = socketService.getSocket();
@@ -439,6 +439,32 @@ export const useChat = (currentUserId: string) => {
       }
     };
 
+    const uploadImageGroupResponse = (response: ResponseType) => {
+      console.log("File uploaded successfully:", response.data);
+      if (response.success) {
+
+        const newMessage = response.data.message;
+        setMessages((prev) => {
+          const messageId = newMessage.id;
+          const isDuplicate = messageId ?
+            prev.some(msg => (msg.id === messageId)) :
+            false;
+
+          if (isDuplicate) {
+            console.log("Duplicate file message detected, not adding");
+            return prev;
+          }
+
+          return [...prev, newMessage];
+        });
+
+        updateChannelWithMessage(response.data.message);
+      } else {
+        console.error("Failed to upload file:", response.message);
+      }
+      setLoading(false);
+    };
+
     const assignRoleUpdatedResponse = (response: ResponseType) => {
       if (response.success) {
         setChannel(response.data);
@@ -483,6 +509,7 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
     socket.on(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
+    socket.on(SOCKET_EVENTS.FILE.UPLOAD_GROUP_RESPONSE, uploadImageGroupResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.ROLE_UPDATED, assignRoleUpdatedResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER_RESPONSE, removeMemberResponse);
 
@@ -503,6 +530,7 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
       socket.off(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
+      socket.off(SOCKET_EVENTS.FILE.UPLOAD_GROUP_RESPONSE, uploadImageGroupResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.ROLE_UPDATED, assignRoleUpdatedResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER_RESPONSE, removeMemberResponse);
 
@@ -662,6 +690,38 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.CHANNEL.ADD_MEMBER, { channelId, userId });
   }, []);
 
+  const uploadImageGroup = useCallback((channelId: string, files: File[]) => {
+    setLoading(true);
+    const socket = socketService.getSocket();
+
+    // Create promises for all file reads
+    const fileReadPromises = files.map(file => {
+      return new Promise<{ fileName: string, fileData: ArrayBuffer }>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({
+            fileName: file.name,
+            fileData: reader.result as ArrayBuffer
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    });
+
+    // Once all files are read, send the group message
+    Promise.all(fileReadPromises).then(filesData => {
+      const groupMessage = {
+        channelId,
+        senderId: currentUserId,
+        files: filesData,
+        timestamp: new Date().toISOString(),
+        status: "sent"
+      };
+
+      socket.emit(SOCKET_EVENTS.FILE.UPLOAD_GROUP, groupMessage);
+    });
+  }, []);
+
   const removeMember = useCallback((channelId: string, senderId: string, userId: string) => {
     setLoading(true);
     const socket = socketService.getSocket();
@@ -688,6 +748,7 @@ export const useChat = (currentUserId: string) => {
     listChannel,
     dissolveGroup,
     deleteAllMessages,
+    uploadImageGroup,
     channel,
     messages,
     loading,
