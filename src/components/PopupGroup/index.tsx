@@ -23,14 +23,14 @@ const PopupGroup = ({
     const { me } = userStore;
     const { listFriends, getListFriends, loading } = useFriend(me.id);
     const [selected, setSelected] = useState<string[]>([]);
-    const [groupName, setGroupName] = useState(""); 
-    const [nameError, setNameError] = useState(""); 
+    const [groupName, setGroupName] = useState("");
+    const [nameError, setNameError] = useState("");
 
     useEffect(() => {
         getListFriends();
-      },[]);
-    
-   
+    }, []);
+
+
 
     const handleToggle = (id: string) => {
         setSelected((prev) =>

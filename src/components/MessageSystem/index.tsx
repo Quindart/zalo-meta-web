@@ -8,16 +8,16 @@ interface MessageSystemProps {
   type?: 'info' | 'warning' | 'success' | 'error';
 }
 
-const MessageSystem: React.FC<MessageSystemProps> = ({ 
-  content, 
-  timestamp, 
-  type = 'info' 
+const MessageSystem: React.FC<MessageSystemProps> = ({
+  content,
+  timestamp,
+  // type = 'success' 
 }) => {
   return (
-    <Box 
-      width="100%" 
-      display="flex" 
-      justifyContent="center" 
+    <Box
+      width="100%"
+      display="flex"
+      justifyContent="center"
       alignItems="center"
       my={1}
       px={2}
@@ -32,7 +32,7 @@ const MessageSystem: React.FC<MessageSystemProps> = ({
           position: 'relative'
         }}
       >
-        <Typography 
+        <Typography
           fontSize={13}
           color="text.secondary"
           textAlign="center"
@@ -46,11 +46,11 @@ const MessageSystem: React.FC<MessageSystemProps> = ({
         >
           {content}
         </Typography>
-        
-        <Typography 
+
+        <Typography
           fontSize={11}
           color="text.secondary"
-          sx={{ 
+          sx={{
             mt: 0.5,
             opacity: 0.7
           }}

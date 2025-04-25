@@ -25,7 +25,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import { useChat } from "@/hook/api/useChat";
 import useAuth from "@/hook/api/useAuth";
 import { useEffect } from "react";
-import { useChatContext } from "@/Context/ChatContextType";
+// import { useChatContext } from "@/Context/ChatContextType";
 
 type Contact = {
   id: string;
@@ -65,7 +65,7 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
   const { me } = useAuth();
   const { forwardMessage } = useChat(me.id);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const { listChannel } = useChatContext();
+  // const { listChannel } = useChatContext();
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -146,7 +146,7 @@ const ShareDialog: React.FC<ShareDialogProps> = ({
 
         <Tabs
           value={tab}
-          onChange={(e, val) => setTab(val)}
+          onChange={(_, val) => setTab(val)}
           TabIndicatorProps={{
             style: {
               height: 3,

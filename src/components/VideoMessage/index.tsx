@@ -225,7 +225,7 @@ function VideoMessage({
                         </Box>
                         <IconButton
                             size="small"
-                            sx={{ bgcolor: "grey.100", mr:2 }}
+                            sx={{ bgcolor: "grey.100", mr: 2 }}
                             onClick={handleDownload}
                             title="Tải xuống"
                         >
@@ -346,7 +346,7 @@ function VideoMessage({
                             boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
                         >
                             {emojis
-                                .filter((e, index) => index <= 2)
+                                .filter((index) => index <= 2)
                                 .map((e, index) => (
                                     <Typography key={index} fontSize={12} color="initial">
                                         {e.emoji}

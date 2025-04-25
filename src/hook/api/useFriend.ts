@@ -41,6 +41,7 @@ export const useFriend = (currentUserId: string) => {
 
     const dispatch = useDispatch();
     const [listFriends, setListFriends] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
 
     const socketService = SocketService.getInstance(currentUserId).getSocket();
 
@@ -50,6 +51,7 @@ export const useFriend = (currentUserId: string) => {
         }
         const listFriendsResponse = (response: ResponseType) => {
             if (response.success) {
+                setLoading(true)
                 setListFriends(response.data);
             } else {
                 console.error("Failed to load friend list:", response.message);
@@ -57,6 +59,7 @@ export const useFriend = (currentUserId: string) => {
         };
         const inviteListFriendsResponse = (response: ResponseType) => {
             if (response.success) {
+                setLoading(true)
                 dispatch(setReceiveFriends(response.data));
             } else {
                 console.error("Failed to load invite friend list:", response.message);
@@ -65,6 +68,7 @@ export const useFriend = (currentUserId: string) => {
 
         const sendListFriendsResponse = (response: ResponseType) => {
             if (response.success) {
+                setLoading(true)
                 dispatch(setSendFriends(response.data));
             } else {
                 console.error("Failed to load invite friend list:", response.message);
@@ -119,15 +123,18 @@ export const useFriend = (currentUserId: string) => {
         const params = {
             userId: currentUserId,
         }
+        setLoading(false);
         socketService.emit(SOCKET_EVENTS.FRIEND.LIST_FRIEND, params);
     }, [currentUserId]);
 
 
     const getReceviedInviteFriends = useCallback(() => {
+        setLoading(false);
         socketService.emit(SOCKET_EVENTS.FRIEND.LIST_RECEIVED_INVITE, { userId: currentUserId });
     }, []);
 
     const getSendListFriends = useCallback(() => {
+        setLoading(false);
         socketService.emit(SOCKET_EVENTS.FRIEND.LIST_SEND_INVITE, { userId: currentUserId });
     }, [currentUserId]);
 
@@ -171,6 +178,7 @@ export const useFriend = (currentUserId: string) => {
         listFriends,
         receiveFriends,
         sendFriends,
+        loading,
         inviteFriend,
         removeFriend,
         revokeInviteFriend,

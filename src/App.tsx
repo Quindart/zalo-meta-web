@@ -68,14 +68,14 @@ export default function App() {
           console.log("Found token, fetching user data");
 
           try {
-            const response = await getMe();
+            const response: any = await getMe();
             console.log("Response from getMe:", response);
 
             if (
               response &&
               response.success &&
               response.data &&
-              response.data.user
+              response.data?.user
             ) {
               dispatch(setMe(response.data.user));
             } else {
@@ -114,9 +114,9 @@ export default function App() {
       authentication={authentication}
       session={session}
     >
-     <ChatProvider userId={me?.id}>
-      <Outlet />
-    </ChatProvider>
+      <ChatProvider userId={me?.id}>
+        <Outlet />
+      </ChatProvider>
     </ReactRouterAppProvider>
   );
 }
