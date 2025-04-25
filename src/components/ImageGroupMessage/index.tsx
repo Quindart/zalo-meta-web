@@ -64,11 +64,11 @@ function ImageGroupMessage({
 
   const handleDownloadCurrentImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (selectedImageIndex === null) return;
-    
+
     const image = images[selectedImageIndex];
-    
+
     try {
       fetch(image.path)
         .then(response => response.blob())
@@ -131,7 +131,7 @@ function ImageGroupMessage({
     const count = images.length;
     if (count === 1) return 12;
     if (count === 2) return 6;
-    if (count === 3) return 4; 
+    if (count === 3) return 4;
     if (count === 4) return 3; // For 4 images
     if (count >= 5 && count <= 8) return 4; // For 5-8 images
     if (count > 8 && count <= 12) return 3; // For 9-12 images
@@ -186,9 +186,9 @@ function ImageGroupMessage({
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
-            <Grid 
-              container 
-              spacing={1} 
+            <Grid
+              container
+              spacing={1}
               sx={{
                 width: images.length > 1 ? 300 : 'auto',
                 maxWidth: 300,
@@ -196,7 +196,7 @@ function ImageGroupMessage({
             >
               {images.map((image, index) => {
                 let gridProps = { xs: getGridColumns() }; // Default: 2 columns
-                
+
                 return (
                   <Grid item {...gridProps} key={index}>
                     <Box
@@ -227,13 +227,13 @@ function ImageGroupMessage({
                 );
               })}
             </Grid>
-            
-            <Box sx={{ 
-              alignSelf: 'stretch', 
-              display: "flex", 
-              justifyContent: "space-between", 
-              alignItems: "center", 
-              mt: 1 
+
+            <Box sx={{
+              alignSelf: 'stretch',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mt: 1
             }}>
               <Box>
                 <Typography
@@ -360,7 +360,7 @@ function ImageGroupMessage({
                 boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
               >
                 {emojis
-                  .filter((e, index) => index <= 2)
+                  .filter((index) => index <= 2)
                   .map((e, index) => (
                     <Typography key={index} fontSize={12} color="initial">
                       {e.emoji}
@@ -455,7 +455,7 @@ function ImageGroupMessage({
         >
           <Close />
         </IconButton>
-        
+
         {/* Download current image button */}
         <IconButton
           onClick={handleDownloadCurrentImage}

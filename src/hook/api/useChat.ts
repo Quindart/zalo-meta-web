@@ -141,7 +141,7 @@ export const useChat = (currentUserId: string) => {
   const currentChannelRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const socketService = SocketService.getInstance(currentUserId);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const socket = socketService.getSocket();
     if (!socket.connected) {
