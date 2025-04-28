@@ -12,8 +12,6 @@ Zalo Clone là một ứng dụng nhắn tin và gọi điện được xây d�
 ![Chat Mobile](public/assets/readme/room.png)
 ![Chat Mobile](public/assets/readme/home.png)
 ![Chat Mobile](public/assets/readme/login-app.png)
-
-![Chat Mobile](public/assets/readme/listGroup.png)
 ![Chat Mobile](public/assets/readme/chat-mobile.png)
 
 ## Tính năng
