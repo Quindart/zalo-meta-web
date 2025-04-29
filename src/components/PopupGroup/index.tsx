@@ -21,7 +21,7 @@ const PopupGroup = ({
     }) => {
     const userStore = useSelector((state: RootState) => state.userSlice);
     const { me } = userStore;
-    const { listFriends, getListFriends, loading } = useFriend(me.id);
+    const { listFriends, getListFriends } = useFriend(me.id);
     const [selected, setSelected] = useState<string[]>([]);
     const [groupName, setGroupName] = useState("");
     const [nameError, setNameError] = useState("");

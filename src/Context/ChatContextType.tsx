@@ -7,7 +7,6 @@ import { AssignRoleParams } from "@/types";
 interface ChatContextType {
   findOrCreateChat: (receiverId: string) => void;
   channel: any;
-  loading: boolean;
   joinRoom: (channelId: string) => void;
   deleteAllMessages: (channelId: string) => void;
   messages: any[];

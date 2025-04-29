@@ -42,10 +42,8 @@ const ChatDetailWrapper = () => {
 const RightSideBarWrapper = () => {
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
-  // const { channel, leaveRoom, dissolveGroup, deleteAllMessages } = useChatContext();
   return (
     <ChatProvider userId={me?.id}>
-      {/* <RightSideBar channel={channel} leaveRoom={leaveRoom} me={me} dissolveGroup={dissolveGroup} deleteAllMessages={deleteAllMessages} /> */}
       <RightSideBar />
     </ChatProvider>
   );

@@ -56,6 +56,7 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
   const { inviteFriend } = useFriend(me.id);
 
   const { enqueueSnackbar } = useSnackbar();
+
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
@@ -99,8 +100,8 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
         setSelectedUser(user);
         setOpenInfoDialog(true);
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error: any) {
-      console.log("💲💲💲 ~ handleSearch ~ error:", error);
       handleError(
         "Số điện thoại này không đăng ký tài khoản hoặc không cho phép tìm kiếm",
       );
@@ -130,6 +131,7 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
   const navigate = useNavigate();
   const { findOrCreateChat, channel } = useChat(me.id);
   const [shouldNavigate, setShouldNavigate] = useState<string | null>(null);
+
   useEffect(() => {
     if (channel && shouldNavigate === channel.id) {
       navigate(`/chats/${channel.id}`);
@@ -418,7 +420,7 @@ const AddFriendDialog = ({ open, onClose }: Props) => {
           open={openInfoDialog}
           onClose={() => setOpenInfoDialog(false)}
           user={selectedUser}
-          parentClose={handleClose} // Pass the parent dialog close handler
+          parentClose={handleClose} 
         />
       )}
     </Box>
