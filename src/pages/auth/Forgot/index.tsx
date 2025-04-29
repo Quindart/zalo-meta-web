@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { Typography, Button, Box, FormControl, FormGroup } from "@mui/material";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/bootstrap.css"
+import "react-phone-input-2/lib/bootstrap.css";
 import { grey } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import { APP_ROUTES } from "@/constants";
-import { findUserByPhone } from "@/services/User"
-import { sendOTP } from "@/services/Auth"
+import { findUserByPhone } from "@/services/User";
+import { sendOTP } from "@/services/Auth";
 function ForgotPasswordTemplate() {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = React.useState("");
@@ -16,29 +16,23 @@ function ForgotPasswordTemplate() {
   const verifyPhone = async (phone: string) => {
     phone = phone.replace("84", "0");
     const response = await findUserByPhone(phone);
-    console.log("Check data: ", response);
     if (response && response.status === 200 && response.user) {
       const email = response.user?.email;
-      const otpResult = await sendOTP(email);
-      console.log("check result:", otpResult);
-
+      await sendOTP(email);
       navigate(APP_ROUTES.RESET_PASSWORD, { state: { email } });
-    }
-    else {
+    } else {
       setErrMessage(response.message);
-      setIsSubmitted(!isSubmitted)
+      setIsSubmitted(!isSubmitted);
     }
-  }
-  console.log("check phonenumber: ", phoneNumber);
+  };
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        alignItems: 'center',
+        alignItems: "center",
         paddingTop: 5,
-
       }}
     >
       <Typography variant="body1" sx={{ mb: 1 }}>
@@ -72,12 +66,11 @@ function ForgotPasswordTemplate() {
               }}
             />
           </Box>
-          {
-            isSubmitted ?
-              <Typography sx={{ color: 'red', mt: 2 }}>
-                {errMessage}
-              </Typography> : <></>
-          }
+          {isSubmitted ? (
+            <Typography sx={{ color: "red", mt: 2 }}>{errMessage}</Typography>
+          ) : (
+            <></>
+          )}
         </FormControl>
         <Button
           onClick={() => verifyPhone(phoneNumber)}
@@ -92,7 +85,7 @@ function ForgotPasswordTemplate() {
           sx={{
             color: grey[800],
             fontSize: 14,
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           « Quay lại
@@ -100,6 +93,6 @@ function ForgotPasswordTemplate() {
       </FormGroup>
     </Box>
   );
-};
+}
 
 export default ForgotPasswordTemplate;
