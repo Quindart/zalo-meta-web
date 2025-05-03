@@ -1,4 +1,4 @@
-# Zalo Clone
+# Zalo Meta
 
 Zalo Clone is a messaging and calling application designed to replicate the core features of the Zalo app. The project utilizes modern technologies to provide a real-time communication experience, including messaging, video calls, and QR code login.
 
