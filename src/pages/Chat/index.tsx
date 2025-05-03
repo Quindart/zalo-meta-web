@@ -12,6 +12,7 @@ import PopupGroup from "@/components/PopupGroup";
 import { useChatContext } from "@/Context/ChatContextType";
 import AddFriendDialog from "./AddFriend.tsx";
 import CreateGroupDialog from "./CreateGroupDialog/index.tsx";
+import useAuth from "@/hook/api/useAuth.ts";
 
 const MY_CLOUD = {
   id: 1,
@@ -25,8 +26,7 @@ const MY_CLOUD = {
 };
 
 function ChatTemplate() {
-  const userStore = useSelector((state: RootState) => state.userSlice);
-  const { me } = userStore;
+  const { me } = useAuth();
   const [showPopup, setShowPopup] = useState(false);
   const params = useParams();
   const currentChannelId = params.id;
@@ -70,6 +70,23 @@ function ChatTemplate() {
           zIndex: 1000,
           overflowY: "auto",
           borderRight: "0.5px solid #E0E8EF",
+          scrollBehavior: "smooth",
+          "&::-webkit-scrollbar": {
+            width: "6px", 
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent", 
+            margin: "4px 0", 
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "#C4CDD5", 
+            borderRadius: "3px", 
+            "&:hover": {
+              background: "#A0A8B0", 
+            },
+          },
+          scrollbarWidth: "thin",
+          scrollbarColor: "#C4CDD5 transparent",
         }}
       >
         <Box
