@@ -3,8 +3,6 @@ import CustomSearchBar from "@/components/SearchBar";
 import { Box, IconButton, Stack } from "@mui/material";
 import { Outlet, useParams } from "react-router-dom";
 import ChatItem from "./ChatInfo/ChatItem";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
 import { useEffect, useMemo, useState } from "react";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
