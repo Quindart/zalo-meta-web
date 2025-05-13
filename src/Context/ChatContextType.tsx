@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext } from "react";
 import { useChat } from "@/hook/api/useChat";
 import { useSelector } from "react-redux";

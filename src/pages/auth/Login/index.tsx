@@ -6,7 +6,6 @@ import {
   Input,
   Typography,
   CircularProgress,
-  InputLabel,
 } from "@mui/material";
 import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
 import HttpsIcon from "@mui/icons-material/Https";
@@ -176,7 +175,7 @@ function LoginTemplate() {
           >
             <img
               width={20}
-              src="/assets/google-icon-logo-svgrepo-com.svg"
+              src="/assets/images/google-icon-logo-svgrepo-com.svg"
               alt=""
               style={{ marginRight: 4 }}
             />{" "}
@@ -201,7 +200,7 @@ function LoginTemplate() {
               style={{
                 marginRight: 5,
               }}
-              src="/assets/qr-code-scan-svgrepo-com.svg"
+              src="/assets/images/qr-code-scan-svgrepo-com.svg"
               width={20}
               alt=""
             />
