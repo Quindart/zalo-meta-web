@@ -2,7 +2,7 @@ import SocketService from "@/services/socket/SocketService";
 import { AssignRoleParams } from "@/types";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
-
+import useApp from "../ui/useApp";
 
 const SOCKET_EVENTS = {
   MESSAGE: {
@@ -137,12 +137,13 @@ export const useChat = (currentUserId: string) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [channel, setChannel] = useState<any>(null);
   const [listChannel, setListChannel] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { toggleLoading } = useApp()
+
+
   const currentChannelRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const socketService = SocketService.getInstance(currentUserId);
   const navigate = useNavigate();
-
   useEffect(() => {
     const socket = socketService.getSocket();
     if (!socket.connected) {
@@ -151,11 +152,11 @@ export const useChat = (currentUserId: string) => {
     const findOrCreateResponse = (response: ResponseType) => {
       if (response.success) {
         setChannel(response.data);
-        setLoading(false);
+        toggleLoading(false);
         currentChannelRef.current = response.data.id;
       } else {
         console.error("Failed to create/find channel:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     };
 
@@ -163,12 +164,12 @@ export const useChat = (currentUserId: string) => {
       if (response.success) {
         setChannel(response.data.channel);
         setMessages(response.data.messages);
-        setLoading(false);
+        toggleLoading(false);
         currentChannelRef.current = response.data.channel.id;
       }
       else {
         console.error("Failed to join room:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
 
@@ -192,16 +193,13 @@ export const useChat = (currentUserId: string) => {
       const members = message.members;
       const isMember = members.some((member: any) => member.userId === currentUserId);
       if (!isMember) {
-        console.log("Received message not for current user, ignoring:", message);
         return;
       }
       loadChannel(currentUserId);
       updateChannelWithMessage(message);
       if (message.channelId !== currentChannelRef.current) {
-        console.log("Message is for a different channel, ignoring", {
-          messageChannelId: message.channelId,
-          currentChannelId: currentChannelRef.current
-        });
+
+
         return;
       }
       setMessages((prev) => {
@@ -211,14 +209,12 @@ export const useChat = (currentUserId: string) => {
           false;
 
         if (isDuplicate) {
-          console.log("Duplicate message detected, not adding");
           return prev;
         }
 
-        console.log("Adding new message to state for channel:", currentChannelRef.current);
         return [...prev, message];
       });
-      setLoading(false);
+      toggleLoading(false);
     }
     const loadChannelResponse = (response: ResponseType) => {
       if (response.success) {
@@ -228,10 +224,10 @@ export const useChat = (currentUserId: string) => {
         );
 
         setListChannel(uniqueChannels);
-        setLoading(false);
+        toggleLoading(false);
       } else {
         console.error("Failed to load channel:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
     const createGroupResponse = (response: ResponseType) => {
@@ -242,42 +238,39 @@ export const useChat = (currentUserId: string) => {
           );
 
           if (channelExists) {
-            console.log("Channel already exists in list, not adding duplicate:", response.data.id);
             return prev;
           }
-
-          console.log("Adding new channel to list:", response.data.id);
           return [...prev, response.data];
         });
-        setLoading(false);
+        toggleLoading(false);
       } else {
         console.error("Failed to create group:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
     const leaveRoomResponse = (response: ResponseType) => {
       if (response.success) {
         setChannel(null);
         setMessages([]);
-        setLoading(false);
+        toggleLoading(false);
         setListChannel((prev) => prev.filter(channel => channel.id !== response.data.id));
       }
       else {
         console.error("Failed to leave room:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
     const dissolveGroupResponse = (response: ResponseType) => {
       if (response.success) {
         setChannel(null);
         setMessages([]);
-        setLoading(false);
+        toggleLoading(false);
         setListChannel((prev) => prev.filter(channel => channel.id !== response.data.id));
         navigate('/chats');
       }
       else {
         console.error("Failed to dissolve group:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
     const dissolveGroupResponseMember = (response: ResponseType) => {
@@ -292,7 +285,7 @@ export const useChat = (currentUserId: string) => {
       }
       else {
         console.error("Failed to dissolve group:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
     const uploadFileResponse = (response: ResponseType) => {
@@ -305,7 +298,6 @@ export const useChat = (currentUserId: string) => {
             false;
 
           if (isDuplicate) {
-            console.log("Duplicate file message detected, not adding");
             return prev;
           }
 
@@ -316,7 +308,7 @@ export const useChat = (currentUserId: string) => {
       } else {
         console.error("Failed to upload file:", response.message);
       }
-      setLoading(false);
+      toggleLoading(false);
     };
 
     const recallMessageResponse = (response: ResponseType) => {
@@ -325,7 +317,7 @@ export const useChat = (currentUserId: string) => {
         setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
 
         loadChannel(currentUserId);
-        setLoading(false);
+        toggleLoading(false);
 
       } else {
         console.error("Failed to recall message:", response.message);
@@ -340,10 +332,10 @@ export const useChat = (currentUserId: string) => {
             msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true, messageType: "text" } : msg
           )
         );
-        setLoading(false);
+        toggleLoading(false);
       } else {
         console.error("Failed to delete message:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
 
@@ -353,17 +345,17 @@ export const useChat = (currentUserId: string) => {
         //remove channel from listChannel
         setListChannel((prev) => prev.filter(channel => channel.id !== channelId));
         setMessages([]);
-        setLoading(false);
+        toggleLoading(false);
       }
       else {
         console.error("Failed to delete all messages:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
 
     //emoji
     const interactEmojiResponse = (response: ResponseType) => {
-      setLoading(false);
+      toggleLoading(false);
       if (response.success && response.data) {
         const updatedMessage: MessageType = response.data;
         setMessages(prev => prev.map(msg =>
@@ -376,7 +368,7 @@ export const useChat = (currentUserId: string) => {
       }
     };
     const removeMyEmojiResponse = (response: ResponseType) => {
-      setLoading(false);
+      toggleLoading(false);
       if (response.success) {
         setMessages(prev => prev.map(msg => {
           if (msg.id === response.data?._id || msg._id === response.data?._id) {
@@ -425,7 +417,7 @@ export const useChat = (currentUserId: string) => {
     };
 
     const addMemberResponse = (response: ResponseType) => {
-      setLoading(false);
+      toggleLoading(false);
       if (response.success) {
         // response.data chính là channel đã format (có trường members mới)
         setChannel(response.data);           // Cập nhật channel hiện tại nếu đang view chi tiết
@@ -441,7 +433,6 @@ export const useChat = (currentUserId: string) => {
     };
 
     const uploadImageGroupResponse = (response: ResponseType) => {
-      console.log("File uploaded successfully:", response.data);
       if (response.success) {
 
         const newMessage = response.data.message;
@@ -452,7 +443,7 @@ export const useChat = (currentUserId: string) => {
             false;
 
           if (isDuplicate) {
-            console.log("Duplicate file message detected, not adding");
+
             return prev;
           }
 
@@ -463,7 +454,7 @@ export const useChat = (currentUserId: string) => {
       } else {
         console.error("Failed to upload file:", response.message);
       }
-      setLoading(false);
+      toggleLoading(false);
     };
 
     const assignRoleUpdatedResponse = (response: ResponseType) => {
@@ -479,8 +470,7 @@ export const useChat = (currentUserId: string) => {
       }
     }
     const removeMemberResponse = (response: ResponseType) => {
-      setLoading(false);
-      console.log("💲💲💲 ~ removeMemberResponse ~ response.data:", response)
+      toggleLoading(false);
 
       if (response.success) {
         setChannel(response.data);
@@ -539,7 +529,7 @@ export const useChat = (currentUserId: string) => {
   }, []);
 
   const findOrCreateChat = useCallback((receiverId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     setChannel(null);
     setMessages([]);
     const socket = socketService.getSocket();
@@ -548,7 +538,7 @@ export const useChat = (currentUserId: string) => {
   }, []);
 
   const joinRoom = useCallback((channelId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     setChannel(null);
     setMessages([]);
     const socket = socketService.getSocket();
@@ -567,19 +557,19 @@ export const useChat = (currentUserId: string) => {
       status: "sent"
     };
     currentChannelRef.current = channelId;
-    setLoading(true);
+    toggleLoading(true);
     socket.emit(SOCKET_EVENTS.MESSAGE.SEND, messageData);
   }, []);
 
   const loadChannel = useCallback((userId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
     const params = { currentUserId: userId };
     socket.emit(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL, params);
   }, []);
 
   const createGroup = useCallback((name: string, members: string[]) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
     const params = { name, currentUserId, members: members };
     socket.emit(SOCKET_EVENTS.CHANNEL.CREATE, params);
@@ -596,7 +586,7 @@ export const useChat = (currentUserId: string) => {
 
   const uploadFile = useCallback((channelId: string, file: File) => {
     const socket = socketService.getSocket();
-    setLoading(true);
+    toggleLoading(true);
     const reader = new FileReader();
     reader.onload = () => {
       const fileData = reader.result as ArrayBuffer;
@@ -608,7 +598,6 @@ export const useChat = (currentUserId: string) => {
         timestamp: new Date().toISOString(),
         status: "sent",
       };
-      console.log("File data read:", fileData);
       socket.emit(SOCKET_EVENTS.FILE.UPLOAD, fileMessage);
     };
     reader.readAsArrayBuffer(file);
@@ -616,7 +605,7 @@ export const useChat = (currentUserId: string) => {
 
 
   const dissolveGroup = useCallback((channelId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
     const params = {
       channelId,
@@ -646,7 +635,7 @@ export const useChat = (currentUserId: string) => {
   }, [])
   //emoji
   const interactEmoji = useCallback((messageId: string, emoji: string, userId: string, channelId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     setError(null);
     const socket = socketService.getSocket();
     const params = { messageId, emoji, userId, channelId };
@@ -654,7 +643,7 @@ export const useChat = (currentUserId: string) => {
   }, [])
 
   const removeMyEmoji = useCallback((messageId: string, userId: string, channelId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     setError(null);
     const socket = socketService.getSocket();
     const params = { messageId, userId, channelId };
@@ -680,19 +669,19 @@ export const useChat = (currentUserId: string) => {
       channelId, // ID của phòng đích
     };
 
-    setLoading(true);
+    toggleLoading(true);
     socket.emit(SOCKET_EVENTS.MESSAGE.FORWARD, params);
 
   }, [currentUserId]);
 
   const addMember = useCallback((channelId: string, userId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
     socket.emit(SOCKET_EVENTS.CHANNEL.ADD_MEMBER, { channelId, userId });
   }, []);
 
   const uploadImageGroup = useCallback((channelId: string, files: File[]) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
 
     // Create promises for all file reads
@@ -724,10 +713,10 @@ export const useChat = (currentUserId: string) => {
   }, []);
 
   const removeMember = useCallback((channelId: string, senderId: string, userId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
     socket.emit(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER, { channelId, senderId, userId });
-    setLoading(false);
+    toggleLoading(false);
     navigate(`/chats/${channelId}`)
   }, []);
 
@@ -752,7 +741,6 @@ export const useChat = (currentUserId: string) => {
     uploadImageGroup,
     channel,
     messages,
-    loading,
     uploadFile,
     interactEmoji,
     removeMyEmoji,

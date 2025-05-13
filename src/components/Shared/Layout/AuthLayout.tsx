@@ -1,4 +1,4 @@
-import { Box, Button, Link, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { Outlet } from "react-router-dom";
 
 function AuthLayout() {
@@ -7,11 +7,12 @@ function AuthLayout() {
       sx={{
         bgcolor: "#E8F3FF",
         height: "100vh",
+        maxHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         boxShadow: " 4px 4px 10px #333",
-        py: 8,
+        py: 3,
       }}
     >
       <Typography variant="h3" fontWeight={600} color="primary">
@@ -46,7 +47,8 @@ function AuthLayout() {
             width: "100%",
             borderRadius: 2,
             border: "1px solid #D1D1D1FF",
-            p: 1,
+            py: "2px",
+            px: 2,
             boxSizing: "border-box",
             alignItems: "center",
           }}
@@ -76,10 +78,10 @@ function AuthLayout() {
           </Button>
         </Box>
       </Box>
-      <Box sx={{ mt: 2, fontSize: 12, cursor: "pointer" }}>
+      {/* <Box sx={{ mt: 2, fontSize: 12, cursor: "pointer" }}>
         <Link sx={{ mx: 1 }}> Tiếng Việt</Link>
         <Link>English</Link>
-      </Box>
+      </Box> */}
     </Box>
   );
 }

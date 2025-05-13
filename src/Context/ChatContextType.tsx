@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext } from "react";
 import { useChat } from "@/hook/api/useChat";
 import { useSelector } from "react-redux";
@@ -7,7 +8,6 @@ import { AssignRoleParams } from "@/types";
 interface ChatContextType {
   findOrCreateChat: (receiverId: string) => void;
   channel: any;
-  loading: boolean;
   joinRoom: (channelId: string) => void;
   deleteAllMessages: (channelId: string) => void;
   messages: any[];

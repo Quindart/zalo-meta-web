@@ -3,9 +3,9 @@ import RightSideBar from "./RighSideBar";
 import MainChat from "./MainChat";
 import { useChatContext } from "@/Context/ChatContextType";
 import { useParams } from "react-router-dom";
-import { RootState } from "@/store";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import SkeletonLoadingChat from "@/components/SkeletonLoadingChat";
+import useAuth from "@/hook/api/useAuth";
 
 function ChatDetailTemplate() {
   const {
@@ -16,8 +16,8 @@ function ChatDetailTemplate() {
     uploadFile,
     uploadImageGroup,
   } = useChatContext();
-  const userStore = useSelector((state: RootState) => state.userSlice);
-  const { me } = userStore;
+
+  const { me } = useAuth();
   const params = useParams();
   const channelId = params.id;
 
@@ -27,18 +27,35 @@ function ChatDetailTemplate() {
     }
   }, [channelId, joinRoom]);
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Box width="100%" height="100vh">
-      <MainChat
-        channel={channel}
-        messages={messages}
-        sendMessage={sendMessage}
-        me={me}
-        channelId={channelId}
-        uploadFile={uploadFile}
-        uploadImageGroup={uploadImageGroup}
-      />
-      <RightSideBar />
+      {isLoading ? (
+        <>
+          <SkeletonLoadingChat />
+        </>
+      ) : (
+        <>
+          <MainChat
+            channel={channel}
+            messages={messages}
+            sendMessage={sendMessage}
+            me={me}
+            channelId={channelId}
+            uploadFile={uploadFile}
+            uploadImageGroup={uploadImageGroup}
+          />
+          <RightSideBar />
+        </>
+      )}
     </Box>
   );
 }
