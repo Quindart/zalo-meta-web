@@ -7,12 +7,10 @@ import {
   Checkbox,
   Avatar,
   Typography,
-  CircularProgress,
   Button,
   TextField,
   Divider,
 } from "@mui/material";
-import useApp from "@/hook/ui/useApp";
 
 const PopupGroup = ({
   setShow,
@@ -27,7 +25,7 @@ const PopupGroup = ({
   const [selected, setSelected] = useState<string[]>([]);
   const [groupName, setGroupName] = useState("");
   const [nameError, setNameError] = useState("");
-  const { loading } = useApp();
+
   useEffect(() => {
     getListFriends();
   }, []);
@@ -103,11 +101,7 @@ const PopupGroup = ({
         Chọn thành viên ({selected.length})
       </Typography>
 
-      {loading ? (
-        <Box display="flex" justifyContent="center" my={3}>
-          <CircularProgress size={30} />
-        </Box>
-      ) : listFriends.length === 0 ? (
+      {listFriends.length === 0 ? (
         <Typography color="text.secondary" align="center" my={3}>
           Không có bạn bè
         </Typography>

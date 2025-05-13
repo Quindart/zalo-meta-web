@@ -62,7 +62,7 @@ const ChatInput = ({
     }
 
     if (!message.trim()) {
-      return; // Không hiện thông báo lỗi khi chưa nhập tin nhắn
+      return;
     }
 
     sendMessage(channelId, message);

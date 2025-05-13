@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { APP_ROUTES } from '@/constants';
 import { getMe, login } from '@/services/Auth';
 import { RootState } from '@/store'
 import { setMe } from '@/store/slice/use.slice';
-import { setValueInLocalStorage } from '@/utils/localStorage';
+import { getValueFromLocalStorage, setValueInLocalStorage } from '@/utils/localStorage';
 import { useSnackbar } from 'notistack';
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom';
@@ -28,21 +29,42 @@ function useAuth() {
             toggleLoading(false)
         }
         else {
+            if (response.status >= 400) {
+                enqueueSnackbar({ variant: 'error', message: "Tài khoản không tồn tại" })
+            }
             enqueueSnackbar({ variant: 'error', message: "Login failed" })
             toggleLoading(false)
-
         }
     }
     const handleGetMe = async () => {
         toggleLoading(true)
         try {
-            const response: any = await getMe();
-            if (response && response.success)
-                dispatch(setMe(response.data.user));
+            const token = getValueFromLocalStorage("accessToken");
+            if (token && (!me || !me.id)) {
+                try {
+                    const response: any = await getMe();
+                    if (
+                        response &&
+                        response.success &&
+                        response.data &&
+                        response.data.user
+                    ) {
+                        dispatch(setMe(response.data.user));
+                    } else {
+                        handleLogout();
+                    }
+                } catch (error) {
+                    handleLogout();
+                }
+            } else if (!token) {
+                console.log("No token found, user needs to login");
+            }
         } catch (error) {
-            console.log("💲💲💲 ~ handleGetMe ~ error:", error)
+            console.error("Error in checkAuth:", error);
+        } finally {
+            toggleLoading(false)
+
         }
-        toggleLoading(false)
     }
     const handleLoginGoogle = async () => { }
 

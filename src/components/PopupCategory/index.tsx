@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Menu, MenuItem, ListItemIcon, ListItemText, Checkbox, Box } from "@mui/material";
-// import { ExpandMore } from "@mui/icons-material";
 
 const categories = [
   { label: "Tin Người thân quen", color: "bg-teal-400" },
@@ -14,9 +13,6 @@ const PopupCategory = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selected, setSelected] = useState<string[]>([]);
 
-  // const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-  //   setAnchorEl(event.currentTarget);
-  // };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -28,9 +24,6 @@ const PopupCategory = () => {
 
   return (
     <Box className="relative">
-      {/* <Button size="small" color="inherit" variant="text" endIcon={<ExpandMore />} onClick={handleOpen}>
-        Phân loại
-      </Button> */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         <MenuItem disabled>
           Theo thẻ phân loại

@@ -2,8 +2,8 @@ import { Outlet } from "react-router";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import SidebarFooterAccount from "../Sidebar/SidebarFooterAccount";
 import { Box, Container } from "@mui/material";
-import GlobalLoading from "@/components/GlobalLoading";
 import useApp from "@/hook/ui/useApp";
+import GlobalLoading from "@/components/GlobalLoading";
 
 export default function Layout() {
   const { loading } = useApp();
