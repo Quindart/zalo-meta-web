@@ -207,9 +207,7 @@ function ImageGroupMessage({
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
-            <Grid
-              container
-              spacing={1}
+          
             <Grid
               container
               spacing={1}
