@@ -162,18 +162,18 @@ function MessageChat(props: Partial<MessPropsType>) {
               filename: parsedContent.name,
               size: parsedContent.size,
               path: parsedContent.path,
-              extension: parsedContent.extension
+              extension: parsedContent.extension,
             }}
             emojis={emojis || []}
-            id={id || ''}
-            content={content || ''}
-            channelId={channelId || ''}
-            status={'sent'}
-            timestamp={timestamp || ''}
+            id={id || ""}
+            content={content || ""}
+            channelId={channelId || ""}
+            status={"sent"}
+            timestamp={timestamp || ""}
             isMe={isMe}
             interactEmoji={interactEmoji}
             removeMyEmoji={removeMyEmoji}
-            sender={sender || { id: '', name: '', avatar: '' }}
+            sender={sender || { id: "", name: "", avatar: "" }}
           />
         ) : isImage ? (
           <Box
@@ -369,7 +369,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           open={openShare}
           onClose={() => setOpenShare(false)}
           messageToShare={content ?? ""}
-          messageId={id || ''}
+          messageId={id || ""}
         />
       </Box>
     </Box>

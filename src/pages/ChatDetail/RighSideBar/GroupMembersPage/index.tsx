@@ -58,9 +58,9 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
     handleMenuClose();
   };
 
-
   const handleRemoveMember = (userId: string) => {
     removeMember(channel.id, me.id, userId);
+
 
     handleMenuClose();
   };
@@ -290,8 +290,6 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                             backgroundColor: "#c7e0ff",
                           },
                         }}
-                        onClick={() => { console.log("Gửi lời mời kết bạn tới", user._id) }
-                        }
                       >
                         Kết bạn
                       </Button>

@@ -1,5 +1,21 @@
+/* eslint-disable prefer-const */
 import { useState } from "react";
-import { Box, Avatar, Typography, IconButton, Dialog, DialogContent, Popover, Menu, MenuItem, ListItemIcon, ListItemText, Divider, Tooltip, Grid } from "@mui/material";
+import {
+  Box,
+  Avatar,
+  Typography,
+  IconButton,
+  Dialog,
+  DialogContent,
+  Popover,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Tooltip,
+  Grid,
+} from "@mui/material";
 import { Close, MoreHoriz } from "@mui/icons-material";
 import { useChatContext } from "@/Context/ChatContextType";
 import React from "react";
@@ -51,41 +67,50 @@ function ImageGroupMessage({
   timestamp,
 }: ImageGroupProps) {
   const { deleteMessage, recallMessage } = useChatContext();
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null,
+  );
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [openShare, setOpenShare] = useState(false);
 
   const formatTime = (dateString: string | undefined) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const handleDownloadCurrentImage = (e: React.MouseEvent) => {
     e.stopPropagation();
 
+
     if (selectedImageIndex === null) return;
+
 
     const image = images[selectedImageIndex];
 
+
     try {
       fetch(image.path)
-        .then(response => response.blob())
-        .then(blob => {
+        .then((response) => response.blob())
+        .then((blob) => {
           const blobUrl = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = blobUrl;
-          link.download = `${image.filename || `image-${selectedImageIndex}`}.${image.extension || 'jpg'}`;
+          link.download = `${image.filename || `image-${selectedImageIndex}`}.${image.extension || "jpg"}`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           window.URL.revokeObjectURL(blobUrl);
         });
     } catch (error) {
-      const link = document.createElement('a');
+      console.log("💲💲💲 ~ handleDownloadCurrentImage ~ error:", error)
+      const link = document.createElement("a");
       link.href = image.path;
-      link.download = `${image.filename || `image-${selectedImageIndex}`}.${image.extension || 'jpg'}`;
+      link.download = `${image.filename || `image-${selectedImageIndex}`}.${image.extension || "jpg"}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -132,11 +157,11 @@ function ImageGroupMessage({
     if (count === 1) return 12;
     if (count === 2) return 6;
     if (count === 3) return 4;
+    if (count === 3) return 4;
     if (count === 4) return 3; // For 4 images
     if (count >= 5 && count <= 8) return 4; // For 5-8 images
     if (count > 8 && count <= 12) return 3; // For 9-12 images
-    if (count > 12)
-      return 3; // For more than 12 images
+    if (count > 12) return 3; // For more than 12 images
   };
 
   return (
@@ -159,11 +184,7 @@ function ImageGroupMessage({
           }}
         >
           {/* Avatar for non-my messages */}
-          {!isMe && (
-            <Avatar
-              src={sender.avatar}
-            />
-          )}
+          {!isMe && <Avatar src={sender.avatar} />}
 
           {/* Message container */}
           <Box
@@ -186,27 +207,29 @@ function ImageGroupMessage({
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
           >
+          
             <Grid
               container
               spacing={1}
               sx={{
-                width: images.length > 1 ? 300 : 'auto',
+                width: images.length > 1 ? 300 : "auto",
                 maxWidth: 300,
               }}
             >
               {images.map((image, index) => {
                 let gridProps = { xs: getGridColumns() }; // Default: 2 columns
 
+
                 return (
                   <Grid item {...gridProps} key={index}>
                     <Box
                       onClick={() => setSelectedImageIndex(index)}
                       sx={{
-                        width: '100%',
-                        paddingTop: '100%', // 1:1 aspect ratio
-                        position: 'relative',
+                        width: "100%",
+                        paddingTop: "100%", // 1:1 aspect ratio
+                        position: "relative",
                         borderRadius: 1,
-                        overflow: 'hidden',
+                        overflow: "hidden",
                       }}
                     >
                       <Box
@@ -214,12 +237,12 @@ function ImageGroupMessage({
                         src={image.path}
                         alt={image.filename}
                         sx={{
-                          position: 'absolute',
+                          position: "absolute",
                           top: 0,
                           left: 0,
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
                         }}
                       />
                     </Box>
@@ -228,13 +251,15 @@ function ImageGroupMessage({
               })}
             </Grid>
 
-            <Box sx={{
-              alignSelf: 'stretch',
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mt: 1
-            }}>
+            <Box
+              sx={{
+                alignSelf: "stretch",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mt: 1,
+              }}
+            >
               <Box>
                 <Typography
                   variant="caption"
@@ -327,11 +352,19 @@ function ImageGroupMessage({
                       "&:hover": { transform: "scale(1.2)" },
                     }}
                     draggable
-                    onDragStart={(e) => e.dataTransfer.setData("text/plain", emoji)}
+                    onDragStart={(e) =>
+                      e.dataTransfer.setData("text/plain", emoji)
+                    }
                     onClick={(event) => {
                       event.stopPropagation();
                       handleEmojiClick(emoji);
-                      if (emoji === "❌" && removeMyEmoji && id && sender?.id && channelId) {
+                      if (
+                        emoji === "❌" &&
+                        removeMyEmoji &&
+                        id &&
+                        sender?.id &&
+                        channelId
+                      ) {
                         removeMyEmoji(id, sender.id, channelId);
                       }
                     }}
@@ -360,6 +393,7 @@ function ImageGroupMessage({
                 boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
               >
                 {emojis
+                  .filter((index) => index <= 2)
                   .filter((index) => index <= 2)
                   .map((e, index) => (
                     <Typography key={index} fontSize={12} color="initial">
@@ -436,7 +470,7 @@ function ImageGroupMessage({
             bgcolor: "rgba(0,0,0,0.9)",
             boxShadow: "none",
             position: "relative",
-          }
+          },
         }}
       >
         <IconButton
@@ -450,11 +484,12 @@ function ImageGroupMessage({
             "&:hover": {
               bgcolor: "rgba(0,0,0,0.6)",
             },
-            zIndex: 10
+            zIndex: 10,
           }}
         >
           <Close />
         </IconButton>
+
 
         {/* Download current image button */}
         <IconButton
@@ -468,7 +503,7 @@ function ImageGroupMessage({
             "&:hover": {
               bgcolor: "rgba(0,0,0,0.6)",
             },
-            zIndex: 10
+            zIndex: 10,
           }}
         >
           <DownloadIcon />
@@ -494,7 +529,7 @@ function ImageGroupMessage({
       <ShareDialog
         open={openShare}
         onClose={() => setOpenShare(false)}
-        messageToShare={images.map(img => img.path).join("\n")}
+        messageToShare={images.map((img) => img.path).join("\n")}
         messageId={id}
       />
     </>

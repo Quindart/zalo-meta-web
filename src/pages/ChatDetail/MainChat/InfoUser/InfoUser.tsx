@@ -7,6 +7,8 @@ import ViewAgendaIcon from "@mui/icons-material/ViewAgenda";
 import InfoDialog from "./InfoDialog";
 import CallVideoDialog from "@/components/CallVideoDialog";
 import { useParams } from "react-router-dom";
+// import { useChat } from "@/hook/api/useChat";
+// import useAuth from "@/hook/api/useAuth";
 
 function InfoUser({ channel }: any) {
   const [openInfoModal, setOpenInfoModal] = useState<boolean>(false);

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Tabs, Tab, Box } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -26,7 +27,7 @@ function FriendTemplate() {
           orientation="vertical"
           variant="scrollable"
           value={tabIndex}
-          onChange={(_, newIndex) => setTabIndex(newIndex)}
+          onChange={(_e, newIndex) => setTabIndex(newIndex)}
           sx={{
             borderRight: 1,
             borderColor: "divider",

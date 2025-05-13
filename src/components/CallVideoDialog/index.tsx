@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
 // import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { useEffect } from "react";
