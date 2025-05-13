@@ -86,9 +86,12 @@ function ImageGroupMessage({
   const handleDownloadCurrentImage = (e: React.MouseEvent) => {
     e.stopPropagation();
 
+
     if (selectedImageIndex === null) return;
 
+
     const image = images[selectedImageIndex];
+
 
     try {
       fetch(image.path)
@@ -154,6 +157,7 @@ function ImageGroupMessage({
     if (count === 1) return 12;
     if (count === 2) return 6;
     if (count === 3) return 4;
+    if (count === 3) return 4;
     if (count === 4) return 3; // For 4 images
     if (count >= 5 && count <= 8) return 4; // For 5-8 images
     if (count > 8 && count <= 12) return 3; // For 9-12 images
@@ -206,6 +210,9 @@ function ImageGroupMessage({
             <Grid
               container
               spacing={1}
+            <Grid
+              container
+              spacing={1}
               sx={{
                 width: images.length > 1 ? 300 : "auto",
                 maxWidth: 300,
@@ -213,6 +220,7 @@ function ImageGroupMessage({
             >
               {images.map((image, index) => {
                 let gridProps = { xs: getGridColumns() }; // Default: 2 columns
+
 
                 return (
                   <Grid item {...gridProps} key={index}>
@@ -388,6 +396,7 @@ function ImageGroupMessage({
               >
                 {emojis
                   .filter((index) => index <= 2)
+                  .filter((index) => index <= 2)
                   .map((e, index) => (
                     <Typography key={index} fontSize={12} color="initial">
                       {e.emoji}
@@ -482,6 +491,7 @@ function ImageGroupMessage({
         >
           <Close />
         </IconButton>
+
 
         {/* Download current image button */}
         <IconButton

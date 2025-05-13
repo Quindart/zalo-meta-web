@@ -71,6 +71,14 @@ function MessageChat(props: Partial<MessPropsType>) {
   //   "😢": 0,
   //   "😡": 0,
   // });
+  // const [emoList, setEmolist] = useState<Record<string, number>>({
+  //   "❤️": 0,
+  //   "👍": 0,
+  //   "😂": 0,
+  //   "😮": 0,
+  //   "😢": 0,
+  //   "😡": 0,
+  // });
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -81,7 +89,10 @@ function MessageChat(props: Partial<MessPropsType>) {
 
     if (interactEmoji && sender?.id && id && channelId) {
       interactEmoji(id, emoji, sender.id, channelId);
+    if (interactEmoji && sender?.id && id && channelId) {
+      interactEmoji(id, emoji, sender.id, channelId);
     }
+    // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
     // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
     handleClose();
   };
@@ -89,6 +100,9 @@ function MessageChat(props: Partial<MessPropsType>) {
     event.preventDefault();
     event.stopPropagation();
     const emoji = event.dataTransfer.getData("text/plain");
+    if (emoji && interactEmoji && id && sender?.id && channelId) {
+      interactEmoji(id, emoji, sender.id, channelId);
+      // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
     if (emoji && interactEmoji && id && sender?.id && channelId) {
       interactEmoji(id, emoji, sender.id, channelId);
       // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
@@ -306,6 +320,7 @@ function MessageChat(props: Partial<MessPropsType>) {
             boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
           >
             {emojis
+              .filter((index) => index <= 2)
               .filter((index) => index <= 2)
               .map((e, index) => (
                 <Typography key={index} fontSize={12} color="initial">

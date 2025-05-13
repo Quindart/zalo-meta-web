@@ -3,6 +3,7 @@ import { RootState } from "@/store";
 import { setReceiveFriends, setSendFriends } from "@/store/slice/use.slice";
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import useApp from "../ui/useApp";
 
 const SOCKET_EVENTS = {
     FRIEND: {
@@ -39,8 +40,10 @@ export const useFriend = (currentUserId: string) => {
     const userStore = useSelector((state: RootState) => state.userSlice)
     const { receiveFriends, sendFriends } = userStore
 
+    const { toggleLoading } = useApp()
     const dispatch = useDispatch();
     const [listFriends, setListFriends] = useState<any[]>([]);
+
 
     const socketService = SocketService.getInstance(currentUserId).getSocket();
 
@@ -50,25 +53,31 @@ export const useFriend = (currentUserId: string) => {
         }
         const listFriendsResponse = (response: ResponseType) => {
             if (response.success) {
+                toggleLoading(true)
                 setListFriends(response.data);
             } else {
                 console.error("Failed to load friend list:", response.message);
             }
+            toggleLoading(false)
         };
         const inviteListFriendsResponse = (response: ResponseType) => {
             if (response.success) {
+                toggleLoading(true)
                 dispatch(setReceiveFriends(response.data));
             } else {
                 console.error("Failed to load invite friend list:", response.message);
             }
+            toggleLoading(false)
         };
 
         const sendListFriendsResponse = (response: ResponseType) => {
             if (response.success) {
+                toggleLoading(true)
                 dispatch(setSendFriends(response.data));
             } else {
                 console.error("Failed to load invite friend list:", response.message);
             }
+            toggleLoading(false)
         };
 
 
@@ -76,8 +85,6 @@ export const useFriend = (currentUserId: string) => {
             if (!(response.success && response.data)) {
                 return
             }
-            console.log("💲💲💲 ~ handleResponseFromFriendEvent ~  response.data:", response.data)
-
             if (Object.prototype.hasOwnProperty.call(response.data, "receiverList")) {
                 dispatch(setReceiveFriends(response.data.receiverList));
             }
@@ -119,15 +126,18 @@ export const useFriend = (currentUserId: string) => {
         const params = {
             userId: currentUserId,
         }
+        toggleLoading(false);
         socketService.emit(SOCKET_EVENTS.FRIEND.LIST_FRIEND, params);
     }, [currentUserId]);
 
 
     const getReceviedInviteFriends = useCallback(() => {
+        toggleLoading(false);
         socketService.emit(SOCKET_EVENTS.FRIEND.LIST_RECEIVED_INVITE, { userId: currentUserId });
     }, []);
 
     const getSendListFriends = useCallback(() => {
+        toggleLoading(false);
         socketService.emit(SOCKET_EVENTS.FRIEND.LIST_SEND_INVITE, { userId: currentUserId });
     }, [currentUserId]);
 

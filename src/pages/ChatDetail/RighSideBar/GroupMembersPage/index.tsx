@@ -61,6 +61,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
   const handleRemoveMember = (userId: string) => {
     removeMember(channel.id, me.id, userId);
 
+
     handleMenuClose();
   };
 

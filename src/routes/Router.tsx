@@ -15,6 +15,7 @@ import { createBrowserRouter } from "react-router-dom";
 import ResetPasswordTemplate from "@/pages/auth/ResetPassword";
 import ComponentPage from "@/pages/ComponentPage";
 import { ChatProvider } from "@/Context/ChatContextType";
+import { ChatProvider } from "@/Context/ChatContextType";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import CallVideoTemplate from "@/pages/CallVideo";

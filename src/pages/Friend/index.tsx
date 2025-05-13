@@ -18,7 +18,7 @@ function FriendTemplate() {
 
   useEffect(() => {
     getListFriends();
-  },[]);
+  }, []);
 
   return (
     <Box>

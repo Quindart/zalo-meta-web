@@ -87,7 +87,6 @@ const actions = [
   { icon: <PersonAdd />, label: "Thêm thành viên" },
   { icon: <Settings />, label: "Quản lý nhóm" },
 ];
-
 const RightSideBar = () => {
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;

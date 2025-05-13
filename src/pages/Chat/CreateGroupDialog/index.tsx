@@ -37,6 +37,7 @@ const CreateGroupDialog = ({ open, onClose, createGroup }: {
   onClose: () => void;
   createGroup: (name: string, members: string[]) => void;
 }) => {
+
   const [groupName, setGroupName] = useState("");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -371,8 +372,6 @@ const CreateGroupDialog = ({ open, onClose, createGroup }: {
           Tạo nhóm
         </Button>
       </DialogActions>
-
-
 
 
       {/* Thông báo xác nhận giống ảnh */}
