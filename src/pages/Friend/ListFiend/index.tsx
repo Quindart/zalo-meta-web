@@ -52,8 +52,8 @@ function ListFriend({ listFriends }: any) {
   const [filterLetter, setFilterLetter] = useState("all");
 
   const filteredFriends = listFriends
-    .filter((f) => f.name.toLowerCase().includes(searchText.toLowerCase()))
-    .filter((f) =>
+    .filter((f: any) => f.name.toLowerCase().includes(searchText.toLowerCase()))
+    .filter((f: any) =>
       filterLetter === "all"
         ? true
         : f.name.toLowerCase().startsWith(filterLetter.toLowerCase()),

@@ -17,7 +17,7 @@ function FriendTemplate() {
 
   useEffect(() => {
     getListFriends();
-  },[]);
+  }, []);
 
   return (
     <Box>
@@ -26,7 +26,7 @@ function FriendTemplate() {
           orientation="vertical"
           variant="scrollable"
           value={tabIndex}
-          onChange={(e, newIndex) => setTabIndex(newIndex)}
+          onChange={(_, newIndex) => setTabIndex(newIndex)}
           sx={{
             borderRight: 1,
             borderColor: "divider",

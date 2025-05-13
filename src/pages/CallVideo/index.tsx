@@ -1,14 +1,14 @@
 import useAuth from "@/hook/api/useAuth";
-import { useChat } from "@/hook/api/useChat";
+// import { useChat } from "@/hook/api/useChat";
 import useVideo from "@/hook/api/useVideo";
 import { Avatar, Box, Link, Typography } from "@mui/material";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 
 function CallVideoTemplate() {
   const { containerRef, initCall, chatId } = useVideo();
   const { me } = useAuth();
-  const handleSendMessage = () => {};
+  // const handleSendMessage = () => {};
 
   useEffect(() => {
     const init = async () => {

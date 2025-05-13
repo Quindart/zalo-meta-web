@@ -9,18 +9,19 @@ class SocketService {
   public socket: Socket | null = null;
   private static instance: SocketService | null = null;
   private url = SOCKET_SERVER_URL;
-  private userId: string;
+  private userId?: string;
   static instanceCount = 0;
 
   private config = {
     reconnectionDelayMax: 10000,
   };
 
-  constructor(userId: string) {
+  constructor(userId?: string) {
     this.userId = userId;
+
     this.socket = io(this.url, {
       ...this.config,
-      query: { userId: this.userId }, // Gửi userId qua query
+      query: this.userId ? { userId: this.userId } : {},
     });
 
     SocketService.instanceCount++;
@@ -29,7 +30,7 @@ class SocketService {
     );
   }
 
-  static getInstance(userId: string): SocketService {
+  static getInstance(userId?: string): SocketService {
     if (!SocketService.instance || SocketService.instance.userId !== userId) {
       SocketService.instance = new SocketService(userId);
     }

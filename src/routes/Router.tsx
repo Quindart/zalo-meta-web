@@ -14,7 +14,7 @@ import PCLandingTemplate from "@/pages/pc";
 import { createBrowserRouter } from "react-router-dom";
 import ResetPasswordTemplate from "@/pages/auth/ResetPassword";
 import ComponentPage from "@/pages/ComponentPage";
-import { ChatProvider, useChatContext } from "@/Context/ChatContextType";
+import { ChatProvider } from "@/Context/ChatContextType";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import CallVideoTemplate from "@/pages/CallVideo";
@@ -42,10 +42,9 @@ const ChatDetailWrapper = () => {
 const RightSideBarWrapper = () => {
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
-  const { channel, leaveRoom } = useChatContext();
   return (
     <ChatProvider userId={me?.id}>
-      <RightSideBar channel={channel} leaveRoom={leaveRoom} me={me} />
+      <RightSideBar />
     </ChatProvider>
   );
 };
