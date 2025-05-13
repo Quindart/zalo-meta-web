@@ -63,14 +63,14 @@ function MessageChat(props: Partial<MessPropsType>) {
     event.stopPropagation(); // Prevent click from bubbling
     setAnchorEl(event.currentTarget);
   };
-  const [emoList, setEmolist] = useState<Record<string, number>>({
-    "❤️": 0,
-    "👍": 0,
-    "😂": 0,
-    "😮": 0,
-    "😢": 0,
-    "😡": 0,
-  });
+  // const [emoList, setEmolist] = useState<Record<string, number>>({
+  //   "❤️": 0,
+  //   "👍": 0,
+  //   "😂": 0,
+  //   "😮": 0,
+  //   "😢": 0,
+  //   "😡": 0,
+  // });
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -79,19 +79,19 @@ function MessageChat(props: Partial<MessPropsType>) {
   const handleEmojiClick = (emoji: string) => {
     console.log("Check channelId", channelId);
 
-    if (interactEmoji) {
-      interactEmoji(id as string, emoji, sender.id, channelId as string);
+    if (interactEmoji && sender?.id && id && channelId) {
+      interactEmoji(id, emoji, sender.id, channelId);
     }
-    setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
+    // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
     handleClose();
   };
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
     const emoji = event.dataTransfer.getData("text/plain");
-    if (emoji && interactEmoji && id) {
-      interactEmoji(id, emoji, sender.id, channelId as string);
-      setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
+    if (emoji && interactEmoji && id && sender?.id && channelId) {
+      interactEmoji(id, emoji, sender.id, channelId);
+      // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
     }
   };
 
@@ -158,9 +158,22 @@ function MessageChat(props: Partial<MessPropsType>) {
       >
         {isFile ? (
           <FileCard
-            name={parsedContent.name}
-            size={parsedContent.size}
-            extension={parsedContent.extension}
+            file={{
+              filename: parsedContent.name,
+              size: parsedContent.size,
+              path: parsedContent.path,
+              extension: parsedContent.extension,
+            }}
+            emojis={emojis || []}
+            id={id || ""}
+            content={content || ""}
+            channelId={channelId || ""}
+            status={"sent"}
+            timestamp={timestamp || ""}
+            isMe={isMe}
+            interactEmoji={interactEmoji}
+            removeMyEmoji={removeMyEmoji}
+            sender={sender || { id: "", name: "", avatar: "" }}
           />
         ) : isImage ? (
           <Box
@@ -293,7 +306,7 @@ function MessageChat(props: Partial<MessPropsType>) {
             boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
           >
             {emojis
-              .filter((e, index) => index <= 2)
+              .filter((index) => index <= 2)
               .map((e, index) => (
                 <Typography key={index} fontSize={12} color="initial">
                   {e.emoji}
@@ -356,7 +369,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           open={openShare}
           onClose={() => setOpenShare(false)}
           messageToShare={content ?? ""}
-          messageId={id}
+          messageId={id || ""}
         />
       </Box>
     </Box>

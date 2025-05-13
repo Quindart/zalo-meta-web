@@ -1,4 +1,13 @@
-import { Avatar, Box, Typography, IconButton, Dialog, DialogContent, DialogTitle, CircularProgress } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Typography,
+  IconButton,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  CircularProgress,
+} from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import CloseIcon from "@mui/icons-material/Close";
@@ -8,7 +17,15 @@ import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useState } from "react";
 import { formatFileSize } from "@/utils";
-import { Popover, Menu, MenuItem, ListItemIcon, ListItemText, Divider, Tooltip } from "@mui/material";
+import {
+  Popover,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Tooltip,
+} from "@mui/material";
 import { useChatContext } from "@/Context/ChatContextType";
 import React from "react";
 import ReplyIcon from "@mui/icons-material/Reply";
@@ -40,18 +57,22 @@ type FileCardProps = {
     size: number;
     path: string;
     extension: string;
-  }
+  };
   channelId: string;
   status: string;
   timestamp: string;
   isMe: boolean;
-  interactEmoji: (
+  interactEmoji?: (
     messageId: string,
     emoji: string,
     userId: string,
     channelId: string,
   ) => void;
-  removeMyEmoji: (messageId: string, userId: string, channelId: string) => void;
+  removeMyEmoji?: (
+    messageId: string,
+    userId: string,
+    channelId: string,
+  ) => void;
 };
 
 function FileCard({
@@ -63,7 +84,7 @@ function FileCard({
   interactEmoji,
   removeMyEmoji,
   sender,
-  content
+  content,
 }: FileCardProps) {
   const { deleteMessage, recallMessage } = useChatContext();
   const { bg, color } = fileColors[file.extension] || fileColors.default;
@@ -85,10 +106,10 @@ function FileCard({
     try {
       new URL(file.path);
       fetch(file.path)
-        .then(response => response.blob())
-        .then(blob => {
+        .then((response) => response.blob())
+        .then((blob) => {
           const blobUrl = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
+          const link = document.createElement("a");
           link.href = blobUrl;
           link.download = `${file.filename}.${file.extension}`;
           document.body.appendChild(link);
@@ -96,11 +117,12 @@ function FileCard({
           document.body.removeChild(link);
           window.URL.revokeObjectURL(blobUrl);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Error downloading file:", error);
         });
     } catch (error) {
-      const link = document.createElement('a');
+      console.log("💲💲💲 ~ handleDownload ~ error:", error)
+      const link = document.createElement("a");
       link.href = file.path;
       link.download = `${file.filename}.${file.extension}`;
       document.body.appendChild(link);
@@ -114,27 +136,27 @@ function FileCard({
     setLoading(true);
     setPreviewError("");
 
-    if (file.extension === 'pdf') {
+    if (file.extension === "pdf") {
       setPreviewUrl(file.path);
       setLoading(false);
       return;
     }
 
-    if (file.extension === 'txt') {
+    if (file.extension === "txt") {
       fetch(file.path)
-        .then(response => {
+        .then((response) => {
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error("Network response was not ok");
           }
           return response.text();
         })
-        .then(text => {
-          const blob = new Blob([text], { type: 'text/plain' });
+        .then((text) => {
+          const blob = new Blob([text], { type: "text/plain" });
           const url = URL.createObjectURL(blob);
           setPreviewUrl(url);
           setLoading(false);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Error loading text file:", error);
           setPreviewError("Không thể xem trước file này.");
           setLoading(false);
@@ -142,10 +164,14 @@ function FileCard({
       return;
     }
 
-    if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(file.extension)) {
+    if (
+      ["doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(file.extension)
+    ) {
       try {
         const encoded = encodeURIComponent(file.path);
-        setPreviewUrl(`https://docs.google.com/viewer?url=${encoded}&embedded=true`);
+        setPreviewUrl(
+          `https://docs.google.com/viewer?url=${encoded}&embedded=true`,
+        );
         setLoading(false);
       } catch (error) {
         console.error("Error setting up preview:", error);
@@ -200,7 +226,7 @@ function FileCard({
   const renderPreviewContent = () => {
     if (loading) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", p: 5 }}>
           <CircularProgress />
         </Box>
       );
@@ -208,7 +234,7 @@ function FileCard({
 
     if (previewError) {
       return (
-        <Box sx={{ p: 3, textAlign: 'center' }}>
+        <Box sx={{ p: 3, textAlign: "center" }}>
           <Typography color="error">{previewError}</Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>
             Vui lòng tải file về để xem.
@@ -217,25 +243,25 @@ function FileCard({
       );
     }
 
-    if (file.extension === 'pdf') {
+    if (file.extension === "pdf") {
       return (
         <iframe
           src={`${previewUrl}#toolbar=0&navpanes=0`}
           width="100%"
           height="500px"
-          style={{ border: 'none' }}
+          style={{ border: "none" }}
           title="PDF Viewer"
         />
       );
     }
 
-    if (file.extension === 'txt') {
+    if (file.extension === "txt") {
       return (
         <iframe
           src={previewUrl}
           width="100%"
           height="500px"
-          style={{ border: 'none' }}
+          style={{ border: "none" }}
           title="Text Viewer"
         />
       );
@@ -246,7 +272,7 @@ function FileCard({
         src={previewUrl}
         width="100%"
         height="500px"
-        style={{ border: 'none' }}
+        style={{ border: "none" }}
         title="Document Viewer"
       />
     );
@@ -272,11 +298,7 @@ function FileCard({
           }}
         >
           {/* Avatar for non-my messages */}
-          {!isMe && (
-            <Avatar
-              src={sender.avatar}
-            />
-          )}
+          {!isMe && <Avatar src={sender.avatar} />}
 
           {/* Message container */}
           <Box
@@ -316,7 +338,10 @@ function FileCard({
               <InsertDriveFileIcon fontSize="medium" />
             </Box>
 
-            <Box onClick={openFilePreview} sx={{ flexGrow: 1, overflow: "hidden" }}>
+            <Box
+              onClick={openFilePreview}
+              sx={{ flexGrow: 1, overflow: "hidden" }}
+            >
               <Typography
                 sx={{
                   color: "#081b3a",
@@ -336,7 +361,11 @@ function FileCard({
                 </Typography>
                 <Typography sx={{ ml: 0.5 }}>.{file.extension}</Typography>
               </Typography>
-              <Typography variant="caption" fontWeight={500} color="text.secondary">
+              <Typography
+                variant="caption"
+                fontWeight={500}
+                color="text.secondary"
+              >
                 {formatFileSize(file.size)}
               </Typography>
             </Box>
@@ -428,11 +457,19 @@ function FileCard({
                       "&:hover": { transform: "scale(1.2)" },
                     }}
                     draggable
-                    onDragStart={(e) => e.dataTransfer.setData("text/plain", emoji)}
+                    onDragStart={(e) =>
+                      e.dataTransfer.setData("text/plain", emoji)
+                    }
                     onClick={(event) => {
                       event.stopPropagation();
                       handleEmojiClick(emoji);
-                      if (emoji === "❌" && removeMyEmoji && id && sender.id && channelId) {
+                      if (
+                        emoji === "❌" &&
+                        removeMyEmoji &&
+                        id &&
+                        sender.id &&
+                        channelId
+                      ) {
                         removeMyEmoji(id, sender.id, channelId);
                       }
                     }}
@@ -461,7 +498,7 @@ function FileCard({
                 boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
               >
                 {emojis
-                  .filter((e, index) => index <= 2)
+                  .filter((index) => index <= 2)
                   .map((e, index) => (
                     <Typography key={index} fontSize={12} color="initial">
                       {e.emoji}
@@ -535,14 +572,23 @@ function FileCard({
         fullWidth
         aria-labelledby="file-preview-dialog"
       >
-        <DialogTitle id="file-preview-dialog" sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <DialogTitle
+          id="file-preview-dialog"
+          sx={{
+            m: 0,
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h6">
             {file.filename}.{file.extension}
           </Typography>
           <IconButton
             aria-label="close"
             onClick={closePreview}
-            sx={{ color: 'grey.500' }}
+            sx={{ color: "grey.500" }}
           >
             <CloseIcon />
           </IconButton>

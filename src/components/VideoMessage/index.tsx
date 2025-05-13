@@ -87,6 +87,7 @@ function VideoMessage({
                     console.error("Error downloading file:", error);
                 });
         } catch (error) {
+            console.log("💲💲💲 ~ handleDownload ~ error:", error)
             const link = document.createElement('a');
             link.href = file.path;
             link.download = `${file.filename}.${file.extension}`;
@@ -346,7 +347,7 @@ function VideoMessage({
                             boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
                         >
                             {emojis
-                                .filter((e, index) => index <= 2)
+                                .filter((_e, index) => index <= 2)
                                 .map((e, index) => (
                                     <Typography key={index} fontSize={12} color="initial">
                                         {e.emoji}

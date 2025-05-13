@@ -11,7 +11,6 @@ interface MessageSystemProps {
 const MessageSystem: React.FC<MessageSystemProps> = ({ 
   content, 
   timestamp, 
-  type = 'info' 
 }) => {
   return (
     <Box 
