@@ -8,9 +8,10 @@ import FileCard from "@/components/FileCard";
 import { useChat } from "@/hook/api/useChat";
 import ImageMessage from "@/components/ImageMessage";
 import VideoMessage from "@/components/VideoMessage";
+import ImageGroupMessage from "@/components/ImageGroupMessage";
 
 const RenderMessage = memo(
-  ({ mess, index, meId }: { mess: any; index: number; meId: string }) => {
+  ({ mess, meId }: { mess: any; meId: string }) => {
     const useChatContext = useChat(meId);
     const interactEmoji = useChatContext.interactEmoji;
     const removeMyEmoji = useChatContext.removeMyEmoji;
@@ -19,11 +20,9 @@ const RenderMessage = memo(
     } else if (mess.messageType === "file") {
       return (
         <FileCard
-          key={mess.id || index}
-          name={mess.file.filename}
-          size={mess.file.size}
-          path={mess.file.path}
-          extension={mess.file.extension}
+          interactEmoji={interactEmoji}
+          removeMyEmoji={removeMyEmoji}
+          {...mess}
           isMe={mess.sender.id === meId}
         />
       );
@@ -31,28 +30,30 @@ const RenderMessage = memo(
       if (mess.file) {
         return (
           <ImageMessage
-            key={mess.id || index}
-            name={mess.file.filename}
-            size={mess.file.size}
-            path={mess.file.path}
-            extension={mess.file.extension}
+            interactEmoji={interactEmoji}
+            removeMyEmoji={removeMyEmoji}
+            {...mess}
             isMe={mess.sender.id === meId}
-            sender={mess.sender}
-            createdAt={mess.createdAt}
           />
         );
       }
+    } else if (mess.messageType === "imageGroup") {
+        return (
+          <ImageGroupMessage
+            images={mess.imagesGroup}
+            interactEmoji={interactEmoji}
+            removeMyEmoji={removeMyEmoji}
+            {...mess}
+            isMe={mess.sender.id === meId}
+          />
+        );
     } else if (mess.messageType === "video") {
       return (
         <VideoMessage
-          key={mess.id || index}
-          name={mess.file.filename}
-          size={mess.file.size}
-          path={mess.file.path}
-          extension={mess.file.extension}
+          interactEmoji={interactEmoji}
+          removeMyEmoji={removeMyEmoji}
+          {...mess}
           isMe={mess.sender.id === meId}
-          sender={mess.sender}
-          createdAt={mess.createdAt}
         />
       );
     } else {
@@ -65,8 +66,7 @@ const RenderMessage = memo(
         />
       );
     }
-  },
-);
+});
 
 const RenderChatInput = memo(
   ({
@@ -74,11 +74,13 @@ const RenderChatInput = memo(
     channelId,
     sendMessage,
     uploadFile,
+    uploadImageGroup,
   }: {
     channel: any;
     channelId: string | undefined;
     sendMessage: any;
     uploadFile: any;
+    uploadImageGroup: any;
   }) => {
     return (
       <Box
@@ -97,6 +99,7 @@ const RenderChatInput = memo(
           channelId={channelId}
           sendMessage={sendMessage}
           uploadFile={uploadFile}
+          uploadImageGroup={uploadImageGroup}
         />
       </Box>
     );
@@ -110,6 +113,7 @@ function MainChat({
   me,
   channelId,
   uploadFile,
+  uploadImageGroup,
 }: {
   channel: any;
   messages: any;
@@ -117,10 +121,10 @@ function MainChat({
   me: any;
   channelId: string | undefined;
   uploadFile: (channelId: string, file: File) => void;
+  uploadImageGroup: (channelId: string, file: File[]) => void;
 }) {
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
   const meId = me.id;
-
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
       window.requestAnimationFrame(() => {
@@ -184,12 +188,7 @@ function MainChat({
           >
             {messages && Array.isArray(messages) && messages.length > 0 ? (
               messages.map((mess: any, index: number) => (
-                <RenderMessage
-                  key={mess.id || index}
-                  mess={mess}
-                  index={index}
-                  meId={meId}
-                />
+                <RenderMessage key={index} mess={mess} meId={meId} />
               ))
             ) : (
               <Box sx={{ textAlign: "center", color: "grey.500", mt: 3 }}>
@@ -205,6 +204,7 @@ function MainChat({
         channelId={channelId}
         sendMessage={sendMessage}
         uploadFile={uploadFile}
+        uploadImageGroup={uploadImageGroup}
       />
     </Box>
   );

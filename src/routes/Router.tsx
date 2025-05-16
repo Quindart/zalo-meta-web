@@ -1,6 +1,6 @@
 import App from "@/App";
 import AuthLayout from "@/components/Shared/Layout/AuthLayout";
-import AuthLayoutResetPassword from "@/components/Shared/Layout/AuthLayoutResetPassWord"
+import AuthLayoutResetPassword from "@/components/Shared/Layout/AuthLayoutResetPassWord";
 import Layout from "@/components/Shared/Layout/Layout";
 import LoginTemplate from "@/pages/auth/Login";
 import LoginQRTemplate from "@/pages/auth/QR";
@@ -14,9 +14,10 @@ import PCLandingTemplate from "@/pages/pc";
 import { createBrowserRouter } from "react-router-dom";
 import ResetPasswordTemplate from "@/pages/auth/ResetPassword";
 import ComponentPage from "@/pages/ComponentPage";
-import { ChatProvider, useChatContext } from "@/Context/ChatContextType";
+import { ChatProvider } from "@/Context/ChatContextType";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
+import CallVideoTemplate from "@/pages/CallVideo";
 
 const ChatWrapper = () => {
   const userStore = useSelector((state: RootState) => state.userSlice);
@@ -41,10 +42,11 @@ const ChatDetailWrapper = () => {
 const RightSideBarWrapper = () => {
   const userStore = useSelector((state: RootState) => state.userSlice);
   const { me } = userStore;
-  const { channel, leaveRoom } = useChatContext();
+  // const { channel, leaveRoom, dissolveGroup, deleteAllMessages } = useChatContext();
   return (
     <ChatProvider userId={me?.id}>
-      <RightSideBar channel={channel} leaveRoom={leaveRoom} me={me} />
+      {/* <RightSideBar channel={channel} leaveRoom={leaveRoom} me={me} dissolveGroup={dissolveGroup} deleteAllMessages={deleteAllMessages} /> */}
+      <RightSideBar />
     </ChatProvider>
   );
 };
@@ -53,6 +55,10 @@ const router = createBrowserRouter([
   {
     Component: App,
     children: [
+      {
+        path: "videos",
+        Component: CallVideoTemplate,
+      },
       {
         path: "/",
         Component: Layout,
@@ -89,6 +95,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+
   {
     Component: AuthLayout,
     children: [

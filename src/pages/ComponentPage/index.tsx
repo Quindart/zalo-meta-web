@@ -1,4 +1,3 @@
-import FileCard from "@/components/FileCard";
 import FriendRequestCard from "@/components/FriendRequestCard";
 import SentRequestCard from "@/components/SendRequestCard";
 import { Box, Typography } from "@mui/material";
@@ -8,15 +7,7 @@ function ComponentPage() {
       <Typography variant="body1" color="initial">
         File
       </Typography>
-      <Box display={"flex"} flexDirection={"column"} gap={2}>
-        <FileCard
-          name="Lê Minh Quang - Báo cáo thực tập doan...nal"
-          size="10.45 MB"
-          extension="docx"
-        />
-        <FileCard name="Báo cáo tài chính" size="1.2 MB" extension="pdf" />
-        <FileCard name="Thống kê bảng lương" size="562 KB" extension="xlsx" />
-      </Box>
+      <Box display={"flex"} flexDirection={"column"} gap={2}></Box>
 
       <Typography variant="body1" mt={2} color="initial">
         {" "}

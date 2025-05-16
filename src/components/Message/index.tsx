@@ -1,7 +1,7 @@
 import { getHourAndMinute } from "@/utils/formatTime";
 import { MoreHoriz } from "@mui/icons-material";
 import { Avatar, Box, IconButton, Popover, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ReplyIcon from "@mui/icons-material/Reply";
 import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
@@ -33,14 +33,29 @@ type MessPropsType = {
   fileUrl?: string;
   fileName?: string;
   id?: string;
-  interactEmoji: (messageId: string, emoji: string, userId: string, channelId: string) => void;
+  interactEmoji: (
+    messageId: string,
+    emoji: string,
+    userId: string,
+    channelId: string,
+  ) => void;
   removeMyEmoji: (messageId: string, userId: string, channelId: string) => void;
 };
 
 function MessageChat(props: Partial<MessPropsType>) {
   const { deleteMessage, recallMessage } = useChatContext();
   const [openShare, setOpenShare] = useState(false);
-  const { content, sender, timestamp, emojis, isMe = true, id, interactEmoji, removeMyEmoji, channelId } = props;
+  const {
+    content,
+    sender,
+    timestamp,
+    emojis,
+    isMe = true,
+    id,
+    interactEmoji,
+    removeMyEmoji,
+    channelId,
+  } = props;
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -48,14 +63,14 @@ function MessageChat(props: Partial<MessPropsType>) {
     event.stopPropagation(); // Prevent click from bubbling
     setAnchorEl(event.currentTarget);
   };
-  const [emoList, setEmolist] = useState<Record<string, number>>({
-    "❤️": 0,
-    "👍": 0,
-    "😂": 0,
-    "😮": 0,
-    "😢": 0,
-    "😡": 0,
-  });
+  // const [emoList, setEmolist] = useState<Record<string, number>>({
+  //   "❤️": 0,
+  //   "👍": 0,
+  //   "😂": 0,
+  //   "😮": 0,
+  //   "😢": 0,
+  //   "😡": 0,
+  // });
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -64,19 +79,19 @@ function MessageChat(props: Partial<MessPropsType>) {
   const handleEmojiClick = (emoji: string) => {
     console.log("Check channelId", channelId);
 
-    if (interactEmoji) {
-      interactEmoji(id as string, emoji, sender.id, channelId as string);
+    if (interactEmoji && sender?.id && id && channelId) {
+      interactEmoji(id, emoji, sender.id, channelId);
     }
-    setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
+    // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
     handleClose();
   };
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
     const emoji = event.dataTransfer.getData("text/plain");
-    if (emoji && interactEmoji && id) {
-      interactEmoji(id, emoji, sender.id, channelId as string);
-      setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
+    if (emoji && interactEmoji && id && sender?.id && channelId) {
+      interactEmoji(id, emoji, sender.id, channelId);
+      // setEmolist((prev) => ({ ...prev, [emoji]: (prev[emoji] || 0) + 1 }));
     }
   };
 
@@ -143,9 +158,22 @@ function MessageChat(props: Partial<MessPropsType>) {
       >
         {isFile ? (
           <FileCard
-            name={parsedContent.name}
-            size={parsedContent.size}
-            extension={parsedContent.extension}
+            file={{
+              filename: parsedContent.name,
+              size: parsedContent.size,
+              path: parsedContent.path,
+              extension: parsedContent.extension,
+            }}
+            emojis={emojis || []}
+            id={id || ""}
+            content={content || ""}
+            channelId={channelId || ""}
+            status={"sent"}
+            timestamp={timestamp || ""}
+            isMe={isMe}
+            interactEmoji={interactEmoji}
+            removeMyEmoji={removeMyEmoji}
+            sender={sender || { id: "", name: "", avatar: "" }}
           />
         ) : isImage ? (
           <Box
@@ -263,7 +291,7 @@ function MessageChat(props: Partial<MessPropsType>) {
         {emojis && emojis.length > 0 && (
           <Box
             position="absolute"
-            px={'2px'}
+            px={"2px"}
             sx={{
               left: isMe ? "" : -40,
               right: isMe ? 30 : "auto",
@@ -277,13 +305,19 @@ function MessageChat(props: Partial<MessPropsType>) {
             alignItems="center"
             boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
           >
-            {emojis.filter((e, index) => index <= 2).map((e, index) => (
-              <Typography key={index} fontSize={12} color="initial">
-                {e.emoji}
-              </Typography>
-            ))}
+            {emojis
+              .filter((index) => index <= 2)
+              .map((e, index) => (
+                <Typography key={index} fontSize={12} color="initial">
+                  {e.emoji}
+                </Typography>
+              ))}
             {emojis.length > 3 && (
-              <Typography sx={{ display: 'flex' }} fontSize={12} color="grey.600">
+              <Typography
+                sx={{ display: "flex" }}
+                fontSize={12}
+                color="grey.600"
+              >
                 <span>+</span>
                 {emojis.length - 3}
               </Typography>
@@ -335,6 +369,7 @@ function MessageChat(props: Partial<MessPropsType>) {
           open={openShare}
           onClose={() => setOpenShare(false)}
           messageToShare={content ?? ""}
+          messageId={id || ""}
         />
       </Box>
     </Box>

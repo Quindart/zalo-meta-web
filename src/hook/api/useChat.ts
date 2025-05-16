@@ -1,5 +1,8 @@
 import SocketService from "@/services/socket/SocketService";
+import { AssignRoleParams } from "@/types";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
+import useApp from "../ui/useApp";
 
 const SOCKET_EVENTS = {
   MESSAGE: {
@@ -16,6 +19,7 @@ const SOCKET_EVENTS = {
     DELETE_RESPONSE: "message:deleteResponse",
     DELETE_HISTORY: "message:deleteHistory",
     DELETE_HISTORY_RESPONSE: "message:deleteHistoryResponse",
+    FORWARD: "message:forward"
   },
   CHANNEL: {
     FIND_BY_ID: "channel:findById",
@@ -32,11 +36,19 @@ const SOCKET_EVENTS = {
     LEAVE_ROOM_RESPONSE: "leaveRoomResponse",
     DISSOLVE_GROUP: "channel:dissolveGroup",
     DISSOLVE_GROUP_RESPONSE: "channel:dissolveGroupResponse",
-
+    DISSOLVE_GROUP_RESPONSE_MEMBER: "channel:dissolveGroupResponseMember",
+    ADD_MEMBER: "channel:addMember",
+    ADD_MEMBER_RESPONSE: "channel:addMemberResponse",
+    ASSIGN_ROLE: "channel:assignRole",
+    ROLE_UPDATED: "channel:roleUpdated",
+    REMOVE_MEMBER: 'channel:removeMember',
+    REMOVE_MEMBER_RESPONSE: 'channel:removeMemberResponse',
   },
   FILE: {
     UPLOAD: "file:upload",
     UPLOAD_RESPONSE: "file:uploadResponse",
+    UPLOAD_GROUP: "file:uploadGroup",
+    UPLOAD_GROUP_RESPONSE: "file:uploadGroupResponse"
   },
   FRIEND: {
     ADD_FRIEND: "friend:add",
@@ -59,6 +71,8 @@ const SOCKET_EVENTS = {
     REMOVE_MY_EMOJI_RESPONSE: "emoji:removeMyEmojiResponse"
   },
 };
+
+
 
 interface ResponseType {
   success: boolean;
@@ -120,31 +134,29 @@ interface ChannelType {
 }
 
 export const useChat = (currentUserId: string) => {
-  const [noMessageToLoad, setNoMessageToLoad] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
   const [channel, setChannel] = useState<any>(null);
   const [listChannel, setListChannel] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { toggleLoading } = useApp()
+
+
   const currentChannelRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const socketService = SocketService.getInstance(currentUserId);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const socket = socketService.getSocket();
     if (!socket.connected) {
       socket.connect();
     }
-    console.log("Socket connected:", socket.connected);
-
     const findOrCreateResponse = (response: ResponseType) => {
       if (response.success) {
-        console.log("Channel received:", response.data);
         setChannel(response.data);
-        setLoading(false);
+        toggleLoading(false);
         currentChannelRef.current = response.data.id;
       } else {
         console.error("Failed to create/find channel:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     };
 
@@ -152,12 +164,12 @@ export const useChat = (currentUserId: string) => {
       if (response.success) {
         setChannel(response.data.channel);
         setMessages(response.data.messages);
-        setLoading(false);
+        toggleLoading(false);
         currentChannelRef.current = response.data.channel.id;
       }
       else {
         console.error("Failed to join room:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
 
@@ -178,20 +190,16 @@ export const useChat = (currentUserId: string) => {
       });
     };
     const receivedMessage = (message: any) => {
-      console.log("Received message:", message);
       const members = message.members;
       const isMember = members.some((member: any) => member.userId === currentUserId);
       if (!isMember) {
-        console.log("Received message not for current user, ignoring:", message);
         return;
       }
       loadChannel(currentUserId);
       updateChannelWithMessage(message);
       if (message.channelId !== currentChannelRef.current) {
-        console.log("Message is for a different channel, ignoring", {
-          messageChannelId: message.channelId,
-          currentChannelId: currentChannelRef.current
-        });
+
+
         return;
       }
       setMessages((prev) => {
@@ -201,14 +209,12 @@ export const useChat = (currentUserId: string) => {
           false;
 
         if (isDuplicate) {
-          console.log("Duplicate message detected, not adding");
           return prev;
         }
 
-        console.log("Adding new message to state for channel:", currentChannelRef.current);
         return [...prev, message];
       });
-      setLoading(false);
+      toggleLoading(false);
     }
     const loadChannelResponse = (response: ResponseType) => {
       if (response.success) {
@@ -218,58 +224,68 @@ export const useChat = (currentUserId: string) => {
         );
 
         setListChannel(uniqueChannels);
-        setLoading(false);
+        toggleLoading(false);
       } else {
         console.error("Failed to load channel:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
     const createGroupResponse = (response: ResponseType) => {
       if (response.success) {
-        console.log("Group created successfully:", response.data);
         setListChannel((prev) => {
           const channelExists = prev.some(
             (channel) => channel.id === response.data.id
           );
 
           if (channelExists) {
-            console.log("Channel already exists in list, not adding duplicate:", response.data.id);
             return prev;
           }
-
-          console.log("Adding new channel to list:", response.data.id);
           return [...prev, response.data];
         });
-        setLoading(false);
+        toggleLoading(false);
       } else {
         console.error("Failed to create group:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
     const leaveRoomResponse = (response: ResponseType) => {
       if (response.success) {
         setChannel(null);
         setMessages([]);
-        setLoading(false);
-        console.log("Left room successfully:", response.data);
+        toggleLoading(false);
         setListChannel((prev) => prev.filter(channel => channel.id !== response.data.id));
       }
       else {
         console.error("Failed to leave room:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
     const dissolveGroupResponse = (response: ResponseType) => {
       if (response.success) {
         setChannel(null);
         setMessages([]);
-        setLoading(false);
-        console.log("Group dissolved successfully:", response.data);
+        toggleLoading(false);
         setListChannel((prev) => prev.filter(channel => channel.id !== response.data.id));
+        navigate('/chats');
       }
       else {
         console.error("Failed to dissolve group:", response.message);
-        setLoading(false);
+        toggleLoading(false);
+      }
+    }
+    const dissolveGroupResponseMember = (response: ResponseType) => {
+      if (response.success) {
+        if (response.data.channelId === currentChannelRef.current) {
+          setChannel(null);
+          setMessages([]);
+          navigate('/chats');
+        } else {
+          updateChannelWithMessage(response.data.message);
+        }
+      }
+      else {
+        console.error("Failed to dissolve group:", response.message);
+        toggleLoading(false);
       }
     }
     const uploadFileResponse = (response: ResponseType) => {
@@ -282,7 +298,6 @@ export const useChat = (currentUserId: string) => {
             false;
 
           if (isDuplicate) {
-            console.log("Duplicate file message detected, not adding");
             return prev;
           }
 
@@ -293,7 +308,7 @@ export const useChat = (currentUserId: string) => {
       } else {
         console.error("Failed to upload file:", response.message);
       }
-      setLoading(false);
+      toggleLoading(false);
     };
 
     const recallMessageResponse = (response: ResponseType) => {
@@ -302,7 +317,7 @@ export const useChat = (currentUserId: string) => {
         setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
 
         loadChannel(currentUserId);
-        setLoading(false);
+        toggleLoading(false);
 
       } else {
         console.error("Failed to recall message:", response.message);
@@ -314,13 +329,13 @@ export const useChat = (currentUserId: string) => {
         const messageId = response.data.messageId;
         setMessages((prev) =>
           prev.map((msg) =>
-            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true } : msg
+            msg.id === messageId ? { ...msg, content: "Tin nhắn đã được thu hồi", isRecalled: true, messageType: "text" } : msg
           )
         );
-        setLoading(false);
+        toggleLoading(false);
       } else {
         console.error("Failed to delete message:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
 
@@ -330,19 +345,17 @@ export const useChat = (currentUserId: string) => {
         //remove channel from listChannel
         setListChannel((prev) => prev.filter(channel => channel.id !== channelId));
         setMessages([]);
-        setLoading(false);
+        toggleLoading(false);
       }
       else {
         console.error("Failed to delete all messages:", response.message);
-        setLoading(false);
+        toggleLoading(false);
       }
     }
 
-
-
     //emoji
     const interactEmojiResponse = (response: ResponseType) => {
-      setLoading(false);
+      toggleLoading(false);
       if (response.success && response.data) {
         const updatedMessage: MessageType = response.data;
         setMessages(prev => prev.map(msg =>
@@ -355,13 +368,13 @@ export const useChat = (currentUserId: string) => {
       }
     };
     const removeMyEmojiResponse = (response: ResponseType) => {
-      setLoading(false);
+      toggleLoading(false);
       if (response.success) {
         setMessages(prev => prev.map(msg => {
           if (msg.id === response.data?._id || msg._id === response.data?._id) {
             return {
               ...msg,
-              emojis: msg.emojis?.filter(emoji => emoji.userId !== currentUserId) || []
+              emojis: msg.emojis?.filter((emoji: any) => emoji.userId !== currentUserId) || []
             };
           }
           return msg;
@@ -370,7 +383,107 @@ export const useChat = (currentUserId: string) => {
         setError(response.message || "Không thể xóa emoji");
       }
     };
+    const forwardMessageHandler = (message: MessageType) => {
 
+
+      // Check if the channel exists in listChannel
+      const existingChannel = listChannel.find((channel) => channel.id === message.channelId);
+
+      if (!existingChannel) {
+        // Channel does not exist, so we need to add it to the listChannel
+        // You can create a new channel object here based on the message's data
+        const newChannel: ChannelType = {
+          id: message.channelId,
+          name: message.channelId,  // You can use message.channelId or some other logic to set the name
+          type: "direct",  // Assuming it's a direct channel for now, adjust as needed
+          members: [],  // Populate members if available in the message
+          lastMessage: message,
+          message: message.content,
+          time: message.timestamp,
+          isRead: false,
+          avatar: "",  // You can use avatar info if available
+          isDeleted: false,
+        };
+
+        // Add the new channel to the list
+        setListChannel((prev) => [...prev, newChannel]);
+
+        // Load the messages for this new channel (if needed)
+        loadChannel(currentUserId);
+      }
+
+      // Update the current channel with the new forwarded message
+      updateChannelWithMessage(message);
+    };
+
+    const addMemberResponse = (response: ResponseType) => {
+      toggleLoading(false);
+      if (response.success) {
+        // response.data chính là channel đã format (có trường members mới)
+        setChannel(response.data);           // Cập nhật channel hiện tại nếu đang view chi tiết
+        setListChannel(prev => {
+          // Cập nhật listChannel nếu cần: replace channel cũ bằng channel mới
+          return prev.map(ch =>
+            ch.id === response.data.id ? response.data : ch
+          );
+        });
+      } else {
+        console.error("Thêm thành viên thất bại:", response.message);
+      }
+    };
+
+    const uploadImageGroupResponse = (response: ResponseType) => {
+      if (response.success) {
+
+        const newMessage = response.data.message;
+        setMessages((prev) => {
+          const messageId = newMessage.id;
+          const isDuplicate = messageId ?
+            prev.some(msg => (msg.id === messageId)) :
+            false;
+
+          if (isDuplicate) {
+
+            return prev;
+          }
+
+          return [...prev, newMessage];
+        });
+
+        updateChannelWithMessage(response.data.message);
+      } else {
+        console.error("Failed to upload file:", response.message);
+      }
+      toggleLoading(false);
+    };
+
+    const assignRoleUpdatedResponse = (response: ResponseType) => {
+      if (response.success) {
+        setChannel(response.data);
+        setListChannel(prev => {
+          return prev.map(ch =>
+            ch.id === response.data.id ? response.data : ch
+          );
+        });
+      } else {
+        console.error("Phân quyền thành viên thất bại:", response.message);
+      }
+    }
+    const removeMemberResponse = (response: ResponseType) => {
+      toggleLoading(false);
+
+      if (response.success) {
+        setChannel(response.data);
+
+        setListChannel(prev => {
+          return prev.map(ch =>
+            ch.id === response.data.id ? response.data : ch
+          );
+        });
+      } else {
+        console.error(response.message);
+      }
+    }
     socket.on(SOCKET_EVENTS.CHANNEL.JOIN_ROOM_RESPONSE, joinRoomResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.RECEIVED, receivedMessage);
@@ -379,12 +492,17 @@ export const useChat = (currentUserId: string) => {
     socket.on(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
     socket.on(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
     socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE_MEMBER, dissolveGroupResponseMember);
     socket.on(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
     socket.on(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
     socket.on(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI_RESPONSE, removeMyEmojiResponse);
     socket.on(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
-
+    socket.on(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
+    socket.on(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
+    socket.on(SOCKET_EVENTS.FILE.UPLOAD_GROUP_RESPONSE, uploadImageGroupResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.ROLE_UPDATED, assignRoleUpdatedResponse);
+    socket.on(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER_RESPONSE, removeMemberResponse);
 
     return () => {
       socket.off(SOCKET_EVENTS.CHANNEL.FIND_ORCREATE_RESPONSE, findOrCreateResponse);
@@ -395,16 +513,23 @@ export const useChat = (currentUserId: string) => {
       socket.off(SOCKET_EVENTS.CHANNEL.LEAVE_ROOM_RESPONSE, leaveRoomResponse);
       socket.off(SOCKET_EVENTS.FILE.UPLOAD_RESPONSE, uploadFileResponse);
       socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE, dissolveGroupResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.DISSOLVE_GROUP_RESPONSE_MEMBER, dissolveGroupResponseMember);
       socket.off(SOCKET_EVENTS.MESSAGE.RECALL_RESPONSE, recallMessageResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_RESPONSE, deleteMessageResponse);
       socket.off(SOCKET_EVENTS.EMOJI.INTERACT_EMOJI_RESPONSE, interactEmojiResponse);
       socket.off(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI_RESPONSE, removeMyEmojiResponse);
       socket.off(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY_RESPONSE, deleteAllMessagesResponse);
+      socket.off(SOCKET_EVENTS.MESSAGE.FORWARD, forwardMessageHandler);
+      socket.off(SOCKET_EVENTS.CHANNEL.ADD_MEMBER_RESPONSE, addMemberResponse);
+      socket.off(SOCKET_EVENTS.FILE.UPLOAD_GROUP_RESPONSE, uploadImageGroupResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.ROLE_UPDATED, assignRoleUpdatedResponse);
+      socket.off(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER_RESPONSE, removeMemberResponse);
+
     };
   }, []);
 
   const findOrCreateChat = useCallback((receiverId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     setChannel(null);
     setMessages([]);
     const socket = socketService.getSocket();
@@ -413,7 +538,7 @@ export const useChat = (currentUserId: string) => {
   }, []);
 
   const joinRoom = useCallback((channelId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     setChannel(null);
     setMessages([]);
     const socket = socketService.getSocket();
@@ -432,19 +557,19 @@ export const useChat = (currentUserId: string) => {
       status: "sent"
     };
     currentChannelRef.current = channelId;
-    setLoading(true);
+    toggleLoading(true);
     socket.emit(SOCKET_EVENTS.MESSAGE.SEND, messageData);
   }, []);
 
   const loadChannel = useCallback((userId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
     const params = { currentUserId: userId };
     socket.emit(SOCKET_EVENTS.CHANNEL.LOAD_CHANNEL, params);
   }, []);
 
   const createGroup = useCallback((name: string, members: string[]) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
     const params = { name, currentUserId, members: members };
     socket.emit(SOCKET_EVENTS.CHANNEL.CREATE, params);
@@ -461,9 +586,8 @@ export const useChat = (currentUserId: string) => {
 
   const uploadFile = useCallback((channelId: string, file: File) => {
     const socket = socketService.getSocket();
-    setLoading(true);
+    toggleLoading(true);
     const reader = new FileReader();
-    console.log("Uploading file:", file);
     reader.onload = () => {
       const fileData = reader.result as ArrayBuffer;
       const fileMessage = {
@@ -474,7 +598,6 @@ export const useChat = (currentUserId: string) => {
         timestamp: new Date().toISOString(),
         status: "sent",
       };
-      console.log("File data read:", fileData);
       socket.emit(SOCKET_EVENTS.FILE.UPLOAD, fileMessage);
     };
     reader.readAsArrayBuffer(file);
@@ -482,7 +605,7 @@ export const useChat = (currentUserId: string) => {
 
 
   const dissolveGroup = useCallback((channelId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     const socket = socketService.getSocket();
     const params = {
       channelId,
@@ -512,7 +635,7 @@ export const useChat = (currentUserId: string) => {
   }, [])
   //emoji
   const interactEmoji = useCallback((messageId: string, emoji: string, userId: string, channelId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     setError(null);
     const socket = socketService.getSocket();
     const params = { messageId, emoji, userId, channelId };
@@ -520,12 +643,13 @@ export const useChat = (currentUserId: string) => {
   }, [])
 
   const removeMyEmoji = useCallback((messageId: string, userId: string, channelId: string) => {
-    setLoading(true);
+    toggleLoading(true);
     setError(null);
     const socket = socketService.getSocket();
     const params = { messageId, userId, channelId };
     socket.emit(SOCKET_EVENTS.EMOJI.REMOVE_MY_EMOJI, params);
   }, [])
+
 
   const deleteAllMessages = useCallback((channelId: string) => {
     const socket = socketService.getSocket();
@@ -536,6 +660,72 @@ export const useChat = (currentUserId: string) => {
     socket.emit(SOCKET_EVENTS.MESSAGE.DELETE_HISTORY, params);
   }, [])
 
+  const forwardMessage = useCallback((messageId: string, channelId: string) => {
+    const socket = socketService.getSocket();
+    // Gửi sự kiện forwardMessage đến server
+    const params = {
+      senderId: currentUserId,
+      messageId, // ID của tin nhắn cần chuyển tiếp
+      channelId, // ID của phòng đích
+    };
+
+    toggleLoading(true);
+    socket.emit(SOCKET_EVENTS.MESSAGE.FORWARD, params);
+
+  }, [currentUserId]);
+
+  const addMember = useCallback((channelId: string, userId: string) => {
+    toggleLoading(true);
+    const socket = socketService.getSocket();
+    socket.emit(SOCKET_EVENTS.CHANNEL.ADD_MEMBER, { channelId, userId });
+  }, []);
+
+  const uploadImageGroup = useCallback((channelId: string, files: File[]) => {
+    toggleLoading(true);
+    const socket = socketService.getSocket();
+
+    // Create promises for all file reads
+    const fileReadPromises = files.map(file => {
+      return new Promise<{ fileName: string, fileData: ArrayBuffer }>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({
+            fileName: file.name,
+            fileData: reader.result as ArrayBuffer
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    });
+
+    // Once all files are read, send the group message
+    Promise.all(fileReadPromises).then(filesData => {
+      const groupMessage = {
+        channelId,
+        senderId: currentUserId,
+        files: filesData,
+        timestamp: new Date().toISOString(),
+        status: "sent"
+      };
+
+      socket.emit(SOCKET_EVENTS.FILE.UPLOAD_GROUP, groupMessage);
+    });
+  }, []);
+
+  const removeMember = useCallback((channelId: string, senderId: string, userId: string) => {
+    toggleLoading(true);
+    const socket = socketService.getSocket();
+    socket.emit(SOCKET_EVENTS.CHANNEL.REMOVE_MEMBER, { channelId, senderId, userId });
+    toggleLoading(false);
+    navigate(`/chats/${channelId}`)
+  }, []);
+
+
+
+  const assignRole = useCallback(({ channelId, userId, targetUserId, newRole }: AssignRoleParams) => {
+    const socket = socketService.getSocket();
+    socket.emit(SOCKET_EVENTS.CHANNEL.ASSIGN_ROLE, { channelId, userId, targetUserId, newRole });
+  }, [])
   return {
     findOrCreateChat,
     joinRoom,
@@ -548,13 +738,16 @@ export const useChat = (currentUserId: string) => {
     listChannel,
     dissolveGroup,
     deleteAllMessages,
+    uploadImageGroup,
     channel,
     messages,
-    loading,
     uploadFile,
     interactEmoji,
     removeMyEmoji,
     error,
-    noMessageToLoad
+    forwardMessage,
+    addMember,
+    assignRole,
+    removeMember
   };
 };
