@@ -33,9 +33,14 @@ type Contact = {
   phone: string;
 };
 
-const AddMember = ({ open, onClose }: { 
-  open: boolean; 
+const AddMember = ({
+  open,
+  onClose,
+  users,
+}: {
+  open: boolean;
   onClose: () => void;
+  users: Contact[];
 }) => {
   const [groupName, setGroupName] = useState("");
   const [search, setSearch] = useState("");
@@ -46,13 +51,15 @@ const AddMember = ({ open, onClose }: {
   const { me } = userStore;
   const { listFriends, getListFriends } = useFriend(me.id);
   const { channel, addMember } = useChatContext();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     getListFriends();
   }, []);
 
-  const mockContacts = listFriends.map((friend) => ({
+  const mockContacts = listFriends.filter(
+    (friend) => !users.some((user) => user.id === friend.id)
+  ).map((friend) => ({
     id: friend.id,
     name: friend.name,
     avatar: friend.avatar,
@@ -68,14 +75,14 @@ const AddMember = ({ open, onClose }: {
         setSelectedIds((prev) => [...prev, userid]);
       }
       // Sau khi tất cả thành viên đã được thêm, đóng dialog
-      
+
       handleConfirmClose();
       navigate(`/chats/0000`)
     } catch (error) {
       console.error("Error adding members:", error);
     }
   };
-  
+
 
   // Hàm tìm kiếm theo tên
   const searchByName = (query: string, contacts: Contact[]) => {
@@ -199,7 +206,7 @@ const AddMember = ({ open, onClose }: {
                   </IconButton>
                 </InputAdornment>
               ),
-              sx: { height: 42,  borderRadius: 6 }
+              sx: { height: 42, borderRadius: 6 }
             }}
             sx={{ mb: 2, borderRadius: 4 }}
           />

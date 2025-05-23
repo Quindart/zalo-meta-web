@@ -269,7 +269,7 @@ const GroupMembersPage: React.FC<GroupMembersPageProps> = ({ onBack }) => {
                     })}
                 </List>
             </Box>
-            <AddMember open={openAddMember} onClose={() => setOpenAddMember(false)} />
+            <AddMember open={openAddMember} onClose={() => setOpenAddMember(false)}  users={users} />
         </Drawer>
     );
 };
