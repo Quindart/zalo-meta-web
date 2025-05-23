@@ -358,7 +358,7 @@ const CreateGroupDialog = ({ open, onClose, createGroup }: {
         <Button
           onClick={handleCreateGroup}
           variant="contained"
-          disabled={!groupName.trim() || selectedIds.length === 0}
+          disabled={!groupName.trim() || selectedIds.length < 2}
           sx={{
             background: "#005AE0",
             color: "#fff",
