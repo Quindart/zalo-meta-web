@@ -71,7 +71,7 @@ function useAuth() {
             const backendUrl = `${process.env.VITE_API_URL}`
             console.log("Check backendUrl:", backendUrl);
 
-            window.location.href = `http://localhost:5000/api/v1/auth/google-login`;
+            window.location.href = `https://zalo-api.quindart.shop/api/v1/auth/google-login`;
         } catch (error) {
             console.error("Error initiating Google login:", error);
             throw error;
