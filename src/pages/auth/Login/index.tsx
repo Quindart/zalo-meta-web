@@ -14,13 +14,14 @@ import { APP_ROUTES } from "@/constants";
 import { useFormik } from "formik";
 import useAuth from "@/hook/api/useAuth";
 import { loginValidationSchema } from "../context";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 function LoginTemplate() {
-  const { handleLogin, handleLoginGoogle } = useAuth();
+  const { handleLogin, handleLoginGoogle, handleGoogleCallback } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [isProcessingGoogleAuth, setIsProcessingGoogleAuth] = useState(false);
 
   const navigate = useNavigate();
 
@@ -34,9 +35,61 @@ function LoginTemplate() {
       await handleLogin(values.phone, values.password);
     },
   });
+
   const handResetPassword = () => {
     navigate(APP_ROUTES.FORGOT_PASSWORD);
   };
+
+  // Xử lý Google OAuth callback
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    // Kiểm tra xem có parameters từ Google callback không
+    const hasGoogleParams = searchParams.has('success') ||
+      searchParams.has('error') ||
+      searchParams.has('accessToken');
+
+    if (hasGoogleParams) {
+      setIsProcessingGoogleAuth(true);
+
+      // Xử lý callback
+      handleGoogleCallback(searchParams);
+
+      // Dọn dẹp URL sau khi xử lý
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+
+      // Reset processing state sau một khoảng thời gian
+      setTimeout(() => {
+        setIsProcessingGoogleAuth(false);
+      }, 3000);
+    }
+  }, [handleGoogleCallback]);
+
+  // Nếu đang xử lý Google auth, hiển thị loading
+  if (isProcessingGoogleAuth) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '400px',
+          gap: 2
+        }}
+      >
+        <CircularProgress size={60} />
+        <Typography variant="h6" color="textSecondary">
+          Đang xử lý đăng nhập Google...
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          Vui lòng đợi trong giây lát
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -133,6 +186,7 @@ function LoginTemplate() {
               </Typography>
             )}
           </FormControl>
+
           <Typography
             textAlign="right"
             fontSize={14}
@@ -144,6 +198,7 @@ function LoginTemplate() {
           >
             Quên mật khẩu?
           </Typography>
+
           <Button
             type="submit"
             size="large"
@@ -157,6 +212,7 @@ function LoginTemplate() {
               "Đăng nhập với mật khẩu"
             )}
           </Button>
+
           <Typography
             sx={{ my: 1 }}
             variant="body1"
@@ -169,16 +225,24 @@ function LoginTemplate() {
           <Button
             onClick={handleLoginGoogle}
             size="large"
-            sx={{ fontSize: 14, color: "grey.800", background: "white" }}
+            sx={{
+              fontSize: 14,
+              color: "grey.800",
+              background: "white",
+              border: "1px solid #ddd",
+              "&:hover": {
+                background: "#f5f5f5"
+              }
+            }}
             variant="contained"
             disabled={formik.isSubmitting}
           >
             <img
               width={20}
               src="/assets/images/google-icon-logo-svgrepo-com.svg"
-              alt=""
-              style={{ marginRight: 4 }}
-            />{" "}
+              alt="Google"
+              style={{ marginRight: 8 }}
+            />
             Đăng nhập với Google
           </Button>
 
@@ -202,7 +266,7 @@ function LoginTemplate() {
               }}
               src="/assets/images/qr-code-scan-svgrepo-com.svg"
               width={20}
-              alt=""
+              alt="QR Code"
             />
             Đăng nhập qua mã QR
           </Typography>
