@@ -478,9 +478,7 @@ function FileCard({
                   </Typography>
                 ))}
               </Box>
-            </Popover>
-
-            {emojis && emojis.length > 0 && (
+            </Popover>            {emojis && emojis.length > 0 && (
               <Box
                 position="absolute"
                 px={"2px"}
@@ -496,14 +494,13 @@ function FileCard({
                 gap={0.5}
                 alignItems="center"
                 boxShadow="1px 1px 1px 1px rgb(220, 224, 227)"
-              >
-                {emojis
-                  .filter((index) => index <= 2)
-                  .map((e, index) => (
-                    <Typography key={index} fontSize={12} color="initial">
-                      {e.emoji}
-                    </Typography>
-                  ))}
+              >                {emojis
+                .slice(0, 3)
+                .map((e, index) => (
+                  <Typography key={index} fontSize={12} color="initial">
+                    {e.emoji}
+                  </Typography>
+                ))}
                 {emojis.length > 3 && (
                   <Typography
                     sx={{ display: "flex" }}
