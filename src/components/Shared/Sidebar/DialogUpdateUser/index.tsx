@@ -19,6 +19,8 @@ import EditProfileDialog from "./EditProfileDialog"
 import axiosConfig from "@/services/axiosConfig";
 import PasswordIcon from '@mui/icons-material/Password';
 import ChangePasswordDialog from "./ChangePasswordDialog";
+import {aiService } from "@/ai/model";
+import { useSnackbar } from "notistack";
 interface ProfileDialogProps {
   open: boolean;
   onClose: () => void;
@@ -29,6 +31,7 @@ export default function ProfileDialog({ open, onClose }: ProfileDialogProps) {
   const [loading, setLoading] = useState(false)
   const [openEdit, setOpenEdit] = useState(false);
   const [openChangePWS, setChangePWS] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
   function formatVietnameseDate(dateString: string): string {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
@@ -43,6 +46,11 @@ export default function ProfileDialog({ open, onClose }: ProfileDialogProps) {
   const onLoadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const checkImage=await aiService.checkImage(file)
+    if(!checkImage.isValid) {
+       enqueueSnackbar({ variant: 'error', message: checkImage.reason })
+      return;
+    }
     const formData = new FormData();
     formData.append("avatar", file);
     try {
